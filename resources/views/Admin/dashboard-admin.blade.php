@@ -9,11 +9,6 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
-    <style>
-        .link{
-            color:blue;
-        }
-    </style>
 </head>
 <body class="h-full bg-stone-100">
     <div class="flex justify-between bg-white items-center px-2 py-2 border-b-2 border-b-stone-200">
@@ -49,14 +44,28 @@
         </div>
     </nav>
     <main class="p-2">
-        <div class="flex justify-end gap-2 px-2">
-            <span class="text-xl rounded">Range</span>
-            <button class="text-xl bg-white px-1 rounded shadow-sm hover:bg-gray-400">Year</button>
-            <button class="text-xl bg-white px-1 rounded shadow-sm hover:bg-gray-400">Month</button>
-            <select class="text-xl bg-white rounded shadow-sm hover:bg-gray-400" id="range" name="range">
+        <div class="flex border-sm text-medium justify-end gap-2 px-2">
+            <span class="text-xl rounded">Range:</span>
+            <select class="text-xl bg-white border border-black rounded shadow-md hover:bg-gray-400" id="year" name="year">
+            <option value="all">Year</option>
             <option value="2026">2026</option>
             <option value="2025">2025</option>
             <option value="2024">2024</option>
+            </select>
+            <select class="text-xl bg-white border border-black rounded shadow-md hover:bg-gray-400" id="month" name="month">
+            <option value="all">Month</option>
+            <option value="2026">Jan</option>
+            <option value="2025">Feb</option>
+            <option value="2024">Mar</option>
+            <option value="2026">Apr</option>
+            <option value="2025">May</option>
+            <option value="2024">Jun</option>
+            <option value="2026">Jul</option>
+            <option value="2025">Aug</option>
+            <option value="2024">Sep</option>
+            <option value="2026">Oct</option>
+            <option value="2025">Nov</option>
+            <option value="2024">Des</option>
             </select>
         </div>
         <div class="flex flex-row gap-4 items-center bg-stone-100 p-2 rounded-lg">
@@ -104,99 +113,63 @@
             </h1>
             <p class="text-xs">10 dokumen terakhir politeknik negeri batam</p>
         </div>
-        <div class="bg-white h-12 flex justify-end items-center border border-stone-200 shadow-md mx-2">
-            <form class="px-1">
-                <input type="text" class="w-32 border border-gray-300 rounded-md px-2 focus:ring-1" placeholder="Search">
-            </form>
-        </div>
-        <div class="px-2">
-            <table class="table-auto w-full bg-white shadow-md">
-                <thead>
-                    <tr class="h-10 text-left border border-stone-200">
-                        <th class="px-2">No</th>
-                        <th>Nama Dokumen</th>
-                        <th>Tanggal</th>
-                        <th>Dokumen</th>
-                        <th>Dibuat pada</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr class="h-10 border border-stone-200">
-                        <td class="px-2">1</td>
-                        <td>Surat Keputusan 1</td>
-                        <td>2024-01-01</td>
-                        <td class="link">Download</td>
-                        <td>2026-03-08</td>
-                    </tr>
-                    <tr class="h-10 border border-stone-200">
-                        <td class="px-2">2</td>
-                        <td>Surat Tugas 1</td>
-                        <td>2024-02-01</td>
-                        <td class="link">Download</td>
-                        <td>2026-03-08</td>
-                    </tr>
-                    <tr class="h-10 border border-stone-200">
-                        <td class="px-2">3</td>
-                        <td>Surat Keputusan 2</td>
-                        <td>2024-03-01</td>
-                        <td class="link">Download</td>
-                        <td>2026-03-08</td>
-                    </tr>
-                    <tr class="h-10 border border-stone-200">
-                        <td class="px-2">4</td>
-                        <td>Surat Tugas 2</td>
-                        <td>2024-04-01</td>
-                        <td class="link">Download</td>
-                        <td>2026-03-08</td>
-                    </tr>
-                    <tr class="h-10 border border-stone-200">
-                        <td class="px-2">5</td>
-                        <td>Surat Keputusan 3</td>
-                        <td>2024-05-01</td>
-                        <td class="link">Download</td>
-                        <td>2026-03-08</td>
-                    </tr>
-                    <tr class="h-10 border border-stone-200">
-                        <td class="px-2">6</td>
-                        <td>Surat Tugas 3</td>
-                        <td>2024-06-01</td>
-                        <td class="link">Download</td>
-                        <td>2026-03-08</td>
-                    </tr>
-                    <tr class="h-10 border border-stone-200">
-                        <td class="px-2">7</td>
-                        <td>Surat Keputusan 4</td>
-                        <td>2024-07-01</td>
-                        <td class="link">Download</td>
-                        <td>2026-03-08</td>
-                    </tr>
-                    <tr class="h-10 border border-stone-200">
-                        <td class="px-2">8</td>
-                        <td>Surat Tugas 4</td>
-                        <td>2024-08-01</td>
-                        <td class="link">Download</td>
-                        <td>2026-03-08</td>
-                    </tr>
-                    <tr class="h-10 border border-stone-200">
-                        <td class="px-2">9</td>
-                        <td>Surat Keputusan 5</td>
-                        <td>2024-09-01</td>
-                        <td class="link">Download</td>
-                        <td>2026-03-08</td>
-                    </tr>
-                    <tr class="h-10 border border-stone-200">
-                        <td class="px-2">10</td>
-                        <td>Surat Tugas 5</td>
-                        <td>2024-10-01</td>
-                        <td class="link">Download</td>
-                        <td>2026-03-08</td>
-                    </tr>
-                </tbody>
-            </table>
+        <div x-data="dokSearch()" class="max-full mx-auto">
+            <div class="bg-white h-12 flex justify-end items-center border border-stone-200 shadow-md mx-2">
+                <div class="px-1">
+                    <input type="text" x-model="search" class="w-32 border border-gray-300 rounded-md px-2 focus:ring-1" placeholder="Search">
+                </div>
+            </div>
+            <div class="px-2">
+                <table class="table-auto w-full bg-white shadow-md">
+                    <thead>
+                        <tr class="h-10 text-left border border-stone-200">
+                            <th class="px-2">No</th>
+                            <th>Nama Dokumen</th>
+                            <th>Tanggal</th>
+                            <th>Dokumen</th>
+                            <th>Dibuat pada</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <template x-for="(dok,index) in searchedDokumen" :key="dok.name">
+                            <tr class="border hover:bg-gray-50 transition">
+                                <td class="px-2 text-sm text-gray-500" x-text="index + 1"></td>
+                                <td class="h-10 text-sm text-gray-700" x-text="dok.name"></td>
+                                <td class="h-10 text-sm text-gray-700" x-text="dok.date"></td>
+                                <td class="h-10 text-sm text-blue-700" x-text="dok.document"></td>
+                                <td class="h-10 text-sm text-gray-700" x-text="dok.created_at">
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
+<script>   
+    function dokSearch() {
+        return {
+            search: '',
+            users: [
+                { name: 'Surat Keputusan 1', date: '2024-06-01', document: 'SK-001.pdf', created_at: '2024-06-01 10:00' },
+                { name: 'Surat Tugas 1', date: '2024-06-02', document: 'ST-001.pdf', created_at: '2024-06-02 11:00' },
+                { name: 'Surat Keputusan 2', date: '2024-06-03', document: 'SK-002.pdf', created_at: '2024-06-03 12:00' },
+                { name: 'Surat Tugas 2', date: '2024-06-04', document: 'ST-002.pdf', created_at: '2024-06-04 13:00' },
+                { name: 'Surat Keputusan 3', date: '2024-06-05', document: 'SK-003.pdf', created_at: '2024-06-05 14:00' },
+                { name: 'Surat Tugas 3', date: '2024-06-06', document: 'ST-003.pdf', created_at: '2024-06-06 15:00' },
+                { name: 'Surat Keputusan 4', date: '2024-06-07', document: 'SK-004.pdf', created_at: '2024-06-07 16:00' },
+                { name: 'Surat Tugas 4', date: '2024-06-08', document: 'ST-004.pdf', created_at: '2024-06-08 17:00' },
+                { name: 'Surat Keputusan 5', date: '2024-06-09', document: 'SK-005.pdf', created_at: '2024-06-09 18:00' },
+                { name: 'Surat Tugas 5', date: '2024-06-10', document: 'ST-005.pdf', created_at: '2024-06-10 19:00' },
+                { name: 'Surat Keputusan 6', date: '2024-06-11', document: 'SK-006.pdf', created_at: '2024-06-11 20:00' },
+                { name: 'Surat Tugas 6', date: '2024-06-12', document: 'ST-006.pdf', created_at: '2024-06-12 21:00' },
+            ],
+            get searchedDokumen() {
+                if (!this.search) return this.users;
+                return this.users.filter(dok => dok.name.toLowerCase().includes(this.search.toLowerCase()));
+            }
+        }
+    }
     // Konfigurasi Warna Identik dengan Gambar
     const colors = {
         diproses: '#FACC15',     // Kuning
