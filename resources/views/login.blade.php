@@ -5,10 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login — DokPol Polibatam</title>
 
-    {{-- Tailwind via CDN --}}
     <script src="https://cdn.tailwindcss.com"></script>
-
-    {{-- Alpine.js --}}
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     {{-- Google Fonts --}}
@@ -38,7 +35,6 @@
         .btn-login:active { transform: scale(0.99); background: #0f2040; }
         .btn-login:disabled { background: #8fa3c4; cursor: not-allowed; }
 
-        /* Fade-in animation for the card */
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(16px); }
             to   { opacity: 1; transform: translateY(0); }
@@ -52,7 +48,6 @@
 <body class="relative min-h-screen flex items-center justify-center overflow-hidden px-4 py-10 bg-cover bg-center bg-no-repeat"
       style="background-image: url('{{ asset('images/login_poltek.jpg') }}');">
 
-    {{-- Overlay gelap --}}
     <div class="absolute inset-0 bg-black/40"></div>
 
     {{-- LOGIN CARD --}}

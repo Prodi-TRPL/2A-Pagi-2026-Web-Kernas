@@ -13,14 +13,11 @@
 </head>
 <body class="bg-gray-50 min-h-screen font-sans" x-data="manajemenKaryawan()">
 
-    {{-- ===================== NAVBAR ===================== --}}
+    {{--NAVBAR --}}
     <nav class="bg-white border-b border-gray-200 sticky top-0 z-40">
         <div class="max-w-screen-xl mx-auto px-4">
-
-            {{-- Baris 1: Brand kiri + User Profile kanan --}}
             <div class="flex items-center justify-between h-14">
-
-                {{-- Brand --}}
+                {{-- ======= --}}
                 <div class="flex items-center gap-3">
                     <div class="w-9 h-9 rounded-full flex items-center justify-center">
                         <img src="{{ asset('images/logo_polibatam.png') }}"
@@ -33,7 +30,7 @@
                     </div>
                 </div>
 
-                {{-- User Profile --}}
+                {{-- profil --}}
                 <div class="flex items-center gap-3">
                     <div class="text-right hidden sm:block">
                         <p class="text-sm font-semibold text-gray-800">{{ $user['nama'] ?? 'Nama Pengguna' }}</p>
@@ -46,7 +43,7 @@
 
             </div>
 
-            {{-- Baris 2: Nav Links di bawah brand --}}
+            {{-- link nav --}}
             <div class="hidden md:flex items-center gap-1 border-t border-gray-100">
                     <a href="/dashboard" class="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -107,10 +104,10 @@
         </div>
     </nav>
 
-    {{-- ===================== MAIN CONTENT ===================== --}}
+    {{-- main stuff here --}}
     <div class="max-w-screen-xl mx-auto px-4 py-8">
 
-        {{-- Page Header --}}
+        {{-- Header --}}
         <div class="mb-6">
             <h1 class="text-2xl font-bold text-gray-900">Manajemen Karyawan</h1>
             <p class="text-sm text-gray-500 mt-1">Kelola hak akses dan peran karyawan Polibatam</p>
@@ -133,7 +130,7 @@
                     >
                 </div>
 
-                {{-- Filter Unit --}}
+                {{-- Filter search by  Unit --}}
                 <select
                     x-model="filterUnit"
                     @change="currentPage = 1"
@@ -146,7 +143,7 @@
                     <option value="Jurusan Teknik Informatika">Jurusan Teknik Informatika</option>
                 </select>
 
-                {{-- Filter Role --}}
+                {{-- Filter by  Role --}}
                 <select
                     x-model="filterRole"
                     @change="currentPage = 1"
@@ -160,7 +157,7 @@
             </div>
         </div>
 
-        {{-- Table Card --}}
+        {{-- Table --}}
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
             <table class="w-full text-sm">
                 <thead>

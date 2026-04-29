@@ -30,7 +30,7 @@
             
             <div class="flex items-center gap-4">
                 <span class="text-sm text-gray-600 font-medium">Halo, Admin!</span>
-                {{-- Tombol Logout (Kembali ke halaman login) --}}
+                {{-- Tombol Logout --}}
                 <a href="/" class="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors">
                     Logout
                 </a>
@@ -38,7 +38,6 @@
         </div>
     </nav>
 
-    {{-- MAIN CONTENT --}}
     <main class="flex-grow max-w-7xl mx-auto w-full px-6 py-8">
         
         <div class="mb-8">
@@ -49,7 +48,7 @@
         {{-- KARTU STATISTIK --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             
-            {{-- Card 1: Total SK --}}
+            {{-- Card 1 --}}
             <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
                     <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -63,7 +62,7 @@
                 </div>
             </div>
 
-            {{-- Card 2: Proses --}}
+            {{-- Card 2 --}}
             <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500">
                     <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -77,7 +76,7 @@
                 </div>
             </div>
 
-            {{-- Card 3: Selesai --}}
+            {{-- Card 3 --}}
             <div class="bg-white rounded-xl p-6 border border-gray-100 shadow-sm flex items-center gap-4">
                 <div class="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center text-green-600">
                     <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -93,7 +92,7 @@
 
         </div>
 
-        {{-- AREA KONTEN TAMBAHAN --}}
+        {{-- KONTEN TAMBAHAN --}}
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
             <h2 class="text-lg font-semibold text-gray-800 mb-4">Aktivitas Terbaru</h2>
             <div class="text-center py-10 text-gray-400">
@@ -106,9 +105,6 @@
 
     {{-- FOOTER --}}
     <footer class="bg-white border-t border-gray-200 py-4 mt-auto">
-        <p class="text-center text-xs text-gray-400">
-            &copy; {{ date('Y') }} Politeknik Negeri Batam. All rights reserved.
-        </p>
     </footer>
 
 </body>
