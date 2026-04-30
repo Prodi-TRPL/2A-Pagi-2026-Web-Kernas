@@ -7,6 +7,9 @@
     <title>Manajemen Karyawan — KERNAS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
         [x-cloak] { display: none !important; }
     </style>
@@ -249,7 +252,7 @@
         </div>
     </div>
 
-    {{-- ===================== MODAL ATUR PERAN ===================== --}}
+    {{-- MOBADL yeah --}}
     <div
         x-show="modalOpen"
         x-cloak
@@ -294,7 +297,7 @@
             {{-- Modal Body --}}
             <div class="px-6 py-5">
 
-                {{-- Karyawan Info --}}
+                {{-- ingfo Karyawan --}}
                 <div class="bg-gray-50 rounded-lg p-3 mb-5 flex items-center gap-3" x-show="selectedKaryawan">
                     <div class="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center text-sky-700 font-bold text-sm flex-shrink-0"
                          x-text="selectedKaryawan ? selectedKaryawan.nama.substring(0, 2).toUpperCase() : ''">
@@ -305,7 +308,7 @@
                     </div>
                 </div>
 
-                {{-- Role Options --}}
+                {{-- Role --}}
                 <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Pilih Peran</p>
                 <div class="space-y-2">
                     {{-- Admin --}}
@@ -344,7 +347,7 @@
                                 </template>
                             </select>
                             <p class="text-xs text-amber-600 mt-1.5" x-show="!selectedGrup">
-                                ⚠ Pilih grup verifikasi terlebih dahulu
+                                Pilih grup verifikasi terlebih dahulu
                             </p>
                         </div>
                     </div>
@@ -361,7 +364,7 @@
                 </div>
             </div>
 
-            {{-- Modal Footer --}}
+            {{-- Modal Footer (hehe kaki)--}}
             <div class="px-6 pb-6 flex items-center gap-3 justify-end">
                 <button @click="closeModal" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                     Batal
@@ -376,7 +379,7 @@
         </div>
     </div>
 
-    {{-- ===================== TOAST NOTIFICATION ===================== --}}
+    {{-- notifikasi sementara --}}
     <div
         x-show="toast.show"
         x-cloak
@@ -394,7 +397,7 @@
         <span x-text="toast.message"></span>
     </div>
 
-    {{-- ===================== ALPINE.JS DATA ===================== --}}
+    {{-- alpine --}}
     <script>
         function manajemenKaryawan() {
             return {
