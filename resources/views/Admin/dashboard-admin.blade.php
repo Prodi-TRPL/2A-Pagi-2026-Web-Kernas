@@ -9,65 +9,52 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .poppins{
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
 </head>
 <body class="h-full bg-stone-100">
-    <div class="flex justify-between bg-white items-center px-2 py-2 border-b-2 border-b-stone-200">
-    <img class="h-10 w-auto px-2" src="https://www.polibatam.ac.id/wp-content/uploads/2024/01/cropped-cropped-cropped-02_Logo_1_Utama_Polibatam_Horizontal@2x.png" alt="Logo Polibatam">
-        <div class="flex gap-2">
-            <div class="flex flex-col justify-center">
-                <span class="text-[12px] leading-tight">Gilang Bagus Ramadhan</span>
-                <span class="text-[10px] leading-tight text-right">Pegawai</span>
-            </div>
-            <div class="px-2" x-data="{ open: false }">
-                <button @click="open = !open"><img class="h-8 w-8 rounded-full" src="https://w7.pngwing.com/pngs/184/113/png-transparent-user-profile-computer-icons-profile-heroes-black-silhouette-thumbnail.png" alt="profile"></button>
-                <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-stone-200">
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <nav>
-        <div class="flex bg-white rounded-b-sm font-medium items-center gap-6 px-4 py-2 border-b border-b-stone-200">
-            <a class="pb-1 border-b-2 border-blue-800" href="#">Dashboard</a>
-            <a class="pb-1 border-b-2 border-transparent hover:border-blue-800" href="#">Riwayat</a>
-            <a class="pb-1 border-b-2 border-transparent hover:border-blue-800" href="#">Layanan</a>
-            <div x-data="{open: false}" class="relative">
-                <button @click="open = !open" class="pb-1 border-b-2 border-transparent hover:border-blue-800" href="#">Setup</button>
-                <div x-show="open" @click.outside="open = false" class="absolute  left-1/2 -translate-x-1/2 w-32 bg-white border border-stone-200 rounded-md">
-                    <a href="#" class="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100">Kelola Pengguna</a>
-                    <a href="#" class="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100">Kelola dokumen</a>
-                </div>
-            </div>
-            <a class="pb-1 border-b-2 border-transparent hover:border-blue-800" href="#">UU RI</a>
-        </div>
-    </nav>
+    <header>
+         @include('layouts/nav-admin')
+    </header>
     <main class="p-2">
-        <div class="flex border-sm text-medium justify-end gap-2 px-2">
-            <span class="text-xl rounded">Range:</span>
-            <select class="text-xl bg-white border border-black rounded shadow-md hover:bg-gray-400" id="year" name="year">
-            <option value="all">Year</option>
-            <option value="2026">2026</option>
-            <option value="2025">2025</option>
-            <option value="2024">2024</option>
-            </select>
-            <select class="text-xl bg-white border border-black rounded shadow-md hover:bg-gray-400" id="month" name="month">
-            <option value="all">Month</option>
-            <option value="2026">Jan</option>
-            <option value="2025">Feb</option>
-            <option value="2024">Mar</option>
-            <option value="2026">Apr</option>
-            <option value="2025">May</option>
-            <option value="2024">Jun</option>
-            <option value="2026">Jul</option>
-            <option value="2025">Aug</option>
-            <option value="2024">Sep</option>
-            <option value="2026">Oct</option>
-            <option value="2025">Nov</option>
-            <option value="2024">Des</option>
-            </select>
-        </div>
+            <div class="px-2">
+                <h1 class="text-2xl font-bold text-gray-900">Selamat Datang di Dashboard</h1>
+                <div class="flex justify-between text-sm text-gray-500 mt-1">Sistem Informasi Pengajuan dan Distribusi Surat
+                    <span class="gap-x-2 px-2 poppins font-medium">
+                        <span class="text-md rounded">Range:</span>
+                        <select class="text-md bg-white border-2 border-black rounded shadow-lg hover:bg-gray-400" id="year" name="year">
+                        <option value="all">Year</option>
+                        <option value="2026">2026</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        </select>
+                        <select class="text-md bg-white border-2 border-black rounded shadow-lg hover:bg-gray-400" id="month" name="month">
+                        <option value="all">Month</option>
+                        <option value="2026">Jan</option>
+                        <option value="2025">Feb</option>
+                        <option value="2024">Mar</option>
+                        <option value="2026">Apr</option>
+                        <option value="2025">May</option>
+                        <option value="2024">Jun</option>
+                        <option value="2026">Jul</option>
+                        <option value="2025">Aug</option>
+                        <option value="2024">Sep</option>
+                        <option value="2026">Oct</option>
+                        <option value="2025">Nov</option>
+                        <option value="2024">Des</option>
+                        </select>
+                    </span>
+                </div>
+            </div>
         <div class="flex flex-row gap-4 items-center bg-stone-100 p-2 rounded-lg">
             <div class="basis-full h-20 bg-white rounded-lg shadow-md p-4 flex items-center gap-1">
                 <i class="fa-solid fa-file-invoice text-xl" style="color: rgb(255, 212, 59);"></i>
@@ -100,7 +87,7 @@
                 </div>
                 <div class="relative w-full h-[350px] flex items-center justify-center">
                     <canvas id="donutChart"></canvas>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <div class="absolute flex flex-col items-center justify-center">
                         <span class="text-5xl font-black text-gray-800 tracking-tighter">25</span>
                         <span class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold mt-1">Total</span>
                         <span class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold">Pengajuan</span>
@@ -124,6 +111,7 @@
                     <thead>
                         <tr class="h-10 text-left border border-stone-200">
                             <th class="px-2">No</th>
+                            <th>Nomor Surat</th>
                             <th>Nama Dokumen</th>
                             <th>Tanggal</th>
                             <th>Dokumen</th>
@@ -134,6 +122,7 @@
                         <template x-for="(dok,index) in searchedDokumen" :key="dok.name">
                             <tr class="border hover:bg-gray-50 transition">
                                 <td class="px-2 text-sm text-gray-500" x-text="index + 1"></td>
+                                <td class="h-10 text-sm text-gray-500" x-text="dok.nomor"></td>
                                 <td class="h-10 text-sm text-gray-700" x-text="dok.name"></td>
                                 <td class="h-10 text-sm text-gray-700" x-text="dok.date"></td>
                                 <td class="h-10 text-sm text-blue-700" x-text="dok.document"></td>
@@ -146,38 +135,40 @@
         </div>
     </main>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>   
+<script>
+    // js search
     function dokSearch() {
         return {
             search: '',
             users: [
-                { name: 'Surat Keputusan 1', date: '2024-06-01', document: 'SK-001.pdf', created_at: '2024-06-01 10:00' },
-                { name: 'Surat Tugas 1', date: '2024-06-02', document: 'ST-001.pdf', created_at: '2024-06-02 11:00' },
-                { name: 'Surat Keputusan 2', date: '2024-06-03', document: 'SK-002.pdf', created_at: '2024-06-03 12:00' },
-                { name: 'Surat Tugas 2', date: '2024-06-04', document: 'ST-002.pdf', created_at: '2024-06-04 13:00' },
-                { name: 'Surat Keputusan 3', date: '2024-06-05', document: 'SK-003.pdf', created_at: '2024-06-05 14:00' },
-                { name: 'Surat Tugas 3', date: '2024-06-06', document: 'ST-003.pdf', created_at: '2024-06-06 15:00' },
-                { name: 'Surat Keputusan 4', date: '2024-06-07', document: 'SK-004.pdf', created_at: '2024-06-07 16:00' },
-                { name: 'Surat Tugas 4', date: '2024-06-08', document: 'ST-004.pdf', created_at: '2024-06-08 17:00' },
-                { name: 'Surat Keputusan 5', date: '2024-06-09', document: 'SK-005.pdf', created_at: '2024-06-09 18:00' },
-                { name: 'Surat Tugas 5', date: '2024-06-10', document: 'ST-005.pdf', created_at: '2024-06-10 19:00' },
-                { name: 'Surat Keputusan 6', date: '2024-06-11', document: 'SK-006.pdf', created_at: '2024-06-11 20:00' },
-                { name: 'Surat Tugas 6', date: '2024-06-12', document: 'ST-006.pdf', created_at: '2024-06-12 21:00' },
+                { nomor: 'SK/01/2024', name: 'Surat Keputusan 1', date: '2024-06-01', document: 'SK-001.pdf', created_at: '2024-06-01  10:00' },
+                { nomor: 'ST/01/2024', name: 'Surat Tugas 1', date: '2024-06-02', document: 'ST-001.pdf', created_at: '2024-06-02  11:00' },
+                { nomor: 'SK/02/2024', name: 'Surat Keputusan 2', date: '2024-06-03', document: 'SK-002.pdf', created_at: '2024-06-03  12:00' },
+                { nomor: 'ST/02/2024', name: 'Surat Tugas 2', date: '2024-06-04', document: 'ST-002.pdf', created_at: '2024-06-04  13:00' },
+                { nomor: 'SK/03/2024', name: 'Surat Keputusan 3', date: '2024-06-05', document: 'SK-003.pdf', created_at: '2024-06-05  14:00' },
+                { nomor: 'ST/03/2024', name: 'Surat Tugas 3', date: '2024-06-06', document: 'ST-003.pdf', created_at: '2024-06-06  15:00' },
+                { nomor: 'SK/04/2024', name: 'Surat Keputusan 4', date: '2024-06-07', document: 'SK-004.pdf', created_at: '2024-06-06  16:00>' },
+                { nomor: 'ST/04/2024', name: 'Surat Tugas 4', date: '2024-06-08', document: 'ST-004.pdf', created_at: '2024-06-08  17:00' },
+                { nomor: 'SK/05/2024', name: 'Surat Keputusan 5', date: '2024-06-09', document: 'SK-005.pdf', created_at: '2024-06-09  18:00' },
+                { nomor: 'ST/05/2024', name: 'Surat Tugas 5', date: '2024-06-10', document: 'ST-005.pdf', created_at: '2024-06-10  19:00' }
             ],
             get searchedDokumen() {
                 if (!this.search) return this.users;
-                return this.users.filter(dok => dok.name.toLowerCase().includes(this.search.toLowerCase()));
+                const searchTerm = this.search.toLowerCase();
+                return this.users.filter(dok => {
+                    return dok.name.toLowerCase().includes(searchTerm) || dok.nomor.toLowerCase().includes(searchTerm);
+                });
             }
         }
     }
-    // Konfigurasi Warna Identik dengan Gambar
+    // warna tabel
     const colors = {
         diproses: '#FACC15',     // Kuning
         menunggu: '#F97316',    // Oranye
         revisi: '#22C55E',  // Hijau
         diterbitkan: '#1D4ED8', // Biru
     };
-
+    //conf legend
     const commonLegend = {
         position: 'bottom',
         labels: {
@@ -188,7 +179,7 @@
         }
     };
 
-    // --- BAR CHART (Left) ---
+    // diagram batang
     new Chart(document.getElementById('barChart'), {
         type: 'bar',
         data: {
@@ -220,7 +211,7 @@
         }
     });
 
-    // --- DONUT CHART (Right) ---
+    // diagram donat
     new Chart(document.getElementById('donutChart'), {
         type: 'doughnut',
         data: {
