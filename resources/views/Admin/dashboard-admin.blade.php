@@ -31,13 +31,13 @@
                 <div class="flex justify-between text-sm text-gray-500 mt-1">Sistem Informasi Pengajuan dan Distribusi Surat
                     <span class="gap-x-2 px-2 poppins font-medium">
                         <span class="text-md rounded">Range:</span>
-                        <select class="text-md bg-white border-2 border-black rounded shadow-lg hover:bg-gray-400" id="year" name="year">
+                        <select class="text-md bg-white border-2 border-black rounded shadow-lg hover:bg-gray-400 cursor-pointer" id="year" name="year">
                         <option value="all">Year</option>
                         <option value="2026">2026</option>
                         <option value="2025">2025</option>
                         <option value="2024">2024</option>
                         </select>
-                        <select class="text-md bg-white border-2 border-black rounded shadow-lg hover:bg-gray-400" id="month" name="month">
+                        <select class="text-md bg-white border-2 border-black rounded shadow-lg hover:bg-gray-400 cursor-pointer" id="month" name="month">
                         <option value="all">Month</option>
                         <option value="2026">Jan</option>
                         <option value="2025">Feb</option>
