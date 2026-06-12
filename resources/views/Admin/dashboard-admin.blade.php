@@ -15,7 +15,7 @@
     <img class="h-10 w-auto px-2" src="https://www.polibatam.ac.id/wp-content/uploads/2024/01/cropped-cropped-cropped-02_Logo_1_Utama_Polibatam_Horizontal@2x.png" alt="Logo Polibatam">
         <div class="flex gap-2">
             <div class="flex flex-col justify-center">
-                <span class="text-[12px] leading-tight">Gilang Bagus Ramadhan</span>
+                <span class="text-[12px] leading-tight">something</span>
                 <span class="text-[10px] leading-tight text-right">Pegawai</span>
             </div>
             <div class="px-2" x-data="{ open: false }">

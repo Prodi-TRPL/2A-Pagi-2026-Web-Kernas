@@ -1,0 +1,310 @@
+PROJECT CONTEXT — Aplikasi Distribusi SK dan Surat Tugas (Laravel Rebuild)
+=========================================================================
+Politeknik Negeri Batam (Polibatam)
+=========================================================================
+VERSION: 4 — Tambah fondasi dynamic form (masukan + template_masukan)
+=========================================================================
+
+TLDR
+----
+Rebuilding Express.js + Vue.js into a Laravel monolith.
+Manages distribution of official letters (SK/ST) for Polibatam.
+Database and planning COMPLETE. Now in DEVELOPMENT STAGE.
+
+KEY CHANGES FROM VERSION 3:
+  1. Tabel baru: masukan — master library field untuk dynamic form
+  2. Tabel baru: template_masukan — junction template_surat ↔ masukan
+  3. Sistem pengajuan TETAP menggunakan cara lama (daftar_menimbang dll)
+  4. Dua tabel baru ini adalah FONDASI untuk migrasi ke dynamic form nanti
+  5. Total tables: 17 (was 15)
+
+
+════════════════════════════════════════════════════════════════════════
+1. THE ORIGINAL APPLICATION (what I am replacing)
+════════════════════════════════════════════════════════════════════════
+
+Original stack: Vue.js frontend + Express.js backend + SQLite
+Replaced because: separate codebases, no normalization, JSON blobs,
+no numbering system, no version history, hard to maintain.
+
+
+════════════════════════════════════════════════════════════════════════
+2. TECH STACK
+════════════════════════════════════════════════════════════════════════
+
+  Framework      : Laravel (PHP) — monolith
+  Database       : MySQL (via Laragon on Windows 11)
+  Auth           : Laravel session-based (local DB — bcrypt passwords)
+  PDF            : DomPDF (barryvdh/laravel-dompdf)
+  Frontend       : Laravel Blade templates
+  Template Editor: ONLYOFFICE Document Server via Docker
+                   Admin edits .docx templates using ONLYOFFICE
+                   embedded in the browser — full Word-like experience
+  Dev server     : Laragon (Windows 11)
+  Docker         : Docker Desktop (for ONLYOFFICE Document Server)
+  IDE            : VS Code
+
+
+════════════════════════════════════════════════════════════════════════
+3. AUTHENTICATION — LOCAL AUTH (no external API)
+════════════════════════════════════════════════════════════════════════
+
+No Polibatam API. Credentials stored in local pengguna table.
+
+Login flow:
+  1. User enters username + password
+  2. Laravel checks pengguna table for username
+  3. Hash::check($password, $pengguna->password) — bcrypt verify
+  4. If valid → store pengguna data in Laravel session
+  5. Middleware checks session on every request
+
+pengguna table stores:
+  - nip         (institutional identifier — UNIQUE)
+  - username    (login credential — UNIQUE)
+  - password    (bcrypt hashed VARCHAR(255))
+  - nama        (full name)
+  - unit        (department)
+  - jabatan     (position/title — nullable)
+  - is_admin    (boolean role flag)
+
+Admin creates/manages all user accounts. No self-registration.
+
+SESSION stored after login:
+  - pengguna.id, nip, nama, unit, is_admin
+
+
+════════════════════════════════════════════════════════════════════════
+4. USER ROLES
+════════════════════════════════════════════════════════════════════════
+
+  ADMIN (is_admin = 1):
+    - Manage pengguna accounts
+    - Create/edit/delete grup_verifikasi
+    - Review pengajuan (POSTED → REVIEWED) before verifikator sees it
+    - Publish dokumen (APPROVED → PUBLISHED)
+    - Manage template_surat via ONLYOFFICE
+    - Manage peraturan (add, edit, delete regulations)
+    - Manage masukan library (add field types for future dynamic form)
+    - View all documents and pengajuan
+
+  STAFF (is_admin = 0):
+    - Submit pengajuan
+    - Select peraturan for "mengingat" section when submitting
+    - Edit/delete own pengajuan (only when POSTED)
+    - View documents they are assigned to
+
+
+════════════════════════════════════════════════════════════════════════
+5. PENGAJUAN STATUS FLOW
+════════════════════════════════════════════════════════════════════════
+
+  POSTED    → Staff submitted. Admin has not reviewed yet.
+              Verifikator CANNOT see this yet.
+
+  REVIEWED  → Admin reviewed, fixed typos, approved for verification.
+              Verifikator CAN now see and act on this.
+
+  APPROVED  → Verifikator approved the pengajuan.
+              System auto-generates .docx borang from template_surat.
+
+  REJECTED  → Verifikator rejected with reason (stored in catatan).
+              Staff can edit and resubmit → returns to POSTED.
+              urutan_antrian is PRESERVED — does not reset.
+
+  PUBLISHED → Admin uploaded signed document → dokumen entry created.
+
+  Flow:
+  POSTED → [Admin review] → REVIEWED → [Verifikator] → APPROVED/REJECTED
+  APPROVED → [Admin publish] → PUBLISHED
+  REJECTED → [Staff edit] → POSTED (urutan_antrian preserved)
+
+
+════════════════════════════════════════════════════════════════════════
+6. TEMPLATE SURAT — ONLYOFFICE INTEGRATION
+════════════════════════════════════════════════════════════════════════
+
+Templates are .docx files stored in Laravel storage.
+Admin edits templates using ONLYOFFICE Document Server (Docker).
+
+ONLYOFFICE Docker setup:
+  docker run -d -p 80:80 onlyoffice/documentserver
+
+IMPORTANT — template_surat has NO relation to dokumen:
+  - Templates only used when generating borang after APPROVED
+  - Result stored in pengajuan.filepath
+  - dokumen stores the final signed document, NOT the template
+
+Placeholders in templates (replaced when generating borang):
+  {{judul}}               — pengajuan.judul
+  {{tipe}}                — SK or ST
+  {{daftar_menimbang}}    — pengajuan.daftar_menimbang
+  {{daftar_memperhatikan}}— pengajuan.daftar_memperhatikan
+  {{daftar_memutuskan}}   — pengajuan.daftar_memutuskan
+  {{mengingat}}           — auto-generated from pengajuan_peraturan
+  {{tgl_terbit}}          — pengajuan.tgl_terbit
+  {{nomor}}               — from nomor_dokumen
+
+
+════════════════════════════════════════════════════════════════════════
+7. DYNAMIC FORM FOUNDATION (masukan + template_masukan)
+════════════════════════════════════════════════════════════════════════
+
+WHY THESE TABLES EXIST:
+  Different letter types need different input fields. Instead of
+  building separate pages for each letter type, the masukan table
+  provides a master library of reusable field definitions that can
+  be linked to any template via template_masukan.
+
+CURRENT STATUS:
+  These tables are FOUNDATION ONLY — not yet used in the active
+  pengajuan workflow. The pengajuan form still uses the fixed fields:
+  daftar_menimbang, daftar_memperhatikan, daftar_memutuskan.
+
+  When the time comes to migrate to dynamic forms:
+    1. Define field types in masukan table
+    2. Link fields to templates via template_masukan
+    3. Replace fixed fields in pengajuan with a new junction table
+    4. Blade form renders dynamically based on template_masukan
+
+masukan table:
+  - id   INT PK
+  - nama VARCHAR(100)   — field name e.g. "Tujuan Perjalanan"
+  - tipe ENUM(text, textarea, date, number, select)
+
+template_masukan table (junction):
+  - id                INT PK
+  - id_template_surat INT FK → template_surat
+  - id_masukan        INT FK → masukan
+  UNIQUE(id_template_surat, id_masukan)
+
+FUTURE MIGRATION PATH (when needed — not now):
+  1. Add label, is_required, urutan to template_masukan pivot
+  2. Add pengajuan_jawaban table (id_pengajuan FK, id_masukan FK, nilai TEXT)
+  3. Remove daftar_menimbang, daftar_memperhatikan, daftar_memutuskan
+     from pengajuan table
+  4. Update Blade form to render fields dynamically
+
+
+════════════════════════════════════════════════════════════════════════
+8. PERATURAN FEATURE
+════════════════════════════════════════════════════════════════════════
+
+The peraturan table stores a library of legal regulations that staff
+select when filling in the "mengingat" section of a pengajuan form.
+
+peraturan table:
+  - kode        VARCHAR(100) UNIQUE — e.g. "UU No. 12 Tahun 2012"
+  - judul       VARCHAR(255)
+  - jenis       VARCHAR(50)         — e.g. "UU", "PP", "Permendikbud"
+  - tahun       YEAR
+  - keterangan  TEXT NULL           — optional
+  - id_pengguna FK → pengguna
+
+pengajuan_peraturan junction:
+  - id_pengajuan FK → pengajuan
+  - id_peraturan FK → peraturan
+
+
+════════════════════════════════════════════════════════════════════════
+9. DATABASE DESIGN (17 tables, 3NF)
+════════════════════════════════════════════════════════════════════════
+
+Normalization: 3NF
+  - pengguna is central hub — FK from all tables
+  - All IDs: INT UNSIGNED AUTO_INCREMENT
+  - Timestamps: DATETIME | Date-only: DATE | Passwords: VARCHAR(255) bcrypt
+
+TABLES:
+
+  1.  pengguna                  — local auth + employee data
+  2.  grup_verifikasi           — named verifier groups
+  3.  anggota_grup_verifikasi   — group members
+  4.  nomor_dokumen             — auto-numbering SK/ST per year
+  5.  dokumen                   — published official letters
+  6.  anggota_dokumen           — employees assigned to document
+  7.  grup_verifikasi_dokumen   — document ↔ group junction
+  8.  template_surat            — .docx templates via ONLYOFFICE
+  9.  masukan                   — master field library (dynamic form foundation)
+  10. template_masukan          — template ↔ masukan junction
+  11. peraturan                 — regulations library for "mengingat"
+  12. pengajuan                 — submission requests
+  13. pengajuan_peraturan       — pengajuan ↔ peraturan junction
+  14. anggota_pengajuan         — employees assigned to pengajuan
+  15. grup_verifikasi_pengajuan — pengajuan ↔ group junction
+  16. riwayat_pengajuan         — version history
+  17. log_audit                 — system-wide activity log
+
+KEY ENUM VALUES:
+  pengajuan.status:
+    POSTED | REVIEWED | APPROVED | REJECTED | PUBLISHED
+
+  riwayat_pengajuan.aksi:
+    DIBUAT | DIEDIT | DIREVIU | DISETUJUI | DITOLAK | DITERBITKAN
+
+  masukan.tipe:
+    text | textarea | date | number | select
+
+
+════════════════════════════════════════════════════════════════════════
+10. FEATURES TO BUILD
+════════════════════════════════════════════════════════════════════════
+
+  [AUTH]
+  - Login page (local bcrypt auth)
+  - Logout, session middleware
+
+  [DASHBOARD]
+  - SK/ST counts, 5 recent documents
+  - Admin: all | Staff: assigned only
+
+  [PERATURAN] (admin only)
+  - List, create, edit, delete peraturan
+
+  [MASUKAN] (admin only — low priority, foundation only)
+  - List, create, edit, delete field definitions
+  - Link fields to templates via template_masukan
+
+  [GRUP VERIFIKASI]
+  - List, create, edit, delete + manage members
+
+  [DOKUMEN]
+  - List SK/ST, create, view, edit, soft-delete
+  - Auto numbering, QR code, public verify page
+
+  [PENGAJUAN]
+  - Staff: create (fixed fields + select peraturan), edit, delete
+  - Admin: review (POSTED → REVIEWED)
+  - Verifikator: approve/reject (REVIEWED only)
+  - Admin: publish (APPROVED → PUBLISHED)
+
+  [TEMPLATE SURAT]
+  - List, upload, edit via ONLYOFFICE, version management
+
+  [USER MANAGEMENT] (admin only)
+  - Create, edit, delete pengguna, set/revoke is_admin
+
+  [AUDIT LOG]
+  - View log_audit entries
+
+
+════════════════════════════════════════════════════════════════════════
+11. IMPORTANT NOTES FOR THE AI
+════════════════════════════════════════════════════════════════════════
+
+  - Always use Blade templates, not Vue or React
+  - Always use Laravel conventions (controllers, models, migrations)
+  - Always use core principal of OOP
+  - Auth: Hash::check($password, $pengguna->password)
+  - Session: store pengguna array, check session('pengguna') in middleware
+  - Admin middleware: check session('pengguna.is_admin') === 1
+  - Verifikator sees ONLY pengajuan with status = REVIEWED
+  - Admin review: POSTED → REVIEWED
+  - masukan and template_masukan are FOUNDATION ONLY — not in active workflow yet
+  - pengajuan still uses fixed fields: daftar_menimbang, daftar_memperhatikan,
+    daftar_memutuskan for now
+  - template_surat has NO FK relation to dokumen
+  - peraturan.keterangan is nullable
+  - All IDs: INT UNSIGNED, timestamps: DATETIME, dates: DATE
+  - 17 tables total
+  - SQL file: sk_polibatam_v4.sql
+  - ERD file: erd-polibatam-v4.mermaid

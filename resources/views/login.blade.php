@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    {{-- Fonts biar keren--}}
+    {{-- bagian tag yang digunakan untuk memuat font eksternal agar antarmuka terlihat lebih menarik --}}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -18,6 +18,12 @@
 
         .card-shadow {
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Hilangkan ikon mata (reveal) bawaan dari browser Microsoft Edge */
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none;
         }
 
         input[type="text"]:focus,
@@ -50,52 +56,10 @@
 
     <div class="absolute inset-0 bg-black/40"></div>
 
-    {{-- LOGIN CARD --}}
+    {{-- bagian kontainer utama (kartu) yang digunakan untuk menampung formulir login --}}
     <div class="relative z-10 w-full max-w-md animate-fade-up"
          x-data="{
-            username: '',
-            password: '',
             showPassword: false,
-            usernameError: '',
-            passwordError: '',
-            generalError: '',
-            loading: false,
-
-            validate() {
-                this.usernameError = '';
-                this.passwordError = '';
-                this.generalError = '';
-                let ok = true;
-                if (!this.username.trim()) {
-                    this.usernameError = 'This field is required';
-                    ok = false;
-                }
-                if (!this.password) {
-                    this.passwordError = 'This field is required';
-                    ok = false;
-                }
-                return ok;
-            },
-
-            async submit() {
-                if (!this.validate()) return;
-                this.loading = true;
-                
-                // Simulasi delay jaringan
-                await new Promise(r => setTimeout(r, 1000));
-                
-                // Simulasi Cek Login
-                if (this.username === 'admin' && this.password === 'admin123') {
-                    window.location.href = '/dashboard'; 
-                } 
-                else if (this.username === 'pegawai' && this.password === 'pegawai123') {
-                    window.location.href = '/dashboard'; 
-                } 
-                else {
-                    this.loading = false;
-                    this.generalError = 'Username atau password salah. Pastikan menggunakan akun DokPol Anda.';
-                }
-            }
          }">
 
         <div class="bg-white rounded-2xl card-shadow px-8 py-10">
@@ -117,33 +81,27 @@
                 </div>
             @endif
 
-            <div x-show="generalError"
-                 x-transition:enter="transition ease-out duration-200"
-                 x-transition:enter-start="opacity-0 -translate-y-1"
-                 x-transition:enter-end="opacity-100 translate-y-0"
-                 class="mb-5 px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-red-600 text-sm"
-                 x-text="generalError">
-            </div>
-
-            <div @submit.prevent="submit">
-                {{-- Username --}}
+            {{-- (alur data: form ini mengirim inputan 'username' dan 'password' ke fungsi login() pada authcontroller di baris 21) --}}
+            <form method="POST" action="{{ route('login.post') }}">
+                @csrf
+                {{-- bagian input form yang digunakan untuk memasukkan username (nip/email) --}}
                 <div class="mb-5">
                     <label for="username" class="block text-sm font-medium text-gray-700 mb-1.5">Username DokPol</label>
-                    <input type="text" id="username" name="username" x-model="username" @input="usernameError = ''"
-                        :class="usernameError ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-white'"
-                        class="w-full h-11 px-3.5 rounded-lg border text-sm text-gray-800 transition-all duration-150"
-                        autocomplete="username" placeholder="" />
-                    <p x-show="usernameError" x-text="usernameError" class="mt-1.5 text-xs text-red-500 font-medium"></p>
+                    <input type="text" id="username" name="username" value="{{ old('username') }}"
+                        class="w-full h-11 px-3.5 rounded-lg border text-sm text-gray-800 transition-all duration-150 @error('username') border-red-400 bg-red-50 @else border-gray-300 bg-white @enderror"
+                        autocomplete="username" placeholder="" required />
+                    @error('username')
+                        <p class="mt-1.5 text-xs text-red-500 font-medium">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                {{-- Password --}}
+                {{-- bagian input form yang digunakan untuk memasukkan kata sandi (password) --}}
                 <div class="mb-6">
                     <label for="password" class="block text-sm font-medium text-gray-700 mb-1.5">Password</label>
                     <div class="relative">
-                        <input :type="showPassword ? 'text' : 'password'" id="password" name="password" x-model="password" @input="passwordError = ''"
-                            :class="passwordError ? 'border-red-400 bg-red-50' : 'border-gray-300 bg-white'"
-                            class="w-full h-11 px-3.5 pr-11 rounded-lg border text-sm text-gray-800 transition-all duration-150"
-                            autocomplete="current-password" />
+                        <input :type="showPassword ? 'text' : 'password'" id="password" name="password"
+                            class="w-full h-11 px-3.5 pr-11 rounded-lg border text-sm text-gray-800 transition-all duration-150 @error('password') border-red-400 bg-red-50 @else border-gray-300 bg-white @enderror"
+                            autocomplete="current-password" required />
                         <button type="button" @click="showPassword = !showPassword" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors">
                             <svg x-show="!showPassword" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -153,21 +111,20 @@
                             </svg>
                         </button>
                     </div>
-                    <p x-show="passwordError" x-text="passwordError" class="mt-1.5 text-xs text-red-500 font-medium"></p>
+                    @error('password')
+                        <p class="mt-1.5 text-xs text-red-500 font-medium">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                {{-- Submit button --}}
-                <button type="button" @click="submit()" :disabled="loading"
+                {{-- bagian tombol utama yang digunakan untuk mengeksekusi aksi login --}}
+                <button type="submit"
                     class="btn-login w-full h-11 rounded-lg text-white font-semibold text-sm tracking-wide flex items-center justify-center gap-2">
-                    <svg x-show="loading" class="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-                    </svg>
-                    <span x-text="loading ? 'Memproses...' : 'Login'">Login</span>
+                    <span>Login</span>
                 </button>
-            </div>
+            </form>
 
             <p class="mt-5 text-center text-xs text-gray-400">
-                *Gunakan Login <span class="font-semibold text-gray-600">DokPol</span> Anda
+                *Gunakan Login <span class="font-semibold text-gray-600"></span> Anda
             </p>
         </div>
 
