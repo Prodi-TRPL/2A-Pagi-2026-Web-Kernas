@@ -43,3 +43,22 @@ Route::get('/setup/peraturan', function () {
     if (!session()->has('pengguna')) return redirect('/');
     return view('peraturan');
 });
+<<<<<<< HEAD
+=======
+
+Route::get('/dashboard-admin', function () {
+    return view('Admin/dashboard-admin');
+});
+
+Route::get('/penggawai', function () {
+    return view('penggawai');
+});
+
+Route::get('/login', function () {
+    return view('login');
+});
+
+Route::get('/riwayat-admin', function (){
+    return view('Admin/riwayat-admin');
+});
+>>>>>>> ccf986bcc97c50741672ffd0928130849a572028
