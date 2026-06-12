@@ -25,14 +25,14 @@
         <div class="max-w-screen-xl mx-auto px-4">
             <div class="flex items-center justify-between h-14">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-sky-500 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
+                    <div class="w-10 h-10 rounded-full flex items-center justify-center">
+                        <img src="{{ asset('images/logo_polibatam.png') }}"
+                         alt="Logo Polibatam"
+                         class="w-14 h-14 object-contain" />
                     </div>
                     <div>
-                        <p class="text-sm font-bold text-gray-800 leading-none">Polibatam</p>
-                        <p class="text-xs text-gray-500 leading-none">Aplikasi Pengajuan dan Distribusi SK</p>
+                        <p class="text-sm font-bold text-gray-800 leading-none">KERNAS</p>
+                        <p class="text-xs text-gray-500 leading-none">Kerja elektronik naskah dinas</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-3">
@@ -56,7 +56,7 @@
             </div>
 
             <div class="hidden md:flex items-center gap-1 border-t border-gray-100">
-                <a href="/dashboard" class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-sky-600 border-b-2 border-sky-500 transition-colors">
+                <a href="/dashboard" class="flex items-center gap-1.5 px-3 py-2 text-sm transition-colors {{ request()->is('dashboard') ? 'font-medium text-sky-600 border-b-2 border-sky-500' : 'text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 9.75L12 3l9 6.75V20.25a.75.75 0 01-.75.75H3.75a.75.75 0 01-.75-.75V9.75z"/>
                     </svg>
@@ -64,7 +64,7 @@
                 </a>
 
                 @if ($user['is_admin'] || $user['is_verifikator'])
-                <a href="/pengajuan-surat" class="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors">
+                <a href="/pengajuan-surat" class="flex items-center gap-1.5 px-3 py-2 text-sm transition-colors {{ request()->is('pengajuan-surat') ? 'font-medium text-sky-600 border-b-2 border-sky-500' : 'text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
                     </svg>

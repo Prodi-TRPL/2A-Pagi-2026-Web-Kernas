@@ -40,6 +40,7 @@
                     <option value="Jurusan Teknik Mesin">Jurusan Teknik Mesin</option>
                     <option value="Jurusan Manajemen dan Bisnis">Jurusan Manajemen dan Bisnis</option>
                     <option value="Jurusan Teknik Informatika">Jurusan Teknik Informatika</option>
+                    <option value="Pusat">Pusat</option>
                 </select>
 
                 {{-- bagian dropdown yang digunakan untuk menyaring data berdasarkan peran (role) --}}
