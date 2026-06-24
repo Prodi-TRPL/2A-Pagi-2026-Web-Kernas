@@ -13,7 +13,7 @@ class PegawaiController extends Controller
     {
         if (!session()->has('pengguna')) return redirect('/');
 
-        $penggunas = Pengguna::with('grupVerifikasi')->get();
+        $penggunas = Pengguna::where('is_deleted', 0)->with('grupVerifikasi')->get();
         $grupVerifikasi = DB::table('grup_verifikasi')->select('id', 'nama_grup as nama')->get();
         
         $karyawan = $penggunas->map(function($p) {
@@ -123,5 +123,19 @@ class PegawaiController extends Controller
         }
 
         return response()->json(['message' => 'Peran berhasil diperbarui']);
+    }
+
+    public function destroy($id)
+    {
+        if (!session()->has('pengguna')) return response()->json(['error' => 'Unauthorized'], 401);
+        $penggunaLokal = session('pengguna');
+        if (empty($penggunaLokal['is_admin'])) {
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        $pengguna = Pengguna::findOrFail($id);
+        $pengguna->update(['is_deleted' => 1]);
+        
+        return response()->json(['message' => 'Pegawai berhasil dihapus']);
     }
 }

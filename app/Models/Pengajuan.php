@@ -10,6 +10,19 @@ class Pengajuan extends Model
     
     protected $guarded = ['id'];
 
+    public function getStatusLabelAttribute()
+    {
+        return match($this->status) {
+            'DRAFT' => 'Draf',
+            'POSTED' => 'Diproses Admin',
+            'REVIEWED' => 'Menunggu Verifikasi',
+            'REJECTED' => 'Ditolak Admin',
+            'REJECTED_BY_VERIFIER' => 'Revisi',
+            'PUBLISHED' => 'Diterbitkan',
+            default => $this->status
+        };
+    }
+
     public function pengaju()
     {
         return $this->belongsTo(Pengguna::class, 'id_pengguna');

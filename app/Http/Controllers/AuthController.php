@@ -18,7 +18,7 @@ class AuthController extends Controller
         return view('login');
     }
 
-    // (alur data: fungsi ini menerima aksi submit dari form login di view 'login' baris 78, memvalidasi datanya menggunakan model pengguna, lalu menyimpannya ke session)
+    // (alur: fungsi ini menerima aksi submit dari form login di view 'login' baris 78, memvalidasi datanya menggunakan model pengguna, lalu menyimpannya ke session)
     public function login(Request $request)
     {
         $request->validate([
@@ -26,7 +26,9 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        $pengguna = Pengguna::where('username', $request->username)->first();
+        $pengguna = Pengguna::where('username', $request->username)
+                            ->where('is_deleted', 0)
+                            ->first();
 
         if ($pengguna && Hash::check($request->password, $pengguna->password)) {
             

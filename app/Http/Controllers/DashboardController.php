@@ -25,7 +25,7 @@ class DashboardController extends Controller
         $dokumenQuery = Dokumen::where('is_deleted', 0);
         
         // Query Pengajuan
-        $pengajuanQuery = Pengajuan::where('is_deleted', 0);
+        $pengajuanQuery = Pengajuan::where('is_deleted', 0)->where('status', '!=', 'PUBLISHED');
 
         if ($isAdmin) {
             // Admin sama sekali tidak melihat DRAFT dan REJECTED di Dashboard
@@ -34,7 +34,8 @@ class DashboardController extends Controller
         } else {
             // Filter Dokumen user / group (idk how this works but it works)
             $dokumenQuery->where(function ($q) use ($id) {
-                $q->whereHas('anggotaDokumen', fn($a) => $a->where('id_pengguna', $id))
+                $q->where('id_pengguna', $id)
+                  ->orWhereHas('anggotaDokumen', fn($a) => $a->where('id_pengguna', $id))
                   ->orWhereHas('grupVerifikasiDokumen.pengguna', fn($a) => $a->where('id_pengguna', $id));
             });
 
@@ -42,7 +43,10 @@ class DashboardController extends Controller
             $pengajuanQuery->where(function ($q) use ($id) {
                 // Pengusul bisa melihat semua status pengajuan mereka
                 $q->where('id_pengguna', $id)
-                  ->orWhereHas('anggotaPengajuan', fn($a) => $a->where('id_pengguna', $id))
+                  ->orWhere(function ($q2) use ($id) {
+                      $q2->where('status', 'POSTED')
+                         ->whereHas('anggotaPengajuan', fn($a) => $a->where('id_pengguna', $id));
+                  })
                   // Verifikator hanya bisa melihat dokumen JIKA giliran mereka (id_verifikator_sekarang)
                   // ATAU dokumen sudah selesai (PUBLISHED/REJECTED) dan mereka termasuk dalam grup verifikator
                   ->orWhere('id_verifikator_sekarang', $id)
@@ -60,7 +64,7 @@ class DashboardController extends Controller
         $stats = [
             'total_sk' => (clone $dokumenQuery)->where('tipe', 'SK')->count(),
             'total_st' => (clone $dokumenQuery)->where('tipe', 'ST')->count(),
-            'pengajuan_proses' => (clone $pengajuanQuery)->whereIn('status', ['POSTED', 'PUBLISHED'])->count(),
+            'pengajuan_proses' => (clone $pengajuanQuery)->whereIn('status', ['POSTED', 'REVIEWED'])->count(),
             'pengajuan_hari' => (clone $pengajuanQuery)->whereDate('created_at', Carbon::today())->count(),
         ];
 
@@ -80,6 +84,7 @@ class DashboardController extends Controller
                     'tgl_masuk' => \Carbon\Carbon::parse($p->created_at)->translatedFormat('d M Y'),
                     'raw_tgl_masuk' => \Carbon\Carbon::parse($p->created_at)->format('Y-m-d'),
                     'status' => $p->status,
+                    'status_label' => $p->status_label,
                     'grup_verifikasi' => $p->grupVerifikator->nama_grup ?? '-',
                     'can_delete' => $p->id_pengguna == $id && in_array($p->status, ['DRAFT', 'POSTED', 'REJECTED']),
                 ];
@@ -129,5 +134,42 @@ class DashboardController extends Controller
         $templatesKhusus = $templates->whereIn('tipe', ['Khusus', 'MoU', 'Perjanjian', 'Surat Kuasa', 'Berita Acara']);
 
         return view('dashboard', compact('user', 'stats', 'pengajuanTerbaru', 'dokumenTerbaru', 'chartData', 'templatesArahan', 'templatesKorespondensi', 'templatesKhusus'));
+    }
+
+    public function dokumenTerbit()
+    {
+        if (!session()->has('pengguna')) return redirect('/');
+
+        $user = session('pengguna');
+        $isAdmin = $user['is_admin'] ?? 0;
+        $id = $user['id'];
+
+        $dokumenQuery = Dokumen::where('is_deleted', 0);
+
+        if (!$isAdmin) {
+            $dokumenQuery->where(function ($q) use ($id) {
+                // Pembuat dokumen
+                $q->where('id_pengguna', $id)
+                  // Anggota dokumen
+                  ->orWhereHas('anggotaDokumen', fn($a) => $a->where('id_pengguna', $id))
+                  // Verifikator (dari grup_verifikasi_dokumen)
+                  ->orWhereHas('grupVerifikasiDokumen.pengguna', fn($a) => $a->where('id_pengguna', $id));
+            });
+        }
+
+        $dokumen = $dokumenQuery
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function($d) {
+                return [
+                    'id' => $d->id,
+                    'judul' => $d->nama_dokumen ?? 'Dokumen Tanpa Judul',
+                    'tipe' => $d->tipe,
+                    'updated_at' => $d->tgl_dokumen ?? $d->created_at,
+                    'pengajuan_id' => $d->dari_pengajuan
+                ];
+            });
+
+        return view('dokumen-terbit', compact('dokumen'));
     }
 }

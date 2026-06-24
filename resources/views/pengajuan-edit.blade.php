@@ -11,11 +11,12 @@
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
                 </a>
                 <h1 class="text-xl font-bold text-gray-900">Editor Draf Surat</h1>
-                <span class="px-2.5 py-1 rounded-full text-xs font-semibold 
+                <span class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block
                     {{ $pengajuan->status === 'POSTED' ? 'bg-amber-100 text-amber-700' : 
                        ($pengajuan->status === 'REVIEWED' ? 'bg-indigo-100 text-indigo-700' : 
-                       ($pengajuan->status === 'PUBLISHED' ? 'bg-sky-100 text-sky-700' : 'bg-gray-100 text-gray-700')) }}">
-                    {{ $pengajuan->status }}
+                       ($pengajuan->status === 'PUBLISHED' ? 'bg-sky-100 text-sky-700' : 
+                       (in_array($pengajuan->status, ['REJECTED', 'REJECTED_BY_VERIFIER']) ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'))) }}">
+                    {{ $pengajuan->status_label }}
                 </span>
             </div>
             <p class="text-sm text-gray-500 mt-1 ml-10">Judul: <span class="font-medium text-gray-700">{{ $pengajuan->judul }}</span></p>
@@ -27,8 +28,72 @@
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                     Lihat Lampiran
                 </a>
-                <div class="h-6 w-px bg-gray-300 mx-1"></div>
             @endif
+
+            <div x-data="{ showRiwayat: false }">
+                <button @click="showRiwayat = true" type="button" class="px-3 py-1.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Riwayat
+                </button>
+
+                <!-- Modal Riwayat -->
+                <div x-show="showRiwayat" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" x-cloak style="display: none;">
+                    <div class="bg-white rounded-xl shadow-lg w-full max-w-lg max-h-[80vh] flex flex-col" @click.away="showRiwayat = false">
+                        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-gray-900">Riwayat Pengajuan</h3>
+                            <button @click="showRiwayat = false" class="text-gray-400 hover:text-gray-600">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                        <div class="p-6 overflow-y-auto flex-1">
+                            <div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-300 before:to-transparent">
+                                @foreach($riwayat as $log)
+                                <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                                    <!-- Icon -->
+                                    <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white {{ 
+                                        $log->aksi == 'DIBUAT' ? 'bg-blue-500' : 
+                                        ($log->aksi == 'DIREVIU' ? 'bg-amber-500' : 
+                                        ($log->aksi == 'DISETUJUI' ? 'bg-green-500' : 
+                                        ($log->aksi == 'DITERBITKAN' ? 'bg-sky-500' : 
+                                        ($log->aksi == 'DITOLAK' ? 'bg-red-500' : 'bg-gray-500')))) 
+                                    }} text-white shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                            @if($log->aksi == 'DIBUAT')
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                                            @elseif($log->aksi == 'DIREVIU')
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+                                            @elseif($log->aksi == 'DISETUJUI')
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                                            @elseif($log->aksi == 'DITERBITKAN')
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                            @elseif($log->aksi == 'DITOLAK')
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                            @else
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+                                            @endif
+                                        </svg>
+                                    </div>
+                                    
+                                    <!-- Card -->
+                                    <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-xl border border-slate-200 bg-white shadow-sm">
+                                        <div class="flex items-center justify-between space-x-2 mb-1">
+                                            <div class="font-bold text-slate-900 text-sm">{{ $log->aksi }}</div>
+                                            <time class="font-caveat font-medium text-xs text-indigo-500">{{ \Carbon\Carbon::parse($log->created_at)->diffForHumans() }}</time>
+                                        </div>
+                                        <div class="text-xs text-slate-500 mb-2">Oleh: <span class="font-semibold">{{ $log->pengguna->nama ?? 'Sistem' }}</span></div>
+                                        <div class="text-slate-700 text-sm">
+                                            {{ $log->catatan_aksi }}
+                                        </div>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="h-6 w-px bg-gray-300 mx-1"></div>
 
             @if($pengajuan->status === 'POSTED' || $pengajuan->status === 'REJECTED')
                 @if($isAdmin)
@@ -171,7 +236,7 @@
                 @endif
             @else
             <span class="text-xs text-amber-600 font-medium bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
-                Dokumen ini tidak bisa diedit karena statusnya {{ $pengajuan->status }}.
+                Dokumen ini tidak bisa diedit karena statusnya {{ $pengajuan->status_label }}.
             </span>
             @endif
         </div>

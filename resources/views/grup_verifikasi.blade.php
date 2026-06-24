@@ -41,9 +41,12 @@
                             <div class="flex items-start justify-between gap-2">
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-bold text-gray-900 truncate" x-text="grup.nama_grup"></p>
-                                    <div class="mt-2 flex items-center gap-1 text-xs text-gray-400 font-medium">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
-                                        <span x-text="grup.pengguna ? grup.pengguna.length + ' Anggota' : '0 Anggota'"></span>
+                                    <div class="mt-2 flex items-center gap-2 text-xs text-gray-400 font-medium">
+                                        <span class="px-1.5 py-0.5 rounded bg-sky-100 text-sky-700" x-text="'Tahap ' + (grup.tingkat || '?')"></span>
+                                        <div class="flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+                                            <span x-text="grup.pengguna ? grup.pengguna.length + ' Anggota' : '0 Anggota'"></span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -63,7 +66,10 @@
                     {{-- Header Detail Grup --}}
                     <div class="bg-white border-b border-gray-200 px-6 py-5 flex items-start justify-between flex-shrink-0">
                         <div>
-                            <h2 class="text-xl font-bold text-gray-900" x-text="selectedGrup.nama_grup"></h2>
+                            <div class="flex items-center gap-3">
+                                <h2 class="text-xl font-bold text-gray-900" x-text="selectedGrup.nama_grup"></h2>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-md bg-sky-100 text-sky-700" x-text="'Tahap ' + (selectedGrup.tingkat || '?')"></span>
+                            </div>
                         </div>
                         <div class="flex items-center gap-2">
                             <button @click="openGrupModal(selectedGrup)" class="p-2 text-gray-500 hover:text-sky-600 hover:bg-sky-50 rounded-lg transition-colors border border-gray-200 bg-white" title="Edit Grup">
@@ -144,6 +150,16 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Grup <span class="text-red-500">*</span></label>
                         <input type="text" x-model="formGrup.nama_grup" placeholder="Contoh: Wadir 1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none text-sm">
                     </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Tingkat/Tahapan Grup <span class="text-red-500">*</span></label>
+                        <select x-model="formGrup.tingkat" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none text-sm">
+                            <option value="">-- Pilih Tingkat --</option>
+                            <option value="1">Tahap 1 (Staff/Admin)</option>
+                            <option value="2">Tahap 2 (Kajur/Manajer)</option>
+                            <option value="3">Tahap 3 (Direktur/Wadir)</option>
+                        </select>
+                        <p class="text-[10px] text-gray-500 mt-1">Grup ini akan tampil sebagai pilihan di form pengajuan berdasarkan tingkat yang dipilih.</p>
+                    </div>
                 </div>
                 <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
                     <button @click="grupModalOpen = false" class="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50">Batal</button>
@@ -199,7 +215,7 @@
                 selectedGrup: null,
                 
                 grupModalOpen: false,
-                formGrup: { id: null, nama_grup: '' },
+                formGrup: { id: null, nama_grup: '', tingkat: '' },
 
                 anggotaModalOpen: false,
 
@@ -236,15 +252,15 @@
 
                 openGrupModal(grup = null) {
                     if (grup) {
-                        this.formGrup = { id: grup.id, nama_grup: grup.nama_grup };
+                        this.formGrup = { id: grup.id, nama_grup: grup.nama_grup, tingkat: grup.tingkat || '' };
                     } else {
-                        this.formGrup = { id: null, nama_grup: '' };
+                        this.formGrup = { id: null, nama_grup: '', tingkat: '' };
                     }
                     this.grupModalOpen = true;
                 },
 
                 async saveGrup() {
-                    if (!this.formGrup.nama_grup) { alert('Nama grup wajib diisi!'); return; }
+                    if (!this.formGrup.nama_grup || !this.formGrup.tingkat) { alert('Nama grup dan tingkat wajib diisi!'); return; }
                     
                     const isEdit = !!this.formGrup.id;
                     const url = isEdit ? `/setup/grup-verifikasi/${this.formGrup.id}` : `/setup/grup-verifikasi`;

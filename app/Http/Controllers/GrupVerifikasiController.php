@@ -28,11 +28,13 @@ class GrupVerifikasiController extends Controller
         if (!session()->has('pengguna')) return response()->json(['error' => 'Unauthorized'], 401);
 
         $request->validate([
-            'nama_grup' => 'required|string|max:100'
+            'nama_grup' => 'required|string|max:100',
+            'tingkat' => 'required|in:1,2,3'
         ]);
 
         $grup = GrupVerifikasi::create([
             'nama_grup' => $request->nama_grup,
+            'tingkat' => $request->tingkat,
             'id_pengguna' => session('pengguna')['id']
         ]);
 
@@ -46,12 +48,14 @@ class GrupVerifikasiController extends Controller
         if (!session()->has('pengguna')) return response()->json(['error' => 'Unauthorized'], 401);
 
         $request->validate([
-            'nama_grup' => 'required|string|max:100'
+            'nama_grup' => 'required|string|max:100',
+            'tingkat' => 'required|in:1,2,3'
         ]);
 
         $grup = GrupVerifikasi::findOrFail($id);
         $grup->update([
-            'nama_grup' => $request->nama_grup
+            'nama_grup' => $request->nama_grup,
+            'tingkat' => $request->tingkat
         ]);
 
         $grup->load('pengguna');

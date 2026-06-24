@@ -250,8 +250,7 @@
                                         'bg-amber-100 text-amber-700': item.status === 'POSTED',
                                         'bg-indigo-100 text-indigo-700': item.status === 'REVIEWED',
                                         'bg-sky-100 text-sky-700': item.status === 'PUBLISHED',
-                                        'bg-red-100 text-red-700': item.status === 'REJECTED'
-                                    }" class="px-2.5 py-1 rounded-full text-xs font-semibold" x-text="item.status"></span>
+                                    }" class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block" x-text="item.status_label"></span>
                                 </td>
                                 <td class="px-5 py-3.5 text-center" @click.stop>
                                     <div class="flex items-center justify-center gap-2">

@@ -23,6 +23,7 @@ class PengajuanController extends Controller
 
         // Tampilkan hanya pengajuan milik user yang sedang login
         $pengajuans = Pengajuan::where('id_pengguna', $pengguna['id'])
+            ->where('status', '!=', 'PUBLISHED')
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function($p) {
@@ -31,6 +32,7 @@ class PengajuanController extends Controller
                     'judul' => $p->judul,
                     'tipe' => $p->tipe,
                     'status' => $p->status,
+                    'status_label' => $p->status_label,
                     'tgl_masuk' => $p->created_at ? $p->created_at->format('d/m/Y') : '-',
                     'raw_tgl_masuk' => $p->created_at ? $p->created_at->format('Y-m-d') : '',
                 ];
@@ -59,8 +61,19 @@ class PengajuanController extends Controller
             return redirect('/pengajuan/baru')->with('error', 'Template Contoh Surat Satu tidak ditemukan.');
         }
 
-        $verifikators = \App\Models\Pengguna::has('grupVerifikasi')->get();
-        return view('forms.contoh-surat-satu', compact('template', 'verifikators'));
+        $penggunas = \App\Models\Pengguna::where('is_deleted', 0)->orderBy('nama')->get();
+
+        $verifikator1 = \App\Models\Pengguna::where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
+            $q->where('tingkat', '1');
+        })->get();
+        $verifikator2 = \App\Models\Pengguna::where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
+            $q->where('tingkat', '2');
+        })->get();
+        $verifikator3 = \App\Models\Pengguna::where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
+            $q->where('tingkat', '3');
+        })->get();
+
+        return view('forms.contoh-surat-satu', compact('template', 'penggunas', 'verifikator1', 'verifikator2', 'verifikator3'));
     }
 
     public function storeContohSuratSatu(Request $request)
@@ -77,6 +90,7 @@ class PengajuanController extends Controller
             'HAL' => 'required|string',
             'NAMA_PENGUSUL' => 'required|string',
             'diusulkan' => 'required|array|min:1',
+            'diusulkan.*.id_pengguna' => 'required|exists:pengguna,id',
             'diusulkan.*.NAMA_DIUSUL' => 'required|string',
             'diusulkan.*.NIP_DIUSUL' => 'required|string',
             'diusulkan.*.JABATAN_DIUSUL' => 'required|string',
@@ -182,6 +196,28 @@ class PengajuanController extends Controller
                 'filepath' => 'pengajuan/' . $filename
             ]);
 
+            // Save ke anggota_pengajuan
+            foreach ($request->diusulkan as $diusul) {
+                // $diusul['id_pengguna'] is passed from the form
+                if (!empty($diusul['id_pengguna'])) {
+                    \Illuminate\Support\Facades\DB::table('anggota_pengajuan')->insert([
+                        'id_pengajuan' => $pengajuan->id,
+                        'id_pengguna' => $diusul['id_pengguna'],
+                        'created_at' => now(),
+                    ]);
+                }
+            }
+
+            // Catat Riwayat
+            \App\Models\RiwayatPengajuan::create([
+                'id_pengajuan' => $pengajuan->id,
+                'id_pengguna' => $pengguna['id'],
+                'aksi' => 'DIBUAT',
+                'catatan_aksi' => 'Pengajuan baru dibuat',
+                'versi' => 1,
+                'created_at' => now()
+            ]);
+
             return redirect('/pengajuan/' . $pengajuan->id . '/edit')->with('success', 'Pengajuan berhasil dibuat! Silakan tinjau draf dokumen Anda.');
 
         } catch (\Exception $e) {
@@ -225,11 +261,14 @@ class PengajuanController extends Controller
         $callbackUrl = asset('onlyoffice/callback/pengajuan/' . $pengajuan->id);
         $callbackUrl = str_replace(['localhost', '127.0.0.1'], 'host.docker.internal', $callbackUrl);
 
+        $fileType = pathinfo($pengajuan->filepath, PATHINFO_EXTENSION);
+        $fileType = strtolower($fileType) ?: 'docx';
+
         $config = [
             "document" => [
-                "fileType" => "docx",
+                "fileType" => $fileType,
                 "key" => "pengajuan_" . $pengajuan->id . "_" . time(),
-                "title" => "Draf_" . $pengajuan->judul . ".docx",
+                "title" => "Draf_" . $pengajuan->judul . "." . $fileType,
                 "url" => $url,
                 "permissions" => [
                     "edit" => $canEdit
@@ -257,7 +296,12 @@ class PengajuanController extends Controller
             $config['token'] = \Firebase\JWT\JWT::encode($config, $secret, 'HS256');
         }
 
-        return view('pengajuan-edit', compact('pengajuan', 'config', 'isProposer', 'isAdmin', 'isVerifier'));
+        $riwayat = \App\Models\RiwayatPengajuan::with('pengguna')
+            ->where('id_pengajuan', $id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('pengajuan-edit', compact('pengajuan', 'config', 'isProposer', 'isAdmin', 'isVerifier', 'riwayat'));
     }
 
     public function kirimVerifikasi($id)
@@ -300,6 +344,15 @@ class PengajuanController extends Controller
             'id_verifikator_sekarang' => $verifikatorPertama ? $verifikatorPertama->id_pengguna : null
         ]);
 
+        \App\Models\RiwayatPengajuan::create([
+            'id_pengajuan' => $pengajuan->id,
+            'id_pengguna' => $pengguna['id'],
+            'aksi' => 'DIREVIU',
+            'catatan_aksi' => 'Admin mengirim dokumen ke Antrian Verifikasi',
+            'versi' => 1,
+            'created_at' => now()
+        ]);
+
         return redirect('/dashboard')->with('success', 'Dokumen berhasil dikirim dan kini siap ditinjau oleh Verifikator!');
     }
 
@@ -314,6 +367,15 @@ class PengajuanController extends Controller
 
         // Kembali ke status REVIEWED tanpa mengubah urutan antrean
         $pengajuan->update(['status' => 'REVIEWED']);
+
+        \App\Models\RiwayatPengajuan::create([
+            'id_pengajuan' => $pengajuan->id,
+            'id_pengguna' => $pengguna['id'],
+            'aksi' => 'DIREVIU',
+            'catatan_aksi' => 'Admin mengirim ulang dokumen ke Verifikator (Re-Review)',
+            'versi' => 1,
+            'created_at' => now()
+        ]);
 
         return redirect('/dashboard')->with('success', 'Dokumen berhasil dikirim ulang ke Verifikator.');
     }
@@ -331,6 +393,15 @@ class PengajuanController extends Controller
             'status' => 'REJECTED',
             'id_verifikator_sekarang' => null,
             'catatan' => $request->catatan ?? $pengajuan->catatan
+        ]);
+
+        \App\Models\RiwayatPengajuan::create([
+            'id_pengajuan' => $pengajuan->id,
+            'id_pengguna' => $pengguna['id'],
+            'aksi' => 'DITOLAK',
+            'catatan_aksi' => 'Admin mengembalikan dokumen ke Pengusul. Catatan: ' . ($request->catatan ?? $pengajuan->catatan),
+            'versi' => 1,
+            'created_at' => now()
         ]);
 
         return redirect('/dashboard')->with('success', 'Dokumen dikembalikan ke Pengusul untuk direvisi.');
@@ -363,6 +434,16 @@ class PengajuanController extends Controller
                 'urutan_antrian' => $nextUrutan,
                 'id_verifikator_sekarang' => $verifikators[$nextUrutan]->id_pengguna
             ]);
+
+            \App\Models\RiwayatPengajuan::create([
+                'id_pengajuan' => $pengajuan->id,
+                'id_pengguna' => $pengguna['id'],
+                'aksi' => 'DISETUJUI',
+                'catatan_aksi' => 'Verifikator menyetujui dokumen (menunggu verifikator selanjutnya)',
+                'versi' => 1,
+                'created_at' => now()
+            ]);
+
             return redirect('/dashboard')->with('success', 'Dokumen disetujui dan diteruskan ke Verifikator selanjutnya.');
         } else {
             $pengajuan->update([
@@ -391,8 +472,8 @@ class PengajuanController extends Controller
                 $qrPath = $pengajuanDir . '/' . $qrFileName;
                 
                 $qrOptions = new \chillerlan\QRCode\QROptions([
-                    'outputType' => \chillerlan\QRCode\QRCode::OUTPUT_IMAGE_PNG,
-                    'eccLevel' => \chillerlan\QRCode\QRCode::ECC_L,
+                    'outputInterface' => \chillerlan\QRCode\Output\QRGdImagePNG::class,
+                    'eccLevel' => \chillerlan\QRCode\Common\EccLevel::L,
                     'scale' => 4,
                     'imageBase64' => false,
                 ]);
@@ -409,7 +490,7 @@ class PengajuanController extends Controller
                     $templateProcessor->setValue('NAMA_VERIFIKATOR', $namaVerifikator);
                     $templateProcessor->setValue('NIP_VERIFIKATOR', $pengguna['nip'] ?? '-');
                     
-                    // Coba timpa placeholder ${KODE_QR} jika ada
+                    // Coba timpa placeholder ${KODE_QR} jika ada (ingat jika ada)
                     try {
                         $templateProcessor->setImageValue('KODE_QR', [
                             'path' => $qrPath,
@@ -421,8 +502,8 @@ class PengajuanController extends Controller
                         // Save kembali menimpa file aslinya
                         $templateProcessor->saveAs($docPath);
                     } catch (\Exception $ex) {
-                        // Jika placeholder ${KODE_QR} tidak ditemukan, templateProcessor mungkin error
-                        // Tapi pastikan saveAs tetap jalan untuk teks NAMA & NIP
+                        // Jika placeholder ${KODE_QR} tidak ditemukan, templateProcessor mungkin error (MUNGKIN)
+                        // Tapi pastikan save As tetap jalan untuk teks NAMA & NIP (failsafe)
                         $templateProcessor->saveAs($docPath);
                         \Illuminate\Support\Facades\Log::warning('Placeholder ${KODE_QR} tidak ditemukan: ' . $ex->getMessage());
                     }
@@ -432,10 +513,133 @@ class PengajuanController extends Controller
                 if (file_exists($qrPath)) {
                     @unlink($qrPath);
                 }
+                
+                // === KONVERSI PDF (ONLYOFFICE) ===
+                try {
+                    $fileUrl = asset('storage/' . $pengajuan->filepath);
+                    $fileUrl = str_replace(['localhost', '127.0.0.1'], 'host.docker.internal', $fileUrl);
+                    
+                    // Coba fallback URL Laragon jika menggunakan host.docker.internal
+                    if (str_contains(public_path(), 'laragon\www') || str_contains(public_path(), 'laragon/www')) {
+                        $publicPath = str_replace('\\', '/', public_path());
+                        $laragonWww = str_replace('\\', '/', 'C:/laragon/www');
+                        if (str_starts_with($publicPath, $laragonWww)) {
+                            $relativePath = substr($publicPath, strlen($laragonWww));
+                            $fileUrl = 'http://host.docker.internal' . str_replace(' ', '%20', $relativePath) . '/storage/' . str_replace(' ', '%20', $pengajuan->filepath);
+                        }
+                    }
+
+                    $payload = [
+                        'async' => false,
+                        'filetype' => 'docx',
+                        'key' => 'publish_' . $pengajuan->id . '_' . time(),
+                        'outputtype' => 'pdf',
+                        'url' => $fileUrl
+                    ];
+                    
+                    $headers = [];
+                    if (class_exists(\Firebase\JWT\JWT::class)) {
+                        $secret = env('ONLYOFFICE_JWT_SECRET', 'polibatam_secret_jwt_key_256bit_2026');
+                        $token = \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
+                        $payload['token'] = $token;
+                        $headers['Authorization'] = 'Bearer ' . $token;
+                    }
+
+                    $response = \Illuminate\Support\Facades\Http::timeout(8)
+                                    ->withHeaders($headers)
+                                    ->post('http://localhost:8080/ConvertService.ashx', $payload);
+                    
+                    if ($response->successful()) {
+                        $xml = simplexml_load_string($response->body());
+                        if (isset($xml->FileUrl)) {
+                            $pdfUrl = (string) $xml->FileUrl;
+                            $pdfUrl = str_replace('172.17.0.2', '127.0.0.1', $pdfUrl);
+                            $pdfUrl = preg_replace('/^http:\/\/[^\/]+/', 'http://127.0.0.1:8080', $pdfUrl);
+
+                            $pdfData = file_get_contents($pdfUrl);
+                            if ($pdfData !== false) {
+                                $pdfFilepath = str_replace('.docx', '.pdf', $pengajuan->filepath);
+                                \Illuminate\Support\Facades\Storage::disk('public')->put($pdfFilepath, $pdfData);
+                                
+                                // Timpa filepath dengan versi PDF yang sudah dibuat
+                                $pengajuan->update(['filepath' => $pdfFilepath]);
+                            }
+                        } else {
+                            \Illuminate\Support\Facades\Log::error('ONLYOFFICE Convert Error: ' . $response->body());
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('ONLYOFFICE Convert Exception: ' . $e->getMessage());
+                }
+                
+                // Generate Nomor Dokumen
+                $tahun = date('Y');
+                $lastNomor = \App\Models\NomorDokumen::where('tipe', $pengajuan->tipe)
+                                ->where('tahun', $tahun)
+                                ->orderBy('urutan', 'desc')
+                                ->first();
+                $urutan = $lastNomor ? $lastNomor->urutan + 1 : 1;
+                $nomorTerformat = sprintf('%03d/%s/%d', $urutan, $pengajuan->tipe, $tahun);
+                
+                $nomorDokumen = \App\Models\NomorDokumen::create([
+                    'tipe' => $pengajuan->tipe,
+                    'tahun' => $tahun,
+                    'urutan' => $urutan,
+                    'nomor_terformat' => $nomorTerformat,
+                    'created_at' => now(),
+                ]);
+
+                // === BUAT RECORD DOKUMEN ===
+                $dokumenBaru = \App\Models\Dokumen::create([
+                    'id_nomor_dokumen' => $nomorDokumen->id,
+                    'tgl_dokumen' => now()->format('Y-m-d'),
+                    'id_pengguna' => $pengajuan->id_pengguna,
+                    'tipe' => $pengajuan->tipe,
+                    'nama_dokumen' => $pengajuan->judul,
+                    'filepath' => $pengajuan->filepath, // sudah jadi pdf
+                    'catatan' => $pengajuan->catatan,
+                    'dari_pengajuan' => $pengajuan->id,
+                    'kode_unik' => substr(uniqid(), 0, 20),
+                    'is_deleted' => 0
+                ]);
+                
+                // Pindahkan anggota pengajuan menjadi anggota dokumen
+                $anggotaPengajuan = \Illuminate\Support\Facades\DB::table('anggota_pengajuan')
+                                    ->where('id_pengajuan', $pengajuan->id)
+                                    ->get();
+                foreach ($anggotaPengajuan as $angg) {
+                    \Illuminate\Support\Facades\DB::table('anggota_dokumen')->insert([
+                        'id_dokumen' => $dokumenBaru->id,
+                        'id_pengguna' => $angg->id_pengguna,
+                        'created_at' => now()
+                    ]);
+                }
+                
+                // Pindahkan grup verifikasi pengajuan menjadi grup verifikasi dokumen
+                $grupVerifikasi = \Illuminate\Support\Facades\DB::table('grup_verifikasi_pengajuan')
+                                    ->where('id_pengajuan', $pengajuan->id)
+                                    ->get();
+                foreach ($grupVerifikasi as $gv) {
+                    \Illuminate\Support\Facades\DB::table('grup_verifikasi_dokumen')->insert([
+                        'id_dokumen' => $dokumenBaru->id,
+                        'id_grup_verifikasi' => $gv->id_grup_verifikasi,
+                        'created_at' => now()
+                    ]);
+                }
+                
             } catch (\Exception $e) {
-                // Jangan batalkan proses walau QR gagal
-                \Illuminate\Support\Facades\Log::error('Gagal injeksi QR Code: ' . $e->getMessage());
+                // Jangan batalkan proses walau QR/Konversi gagal (ini MUNGKIN terjadi)
+                \Illuminate\Support\Facades\Log::error('Gagal injeksi QR / Konversi PDF: ' . $e->getMessage());
             }
+
+            \App\Models\RiwayatPengajuan::create([
+                'id_pengajuan' => $pengajuan->id,
+                'id_pengguna' => $pengguna['id'],
+                'aksi' => 'DITERBITKAN',
+                'catatan_aksi' => 'Verifikator akhir menyetujui dokumen dan dokumen resmi diterbitkan',
+                'versi' => 1,
+                'created_at' => now()
+            ]);
 
             return redirect('/dashboard')->with('success', 'Dokumen berhasil disetujui sepenuhnya dan telah ditandatangani.');
         }
@@ -465,9 +669,17 @@ class PengajuanController extends Controller
             'catatan' => $request->catatan
         ]);
 
+        \App\Models\RiwayatPengajuan::create([
+            'id_pengajuan' => $pengajuan->id,
+            'id_pengguna' => $pengguna['id'],
+            'aksi' => 'DITOLAK',
+            'catatan_aksi' => 'Verifikator menolak dokumen. Catatan: ' . $request->catatan,
+            'versi' => 1,
+            'created_at' => now()
+        ]);
+
         return redirect('/dashboard')->with('success', 'Dokumen ditolak dan dikembalikan ke Admin.');
     }
-
     public function viewLampiran($id)
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -496,7 +708,7 @@ class PengajuanController extends Controller
             
         return view('pengajuan-lampiran', compact('pengajuan', 'lampirans'));
     }
-
+     // jlogic penghapusan surat (self explenatory)
     public function hapusPengajuan(Request $request, $id)
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -509,7 +721,7 @@ class PengajuanController extends Controller
             return back()->with('error', 'Anda tidak memiliki hak akses untuk menghapus dokumen ini.');
         }
 
-        // Hanya bisa dihapus jika statusnya DRAFT, POSTED, atau REJECTED
+        // Hanya bisa dihapus jika statusnya DRAFT, POSTED, atau REJECTED (agar tidak ada "security problem")
         if (!in_array($pengajuan->status, ['DRAFT', 'POSTED', 'REJECTED'])) {
             return back()->with('error', 'Dokumen ini sedang diproses atau sudah selesai, sehingga tidak dapat dihapus.');
         }

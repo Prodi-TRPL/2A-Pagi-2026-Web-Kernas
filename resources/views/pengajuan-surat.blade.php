@@ -97,13 +97,14 @@
                                 </span>
                             </td>
                             <td class="px-5 py-3.5 text-center">
-                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
+                                <span class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block"
                                       :class="{
                                           'bg-amber-100 text-amber-700': item.status == 'POSTED',
+                                          'bg-indigo-100 text-indigo-700': item.status == 'REVIEWED',
                                           'bg-sky-100 text-sky-700': item.status == 'PUBLISHED',
-                                          'bg-red-100 text-red-700': item.status == 'REJECTED',
-                                          'bg-gray-100 text-gray-700': !['POSTED','PUBLISHED','REJECTED'].includes(item.status)
-                                      }" x-text="item.status"></span>
+                                          'bg-red-100 text-red-700': ['REJECTED', 'REJECTED_BY_VERIFIER'].includes(item.status),
+                                          'bg-gray-100 text-gray-700': item.status == 'DRAFT'
+                                      }" x-text="item.status_label"></span>
                             </td>
                             <td class="px-5 py-3.5 text-gray-500 text-xs text-center" x-text="item.tgl_masuk">
                             </td>

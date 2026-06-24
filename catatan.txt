@@ -1,0 +1,15 @@
+catatan untuk diri atau tim lain jika dilanjutkan
+1. dokumen dalam tabel pengajuan yang suda di publish di simpan di dua tempat tabel pengajuan(disembunyikan) sebagai file word dan dokumen sebagai pdf
+
+2. pengajuan dan pengguna menggunakan proses soft delete 
+
+3. baca comentar jika bingung, sebagian besar backend dikomentari fungsinya apa 
+
+4. sebagian logic pengajuan berada di pengajuanController sekitar 300 baris soo good luck (edit 400 sekarang) edit(600+ sekarang)
+
+5. aplikasi ini lumayan berat karena mesin perlu menjalankan container docker soo pastikan komputer memadai (ini penting karena hampiir semua viewer file word dimulai dari pengguna, admin dan ferifikator menggunakan ini)
+
+6. DO NOT TOUCH file controller.php
+
+7. tanya pada pihak staff Tata usah jika bisa tentang alur surat
+

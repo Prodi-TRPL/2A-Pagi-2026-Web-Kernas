@@ -8,4 +8,5 @@ class NomorDokumen extends Model
 {
     protected $table = 'nomor_dokumen';
     protected $guarded = ['id'];
+    const UPDATED_AT = null;
 }

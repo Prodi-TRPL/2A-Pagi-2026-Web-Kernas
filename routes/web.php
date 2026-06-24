@@ -11,11 +11,13 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 use App\Http\Controllers\DashboardController;
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dokumen-terbit', [DashboardController::class, 'dokumenTerbit'])->name('dokumen-terbit');
 
 Route::get('/setup/manajemen-karyawan', [PegawaiController::class, 'index']);
 Route::post('/setup/manajemen-karyawan', [PegawaiController::class, 'store']);
 Route::put('/setup/manajemen-karyawan/{id}/profil', [PegawaiController::class, 'updateProfil']);
 Route::put('/setup/manajemen-karyawan/{id}/peran', [PegawaiController::class, 'updatePeran']);
+Route::delete('/setup/manajemen-karyawan/{id}', [PegawaiController::class, 'destroy']);
 
 use App\Http\Controllers\GrupVerifikasiController;
 

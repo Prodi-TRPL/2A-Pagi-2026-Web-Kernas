@@ -3,7 +3,7 @@
 @section('title', 'Form Contoh Surat Satu — KERNAS')
 
 @section('content')
-<div class="max-w-screen-xl mx-auto px-4 py-8" x-data="suratForm()">
+<div class="max-w-screen-xl mx-auto px-4 py-8" x-data="suratForm(@js($penggunas))">
     <div class="mb-6 flex items-center gap-4">
         <a href="/dashboard" class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm" title="Kembali ke Beranda">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
@@ -42,8 +42,8 @@
                         <label class="block text-sm font-semibold text-gray-800 mb-2">Verifikator 1 <span class="text-red-500">*</span></label>
                         <select name="verifikator[]" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
                             <option value="">-- Pilih Verifikator 1 --</option>
-                            @foreach($verifikators as $v)
-                            <option value="{{ $v->id }}">{{ $v->nama }}</option>
+                            @foreach($verifikator1 as $v)
+                            <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -51,8 +51,8 @@
                         <label class="block text-sm font-semibold text-gray-800 mb-2">Verifikator 2 (Opsional)</label>
                         <select name="verifikator[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
                             <option value="">-- Pilih Verifikator 2 --</option>
-                            @foreach($verifikators as $v)
-                            <option value="{{ $v->id }}">{{ $v->nama }}</option>
+                            @foreach($verifikator2 as $v)
+                            <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -60,8 +60,8 @@
                         <label class="block text-sm font-semibold text-gray-800 mb-2">Verifikator 3 (Opsional)</label>
                         <select name="verifikator[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
                             <option value="">-- Pilih Verifikator 3 --</option>
-                            @foreach($verifikators as $v)
-                            <option value="{{ $v->id }}">{{ $v->nama }}</option>
+                            @foreach($verifikator3 as $v)
+                            <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
                             @endforeach
                         </select>
                     </div>
@@ -108,18 +108,27 @@
                     <div class="space-y-3">
                         <template x-for="(orang, index) in daftarDiusulkan" :key="index">
                             <div class="flex items-start gap-4 p-4 border border-gray-200 rounded-xl bg-gray-50 relative group transition-colors hover:border-sky-300">
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Pilih Pegawai <span class="text-red-500">*</span></label>
+                                        <select :name="'diusulkan['+index+'][id_pengguna]'" x-model="orang.id_pengguna" @change="onPegawaiChange(index)" required class="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-sky-500 outline-none text-sm">
+                                            <option value="">-- Pilih Pegawai --</option>
+                                            <template x-for="p in penggunas" :key="p.id">
+                                                <option :value="p.id" x-text="p.nama"></option>
+                                            </template>
+                                        </select>
+                                    </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-gray-600 mb-1">Nama</label>
-                                        <input type="text" :name="'diusulkan['+index+'][NAMA_DIUSUL]'" x-model="orang.nama" required class="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-sky-500 outline-none text-sm">
+                                        <input type="text" :name="'diusulkan['+index+'][NAMA_DIUSUL]'" x-model="orang.nama" readonly class="w-full px-3 py-1.5 border border-gray-300 rounded-md bg-gray-100 text-sm">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-gray-600 mb-1">NIP</label>
-                                        <input type="text" :name="'diusulkan['+index+'][NIP_DIUSUL]'" x-model="orang.nip" required class="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-sky-500 outline-none text-sm">
+                                        <input type="text" :name="'diusulkan['+index+'][NIP_DIUSUL]'" x-model="orang.nip" readonly class="w-full px-3 py-1.5 border border-gray-300 rounded-md bg-gray-100 text-sm">
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-gray-600 mb-1">Jabatan</label>
-                                        <input type="text" :name="'diusulkan['+index+'][JABATAN_DIUSUL]'" x-model="orang.jabatan" required class="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-sky-500 outline-none text-sm">
+                                        <input type="text" :name="'diusulkan['+index+'][JABATAN_DIUSUL]'" x-model="orang.jabatan" readonly class="w-full px-3 py-1.5 border border-gray-300 rounded-md bg-gray-100 text-sm">
                                     </div>
                                 </div>
                                 <button type="button" @click="hapusDiusulkan(index)" x-show="daftarDiusulkan.length > 1" class="mt-6 p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors">
@@ -219,16 +228,30 @@
 
 <script>
 document.addEventListener('alpine:init', () => {
-    Alpine.data('suratForm', () => ({
+    Alpine.data('suratForm', (penggunasData = []) => ({
+        penggunas: penggunasData,
         daftarDiusulkan: [
-            { nama: '', nip: '', jabatan: '' }
+            { id_pengguna: '', nama: '', nip: '', jabatan: '' }
         ],
         tambahDiusulkan() {
-            this.daftarDiusulkan.push({ nama: '', nip: '', jabatan: '' });
+            this.daftarDiusulkan.push({ id_pengguna: '', nama: '', nip: '', jabatan: '' });
         },
         hapusDiusulkan(index) {
             if (this.daftarDiusulkan.length > 1) {
                 this.daftarDiusulkan.splice(index, 1);
+            }
+        },
+        onPegawaiChange(index) {
+            const selectedId = this.daftarDiusulkan[index].id_pengguna;
+            const p = this.penggunas.find(x => x.id == selectedId);
+            if (p) {
+                this.daftarDiusulkan[index].nama = p.nama;
+                this.daftarDiusulkan[index].nip = p.nip;
+                this.daftarDiusulkan[index].jabatan = p.jabatan || 'Staf';
+            } else {
+                this.daftarDiusulkan[index].nama = '';
+                this.daftarDiusulkan[index].nip = '';
+                this.daftarDiusulkan[index].jabatan = '';
             }
         }
     }));
