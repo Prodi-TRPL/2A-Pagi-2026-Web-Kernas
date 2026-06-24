@@ -36,8 +36,17 @@ Route::post('/onlyoffice/callback/pengajuan/{id}', [OnlyOfficeController::class,
 use App\Http\Controllers\PengajuanController;
 Route::get('/pengajuan-surat', [PengajuanController::class, 'index']);
 Route::get('/pengajuan/baru', [PengajuanController::class, 'create']);
-Route::post('/pengajuan/baru', [PengajuanController::class, 'store']);
+Route::get('/pengajuan/form/contoh-surat-satu', [PengajuanController::class, 'formContohSuratSatu']);
+Route::post('/pengajuan/form/contoh-surat-satu', [PengajuanController::class, 'storeContohSuratSatu']);
 Route::get('/pengajuan/{id}/edit', [PengajuanController::class, 'editDoc']);
+Route::get('/pengajuan/{id}/lampiran', [PengajuanController::class, 'viewLampiran']);
+Route::post('/pengajuan/{id}/kirim', [PengajuanController::class, 'kirimVerifikasi']);
+Route::post('/pengajuan/{id}/admin-kirim', [PengajuanController::class, 'adminKirimVerifikator']);
+Route::post('/pengajuan/{id}/admin-kirim-ulang', [PengajuanController::class, 'adminKirimUlangVerifikator']);
+Route::post('/pengajuan/{id}/admin-kembalikan', [PengajuanController::class, 'adminKembalikanPengusul']);
+Route::post('/pengajuan/{id}/hapus', [PengajuanController::class, 'hapusPengajuan']);
+Route::post('/pengajuan/{id}/terima', [PengajuanController::class, 'terimaPengajuan']);
+Route::post('/pengajuan/{id}/tolak', [PengajuanController::class, 'tolakPengajuan']);
 
 Route::get('/setup/peraturan', function () {
     if (!session()->has('pengguna')) return redirect('/');

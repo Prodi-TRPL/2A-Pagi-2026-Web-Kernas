@@ -16,69 +16,38 @@
     </div>
     @endif
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-        <form action="/pengajuan/baru" method="POST" class="p-6 space-y-6">
-            @csrf
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-800 mb-2">Pilih Template Surat <span class="text-red-500">*</span></label>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    @foreach($templates as $tmpl)
-                    <label class="relative flex cursor-pointer rounded-xl border border-gray-200 bg-white p-4 shadow-sm focus:outline-none hover:border-sky-300 hover:bg-sky-50 transition-colors has-[:checked]:border-sky-500 has-[:checked]:ring-1 has-[:checked]:ring-sky-500">
-                        <input type="radio" name="id_template" value="{{ $tmpl->id }}" class="sr-only" required>
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
-                            </div>
-                            <div class="flex-1">
-                                <p class="text-sm font-bold text-gray-900">{{ $tmpl->nama }}</p>
-                                <p class="text-xs text-gray-500">{{ $tmpl->tipe }}</p>
-                            </div>
-                        </div>
-                    </label>
-                    @endforeach
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <h2 class="text-sm font-semibold text-gray-800 mb-4">Daftar Template Surat</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            @foreach($templates as $tmpl)
+            @php
+                $formUrl = '#';
+                if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
+                    $formUrl = '/pengajuan/form/contoh-surat-satu';
+                }
+            @endphp
+            <a href="{{ $formUrl }}" class="relative flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:border-sky-300 hover:bg-sky-50 transition-colors group">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
                 </div>
-            </div>
-
-            <div class="border-t border-gray-100 pt-6">
-                <label class="block text-sm font-semibold text-gray-800 mb-2">Judul Surat <span class="text-red-500">*</span></label>
-                <input type="text" name="judul" required placeholder="Contoh: SK Pengangkatan Pegawai Baru 2026" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-2">Daftar Menimbang <span class="text-red-500">*</span></label>
-                    <textarea name="daftar_menimbang" required rows="4" placeholder="1. Bahwa...&#10;2. Bahwa..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm"></textarea>
+                <div class="flex-1">
+                    <p class="text-sm font-bold text-gray-900 group-hover:text-sky-700 transition-colors">{{ $tmpl->nama_template }}</p>
+                    <p class="text-xs text-gray-500 mt-0.5">{{ $tmpl->tipe }}</p>
+                    
+                    <div class="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-sky-600">
+                        Isi Surat 
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-2">Daftar Memperhatikan <span class="text-red-500">*</span></label>
-                    <textarea name="daftar_memperhatikan" required rows="4" placeholder="1. Undang-undang...&#10;2. Peraturan..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm"></textarea>
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-800 mb-2">Daftar Memutuskan <span class="text-red-500">*</span></label>
-                <textarea name="daftar_memutuskan" required rows="4" placeholder="MENETAPKAN: ...&#10;KESATU: ...&#10;KEDUA: ..." class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm"></textarea>
-            </div>
-
-            <div class="border-t border-gray-100 pt-6">
-                <label class="block text-sm font-semibold text-gray-800 mb-2">Grup Verifikasi Tujuan <span class="text-red-500">*</span></label>
-                <p class="text-xs text-gray-500 mb-3">Pilih jalur verifikasi (berjenjang) yang harus dilalui oleh pengajuan ini sebelum diterbitkan.</p>
-                <select name="id_grup_verifikasi" required class="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
-                    <option value="">-- Pilih Grup Verifikasi --</option>
-                    @foreach($grupVerifikasi as $grup)
-                    <option value="{{ $grup->id }}">{{ $grup->nama_grup }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="border-t border-gray-100 pt-6 flex justify-end">
-                <button type="submit" class="px-6 py-2.5 text-sm font-bold text-white bg-sky-600 rounded-xl hover:bg-sky-700 transition-colors shadow-sm flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-                    Proses dan Buka Editor
-                </button>
-            </div>
-        </form>
+            </a>
+            @endforeach
+        </div>
+        
+        @if($templates->isEmpty())
+        <div class="text-center py-8 text-gray-500 text-sm">
+            Belum ada template surat yang aktif. Silakan hubungi admin.
+        </div>
+        @endif
     </div>
 </div>
 @endsection

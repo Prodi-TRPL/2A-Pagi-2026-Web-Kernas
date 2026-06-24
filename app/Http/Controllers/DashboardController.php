@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Dokumen;
 use App\Models\Pengajuan;
+use App\Models\TemplateSurat;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -26,27 +27,40 @@ class DashboardController extends Controller
         // Query Pengajuan
         $pengajuanQuery = Pengajuan::where('is_deleted', 0);
 
-        if (!$isAdmin) {
+        if ($isAdmin) {
+            // Admin sama sekali tidak melihat DRAFT dan REJECTED di Dashboard
+            // (Dokumen REJECTED milik admin sendiri hanya akan muncul di tab Pengajuan Surat)
+            $pengajuanQuery->whereNotIn('status', ['DRAFT', 'REJECTED']);
+        } else {
             // Filter Dokumen user / group (idk how this works but it works)
             $dokumenQuery->where(function ($q) use ($id) {
                 $q->whereHas('anggotaDokumen', fn($a) => $a->where('id_pengguna', $id))
                   ->orWhereHas('grupVerifikasiDokumen.pengguna', fn($a) => $a->where('id_pengguna', $id));
             });
 
-            // Filter Pengajuan ( pengaju / verifikator / member)(dont tuch)
+            // Filter Pengajuan ( pengaju / verifikator / member)
             $pengajuanQuery->where(function ($q) use ($id) {
+                // Pengusul bisa melihat semua status pengajuan mereka
                 $q->where('id_pengguna', $id)
                   ->orWhereHas('anggotaPengajuan', fn($a) => $a->where('id_pengguna', $id))
-                  ->orWhereHas('grupVerifikator.pengguna', fn($a) => $a->where('id_pengguna', $id))
-                  ->orWhereHas('grupVerifikasiPengajuan.pengguna', fn($a) => $a->where('id_pengguna', $id));
+                  // Verifikator hanya bisa melihat dokumen JIKA giliran mereka (id_verifikator_sekarang)
+                  // ATAU dokumen sudah selesai (PUBLISHED/REJECTED) dan mereka termasuk dalam grup verifikator
+                  ->orWhere('id_verifikator_sekarang', $id)
+                  ->orWhere(function ($q2) use ($id) {
+                      $q2->whereIn('status', ['PUBLISHED', 'REJECTED'])
+                         ->where(function ($q3) use ($id) {
+                             $q3->whereHas('grupVerifikator.pengguna', fn($a) => $a->where('id_pengguna', $id))
+                                ->orWhereHas('grupVerifikasiPengajuan.pengguna', fn($a) => $a->where('id_pengguna', $id));
+                         });
+                  });
             });
         }
 
-        // digunakan dalam grafik nanti
+        // digunakan dalam statistika 
         $stats = [
             'total_sk' => (clone $dokumenQuery)->where('tipe', 'SK')->count(),
             'total_st' => (clone $dokumenQuery)->where('tipe', 'ST')->count(),
-            'pengajuan_proses' => (clone $pengajuanQuery)->whereIn('status', ['POSTED', 'APPROVED'])->count(),
+            'pengajuan_proses' => (clone $pengajuanQuery)->whereIn('status', ['POSTED', 'PUBLISHED'])->count(),
             'pengajuan_hari' => (clone $pengajuanQuery)->whereDate('created_at', Carbon::today())->count(),
         ];
 
@@ -56,7 +70,7 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
-            ->map(function($p) {
+            ->map(function($p) use ($id) {
                 return [
                     'id' => $p->id,
                     'urutan_antrian' => $p->urutan_antrian ?? $p->id,
@@ -67,6 +81,7 @@ class DashboardController extends Controller
                     'raw_tgl_masuk' => \Carbon\Carbon::parse($p->created_at)->format('Y-m-d'),
                     'status' => $p->status,
                     'grup_verifikasi' => $p->grupVerifikator->nama_grup ?? '-',
+                    'can_delete' => $p->id_pengguna == $id && in_array($p->status, ['DRAFT', 'POSTED', 'REJECTED']),
                 ];
             });
 
@@ -106,6 +121,13 @@ class DashboardController extends Controller
             'keluar' => $chartKeluar
         ];
 
-        return view('dashboard', compact('user', 'stats', 'pengajuanTerbaru', 'dokumenTerbaru', 'chartData'));
+        // Ambil template surat aktif untuk dropdown
+        $templates = TemplateSurat::where('is_aktif', 1)->get();
+        // Membagi berdasarkan tipe (menggunakan IN array untuk mencakup tipe-tipe spesifik)
+        $templatesArahan = $templates->whereIn('tipe', ['Arahan', 'SK', 'ST', 'SE', 'Instruksi', 'SOP']);
+        $templatesKorespondensi = $templates->whereIn('tipe', ['Korespondensi', 'Surat Dinas', 'Nota Dinas', 'Surat Edaran', 'Surat Undangan']);
+        $templatesKhusus = $templates->whereIn('tipe', ['Khusus', 'MoU', 'Perjanjian', 'Surat Kuasa', 'Berita Acara']);
+
+        return view('dashboard', compact('user', 'stats', 'pengajuanTerbaru', 'dokumenTerbaru', 'chartData', 'templatesArahan', 'templatesKorespondensi', 'templatesKhusus'));
     }
 }

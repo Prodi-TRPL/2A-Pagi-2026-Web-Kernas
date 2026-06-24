@@ -12,7 +12,11 @@ class GrupVerifikasiController extends Controller
     {
         if (!session()->has('pengguna')) return redirect('/');
 
-        $grups = GrupVerifikasi::with('pengguna')->orderBy('id', 'desc')->get();
+        // Jangan tampilkan grup Ad-Hoc buatan sistem
+        $grups = GrupVerifikasi::with('pengguna')
+            ->where('nama_grup', 'not like', 'Ad-Hoc:%')
+            ->orderBy('id', 'desc')
+            ->get();
         // Ambil data karyawan yang bukan admin super untuk bisa dijadikan anggota
         $karyawan = Pengguna::where('is_admin', 0)->get(['id', 'nama', 'nip', 'jabatan', 'unit']);
 

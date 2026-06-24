@@ -19,27 +19,51 @@
             {{-- Dropdown Naskah Dinas Arahan --}}
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Naskah Dinas Arahan</label>
-                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
+                <select onchange="if(this.value && this.value !== '#') window.location.href=this.value;" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
                     <option value="">-- Pilih Surat --</option>
-                    {{-- Nanti bisa ditambahkan option spesifik seperti SK, ST, dll --}}
+                    @foreach($templatesArahan ?? [] as $tmpl)
+                        @php
+                            $formUrl = '#';
+                            if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
+                                $formUrl = '/pengajuan/form/contoh-surat-satu';
+                            }
+                        @endphp
+                        <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
+                    @endforeach
                 </select>
             </div>
 
             {{-- Dropdown Naskah Dinas Korespodensi --}}
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Naskah Dinas Korespodensi</label>
-                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
+                <select onchange="if(this.value && this.value !== '#') window.location.href=this.value;" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
                     <option value="">-- Pilih Surat --</option>
-                    {{-- Nanti ditambahkan option surat korespodensi --}}
+                    @foreach($templatesKorespondensi ?? [] as $tmpl)
+                        @php
+                            $formUrl = '#';
+                            if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
+                                $formUrl = '/pengajuan/form/contoh-surat-satu';
+                            }
+                        @endphp
+                        <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
+                    @endforeach
                 </select>
             </div>
 
             {{-- Dropdown Naskah Dinas Khusus --}}
             <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
                 <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Naskah Dinas Khusus</label>
-                <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
+                <select onchange="if(this.value && this.value !== '#') window.location.href=this.value;" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
                     <option value="">-- Pilih Surat --</option>
-                    {{-- Nanti ditambahkan option surat khusus --}}
+                    @foreach($templatesKhusus ?? [] as $tmpl)
+                        @php
+                            $formUrl = '#';
+                            if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
+                                $formUrl = '/pengajuan/form/contoh-surat-satu';
+                            }
+                        @endphp
+                        <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
+                    @endforeach
                 </select>
             </div>
 
@@ -207,7 +231,7 @@
                             @endforeach
                         --}}
                         <template x-for="item in filteredPengajuanProses" :key="item.id">
-                            <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                            <tr @click="window.location.href = '/pengajuan/' + item.id + '/edit'" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer">
                                 <td class="px-5 py-3.5">
                                     <span class="font-mono text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded" x-text="'#' + String(item.urutan_antrian).padStart(3, '0')"></span>
                                 </td>
@@ -224,18 +248,30 @@
                                 <td class="px-5 py-3.5 text-center">
                                     <span :class="{
                                         'bg-amber-100 text-amber-700': item.status === 'POSTED',
-                                        'bg-sky-100 text-sky-700': item.status === 'APPROVED',
+                                        'bg-indigo-100 text-indigo-700': item.status === 'REVIEWED',
+                                        'bg-sky-100 text-sky-700': item.status === 'PUBLISHED',
                                         'bg-red-100 text-red-700': item.status === 'REJECTED'
                                     }" class="px-2.5 py-1 rounded-full text-xs font-semibold" x-text="item.status"></span>
                                 </td>
-                                <td class="px-5 py-3.5 text-center">
-                                    <a :href="'/pengajuan-surat/' + item.id"
-                                       class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-sky-600 border border-sky-200 rounded-lg hover:bg-sky-50 transition-colors">
-                                        Detail
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
-                                        </svg>
-                                    </a>
+                                <td class="px-5 py-3.5 text-center" @click.stop>
+                                    <div class="flex items-center justify-center gap-2">
+                                        <a :href="'/pengajuan/' + item.id + '/edit'"
+                                           class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-sky-600 border border-sky-200 rounded-lg hover:bg-sky-50 transition-colors">
+                                            Detail
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                                            </svg>
+                                        </a>
+                                        
+                                        <template x-if="item.can_delete">
+                                            <form :action="'/pengajuan/' + item.id + '/hapus'" method="POST" @submit="return confirm('Apakah Anda yakin ingin menghapus pengajuan ini? Ini tidak bisa dikembalikan.')">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        </template>
+                                    </div>
                                 </td>
                             </tr>
                         </template>
@@ -270,7 +306,7 @@
             </div>
             <div class="divide-y divide-gray-100">
                 <template x-for="dok in dokumenTerbaru" :key="dok.id">
-                    <div class="px-5 py-3.5 flex items-center gap-4 hover:bg-gray-50 transition-colors">
+                    <div @click="window.location.href = '/dokumen/' + dok.id" class="px-5 py-3.5 flex items-center gap-4 hover:bg-gray-50 transition-colors cursor-pointer">
                         <div :class="dok.jenis === 'SK' ? 'bg-sky-100 text-sky-700' : 'bg-violet-100 text-violet-700'"
                              class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
                              x-text="dok.jenis"></div>
@@ -278,7 +314,7 @@
                             <p class="text-sm font-medium text-gray-800 truncate" x-text="dok.judul"></p>
                             <p class="text-xs text-gray-400 mt-0.5" x-text="dok.nomor + ' · ' + dok.tgl_terbit"></p>
                         </div>
-                        <div class="flex items-center gap-2 flex-shrink-0">
+                        <div class="flex items-center gap-2 flex-shrink-0" @click.stop>
                             <span class="text-xs text-gray-500" x-text="dok.dibuat_oleh"></span>
                             <a :href="'/dokumen/' + dok.id" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-sky-600 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

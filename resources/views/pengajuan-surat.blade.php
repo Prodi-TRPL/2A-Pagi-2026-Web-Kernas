@@ -82,7 +82,7 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100">
                     <template x-for="item in filteredData" :key="item.id">
-                        <tr class="hover:bg-gray-50 transition-colors border-b border-gray-50">
+                        <tr @click="window.location.href = '/pengajuan/' + item.id + '/edit'" class="hover:bg-gray-50 transition-colors border-b border-gray-50 cursor-pointer">
                             <td class="px-5 py-3.5">
                                 <span class="font-mono text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded" x-text="'#' + String(item.id).padStart(3, '0')">
                                 </span>
@@ -100,14 +100,14 @@
                                 <span class="px-2.5 py-1 rounded-full text-xs font-semibold"
                                       :class="{
                                           'bg-amber-100 text-amber-700': item.status == 'POSTED',
-                                          'bg-emerald-100 text-emerald-700': item.status == 'APPROVED',
+                                          'bg-sky-100 text-sky-700': item.status == 'PUBLISHED',
                                           'bg-red-100 text-red-700': item.status == 'REJECTED',
-                                          'bg-gray-100 text-gray-700': !['POSTED','APPROVED','REJECTED'].includes(item.status)
+                                          'bg-gray-100 text-gray-700': !['POSTED','PUBLISHED','REJECTED'].includes(item.status)
                                       }" x-text="item.status"></span>
                             </td>
                             <td class="px-5 py-3.5 text-gray-500 text-xs text-center" x-text="item.tgl_masuk">
                             </td>
-                            <td class="px-5 py-3.5 text-center">
+                            <td class="px-5 py-3.5 text-center" @click.stop>
                                 <a :href="'/pengajuan/' + item.id + '/edit'" class="text-sky-600 hover:text-sky-800 text-xs font-medium hover:underline">
                                     Buka Draf
                                 </a>

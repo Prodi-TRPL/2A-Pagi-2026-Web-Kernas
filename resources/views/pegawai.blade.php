@@ -235,37 +235,6 @@
                         </div>
                     </label>
 
-                    {{-- pilihan peran sebagai verifikator --}}
-                    <div class="rounded-xl border-2 transition-all"
-                         :class="selectedRole === 'verifikator' ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:border-gray-300'">
-                        <label class="flex items-start gap-3 p-3.5 cursor-pointer">
-                            <input type="radio" x-model="selectedRole" value="verifikator" class="mt-0.5 accent-amber-500">
-                            <div class="flex-1">
-                                <p class="text-sm font-semibold text-gray-800">Verifikator</p>
-                                <p class="text-xs text-gray-500 mt-0.5">Dapat menyetujui atau menolak pengajuan surat dari staff</p>
-                            </div>
-                        </label>
-
-                        {{-- bagian dropdown ekstra yang muncul jika peran verifikator dipilih, digunakan untuk memilih grup --}}
-                        <div x-show="selectedRole === 'verifikator'"
-                             x-transition:enter="transition ease-out duration-150"
-                             x-transition:enter-start="opacity-0 -translate-y-1"
-                             x-transition:enter-end="opacity-100 translate-y-0"
-                             class="px-3.5 pb-3.5">
-                            <label class="block text-xs font-semibold text-amber-700 mb-1.5">Pilih Grup Verifikasi</label>
-                            <select x-model="selectedGrup"
-                                    class="w-full px-3 py-2 text-sm border border-amber-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-amber-400">
-                                <option value="">-- Pilih grup --</option>
-                                <template x-for="grup in grupVerifikasi" :key="grup.id">
-                                    <option :value="grup.id" x-text="grup.nama"></option>
-                                </template>
-                            </select>
-                            <p class="text-xs text-amber-600 mt-1.5" x-show="!selectedGrup">
-                                Pilih grup verifikasi terlebih dahulu
-                            </p>
-                        </div>
-                    </div>
-
                     {{-- pilihan peran sebagai pengguna biasa --}}
                     <label class="flex items-start gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all"
                            :class="selectedRole === 'staff' ? 'border-sky-400 bg-sky-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'">

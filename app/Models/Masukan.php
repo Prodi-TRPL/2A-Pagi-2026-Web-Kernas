@@ -8,7 +8,7 @@ class Masukan extends Model
 {
     protected $table = 'masukan';
     
-    // masukan tabel tidak punya created_at updated_at
+    // masukan tabel tidak punya created_at updated_at (tau lah dimana itu)
     public $timestamps = false;
 
     protected $guarded = ['id'];

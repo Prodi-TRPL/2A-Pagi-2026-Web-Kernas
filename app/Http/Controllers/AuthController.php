@@ -18,7 +18,7 @@ class AuthController extends Controller
         return view('login');
     }
 
-    // (alur data: fungsi ini menerima aksi submit dari form login di view 'login' baris 77, memvalidasi datanya menggunakan model pengguna, lalu menyimpannya ke session)
+    // (alur data: fungsi ini menerima aksi submit dari form login di view 'login' baris 78, memvalidasi datanya menggunakan model pengguna, lalu menyimpannya ke session)
     public function login(Request $request)
     {
         $request->validate([
