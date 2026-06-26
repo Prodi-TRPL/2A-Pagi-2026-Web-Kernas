@@ -12,11 +12,11 @@
                 </a>
                 <h1 class="text-xl font-bold text-gray-900">Editor Draf Surat</h1>
                 <span class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block
-                    {{ $pengajuan->status === 'POSTED' ? 'bg-amber-100 text-amber-700' : 
-                       ($pengajuan->status === 'REVIEWED' ? 'bg-indigo-100 text-indigo-700' : 
-                       ($pengajuan->status === 'PUBLISHED' ? 'bg-sky-100 text-sky-700' : 
-                       (in_array($pengajuan->status, ['REJECTED', 'REJECTED_BY_VERIFIER']) ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'))) }}">
-                    {{ $pengajuan->status_label }}
+                    {{ $pengajuan->status === 'Diproses Admin' ? 'bg-amber-100 text-amber-700' : 
+                       ($pengajuan->status === 'Menunggu Verifikasi' ? 'bg-indigo-100 text-indigo-700' : 
+                       ($pengajuan->status === 'Diterbitkan' ? 'bg-sky-100 text-sky-700' : 
+                       (in_array($pengajuan->status, ['Ditolak Admin', 'Revisi']) ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'))) }}">
+                    {{ $pengajuan->status }}
                 </span>
             </div>
             <p class="text-sm text-gray-500 mt-1 ml-10">Judul: <span class="font-medium text-gray-700">{{ $pengajuan->judul }}</span></p>
@@ -95,10 +95,10 @@
             
             <div class="h-6 w-px bg-gray-300 mx-1"></div>
 
-            @if($pengajuan->status === 'POSTED' || $pengajuan->status === 'REJECTED')
+            @if($pengajuan->status === 'Diproses Admin' || $pengajuan->status === 'Ditolak Admin')
                 @if($isAdmin)
                     <div class="flex items-center gap-2">
-                        @if($pengajuan->status === 'POSTED')
+                        @if($pengajuan->status === 'Diproses Admin')
                         <div x-data="{ showModal: false }">
                             <button @click="showModal = true" type="button" class="px-4 py-2 text-sm font-semibold text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors shadow-sm flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/></svg>
@@ -125,17 +125,85 @@
                         </div>
                         @endif
 
-                        <form action="/pengajuan/{{ $pengajuan->id }}/admin-kirim" method="POST" onsubmit="return confirm('Tandai selesai di-review dan kirim dokumen ini ke Verifikator?');">
-                            @csrf
-                            <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
+                        <!-- Modal Pemilihan Verifikator -->
+                        <div x-data="{ showVerifikatorModal: false }">
+                            <button @click="showVerifikatorModal = true" type="button" class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
                                 Kirim ke Verifikator
                             </button>
-                        </form>
+
+                            <!-- Backdrop & Modal Content -->
+                            <div x-show="showVerifikatorModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto">
+                                <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+                                    <div x-show="showVerifikatorModal" 
+                                         x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" 
+                                         x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" 
+                                         class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" aria-hidden="true"></div>
+
+                                    <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                                    <div x-show="showVerifikatorModal" @click.away="showVerifikatorModal = false"
+                                         x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
+                                         x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
+                                         class="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-xl shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                                        <div class="sm:flex sm:items-start">
+                                            <div class="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-indigo-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
+                                                <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                            </div>
+                                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                                <h3 class="text-lg font-medium leading-6 text-gray-900" id="modal-title">Pilih Verifikator</h3>
+                                                <div class="mt-2 text-sm text-gray-500">
+                                                    Pilih siapa saja yang akan memverifikasi dan menandatangani dokumen ini.
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <form action="/pengajuan/{{ $pengajuan->id }}/admin-kirim" method="POST" class="mt-5 space-y-4">
+                                            @csrf
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-800 mb-1">Verifikator 1 <span class="text-red-500">*</span></label>
+                                                <select name="verifikator[]" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
+                                                    <option value="">-- Pilih Verifikator 1 --</option>
+                                                    @foreach($verifikator1 as $v)
+                                                    <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-800 mb-1">Verifikator 2 (Opsional)</label>
+                                                <select name="verifikator[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
+                                                    <option value="">-- Pilih Verifikator 2 --</option>
+                                                    @foreach($verifikator2 as $v)
+                                                    <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-800 mb-1">Verifikator 3 (Opsional)</label>
+                                                <select name="verifikator[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
+                                                    <option value="">-- Pilih Verifikator 3 --</option>
+                                                    @foreach($verifikator3 as $v)
+                                                    <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                                                <button type="submit" class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 sm:ml-3 sm:w-auto sm:text-sm">
+                                                    Kirim Dokumen
+                                                </button>
+                                                <button @click="showVerifikatorModal = false" type="button" class="inline-flex justify-center w-full px-4 py-2 mt-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+                                                    Batal
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 @endif
                 @if($isProposer)
-                    @if($pengajuan->status === 'REJECTED')
+                    @if($pengajuan->status === 'Ditolak Admin')
                         <form action="/pengajuan/{{ $pengajuan->id }}/hapus" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengajuan yang ditolak ini? Ini tidak bisa dikembalikan.');">
                             @csrf
                             <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2">
@@ -156,7 +224,7 @@
                         </form>
                     @endif
                 @endif
-            @elseif($pengajuan->status === 'REVIEWED')
+            @elseif($pengajuan->status === 'Menunggu Verifikasi')
                 @if($isVerifier)
                     <form action="/pengajuan/{{ $pengajuan->id }}/terima" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin MENYETUJUI dokumen ini?');">
                         @csrf
@@ -195,7 +263,7 @@
                         Dokumen ini sedang ditinjau oleh Verifikator (Hanya Baca).
                     </span>
                 @endif
-            @elseif($pengajuan->status === 'REJECTED_BY_VERIFIER')
+            @elseif($pengajuan->status === 'Revisi')
                 @if($isAdmin)
                     <form action="/pengajuan/{{ $pengajuan->id }}/admin-kirim-ulang" method="POST" onsubmit="return confirm('Kirim ulang dokumen ini ke Verifikator yang sama?');">
                         @csrf
@@ -236,7 +304,7 @@
                 @endif
             @else
             <span class="text-xs text-amber-600 font-medium bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
-                Dokumen ini tidak bisa diedit karena statusnya {{ $pengajuan->status_label }}.
+                Dokumen ini tidak bisa diedit karena statusnya {{ $pengajuan->status }}.
             </span>
             @endif
         </div>
@@ -254,7 +322,7 @@
             <div id="placeholder" class="absolute inset-0"></div>
         </div>
 
-        @if($pengajuan->catatan && in_array($pengajuan->status, ['REJECTED', 'REJECTED_BY_VERIFIER']))
+        @if($pengajuan->catatan && in_array($pengajuan->status, ['Ditolak Admin', 'Revisi']))
         <div class="w-80 bg-red-50 border-l border-red-200 flex flex-col shrink-0 z-10 shadow-sm relative">
             <div class="p-4 border-b border-red-200 bg-red-100 flex items-center gap-2 shrink-0">
                 <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
@@ -272,7 +340,7 @@
     </div>
 </div>
 
-<script src="http://localhost:8080/web-apps/apps/api/documents/api.js"></script>
+<script src="{{ env('ONLYOFFICE_URL', 'http://localhost:8080') }}/web-apps/apps/api/documents/api.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const config = @js($config);

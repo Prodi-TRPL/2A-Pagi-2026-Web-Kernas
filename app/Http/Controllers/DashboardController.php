@@ -25,12 +25,12 @@ class DashboardController extends Controller
         $dokumenQuery = Dokumen::where('is_deleted', 0);
         
         // Query Pengajuan
-        $pengajuanQuery = Pengajuan::where('is_deleted', 0)->where('status', '!=', 'PUBLISHED');
+        $pengajuanQuery = Pengajuan::where('is_deleted', 0)->where('status', '!=', 'Diterbitkan');
 
         if ($isAdmin) {
             // Admin sama sekali tidak melihat DRAFT dan REJECTED di Dashboard
             // (Dokumen REJECTED milik admin sendiri hanya akan muncul di tab Pengajuan Surat)
-            $pengajuanQuery->whereNotIn('status', ['DRAFT', 'REJECTED']);
+            $pengajuanQuery->whereNotIn('status', ['Draf', 'Ditolak Admin']);
         } else {
             // Filter Dokumen user / group (idk how this works but it works)
             $dokumenQuery->where(function ($q) use ($id) {
@@ -44,14 +44,14 @@ class DashboardController extends Controller
                 // Pengusul bisa melihat semua status pengajuan mereka
                 $q->where('id_pengguna', $id)
                   ->orWhere(function ($q2) use ($id) {
-                      $q2->where('status', 'POSTED')
+                      $q2->where('status', 'Diproses Admin')
                          ->whereHas('anggotaPengajuan', fn($a) => $a->where('id_pengguna', $id));
                   })
                   // Verifikator hanya bisa melihat dokumen JIKA giliran mereka (id_verifikator_sekarang)
                   // ATAU dokumen sudah selesai (PUBLISHED/REJECTED) dan mereka termasuk dalam grup verifikator
                   ->orWhere('id_verifikator_sekarang', $id)
                   ->orWhere(function ($q2) use ($id) {
-                      $q2->whereIn('status', ['PUBLISHED', 'REJECTED'])
+                      $q2->whereIn('status', ['Diterbitkan', 'Ditolak Admin'])
                          ->where(function ($q3) use ($id) {
                              $q3->whereHas('grupVerifikator.pengguna', fn($a) => $a->where('id_pengguna', $id))
                                 ->orWhereHas('grupVerifikasiPengajuan.pengguna', fn($a) => $a->where('id_pengguna', $id));
@@ -64,7 +64,7 @@ class DashboardController extends Controller
         $stats = [
             'total_sk' => (clone $dokumenQuery)->where('tipe', 'SK')->count(),
             'total_st' => (clone $dokumenQuery)->where('tipe', 'ST')->count(),
-            'pengajuan_proses' => (clone $pengajuanQuery)->whereIn('status', ['POSTED', 'REVIEWED'])->count(),
+            'pengajuan_proses' => (clone $pengajuanQuery)->whereIn('status', ['Diproses Admin', 'Menunggu Verifikasi'])->count(),
             'pengajuan_hari' => (clone $pengajuanQuery)->whereDate('created_at', Carbon::today())->count(),
         ];
 
@@ -84,9 +84,9 @@ class DashboardController extends Controller
                     'tgl_masuk' => \Carbon\Carbon::parse($p->created_at)->translatedFormat('d M Y'),
                     'raw_tgl_masuk' => \Carbon\Carbon::parse($p->created_at)->format('Y-m-d'),
                     'status' => $p->status,
-                    'status_label' => $p->status_label,
+                    'status' => $p->status,
                     'grup_verifikasi' => $p->grupVerifikator->nama_grup ?? '-',
-                    'can_delete' => $p->id_pengguna == $id && in_array($p->status, ['DRAFT', 'POSTED', 'REJECTED']),
+                    'can_delete' => $p->id_pengguna == $id && in_array($p->status, ['Draf', 'Diproses Admin', 'Ditolak Admin']),
                 ];
             });
 

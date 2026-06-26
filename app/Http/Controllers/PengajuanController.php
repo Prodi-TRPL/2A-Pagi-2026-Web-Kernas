@@ -23,7 +23,7 @@ class PengajuanController extends Controller
 
         // Tampilkan hanya pengajuan milik user yang sedang login
         $pengajuans = Pengajuan::where('id_pengguna', $pengguna['id'])
-            ->where('status', '!=', 'PUBLISHED')
+            ->where('status', '!=', 'Diterbitkan')
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function($p) {
@@ -32,7 +32,7 @@ class PengajuanController extends Controller
                     'judul' => $p->judul,
                     'tipe' => $p->tipe,
                     'status' => $p->status,
-                    'status_label' => $p->status_label,
+                    'status' => $p->status,
                     'tgl_masuk' => $p->created_at ? $p->created_at->format('d/m/Y') : '-',
                     'raw_tgl_masuk' => $p->created_at ? $p->created_at->format('Y-m-d') : '',
                 ];
@@ -83,8 +83,6 @@ class PengajuanController extends Controller
         $request->validate([
             'id_template' => 'required|exists:template_surat,id',
             'judul' => 'required|string|max:200',
-            'verifikator' => 'required|array|min:1|max:3',
-            'verifikator.0' => 'required|exists:pengguna,id',
             'NOMOR_SURAT' => 'nullable|string',
             'TANGGAL_SURAT' => 'required|string',
             'HAL' => 'required|string',
@@ -101,25 +99,6 @@ class PengajuanController extends Controller
         $template = TemplateSurat::findOrFail($request->id_template);
         $pengguna = session('pengguna');
 
-        // Buat Grup Verifikasi Ad-Hoc
-        $grupVerifikasi = GrupVerifikasi::create([
-            'nama_grup' => 'Ad-Hoc: ' . substr($request->judul, 0, 50) . ' (' . time() . ')',
-            'id_pengguna' => $pengguna['id'],
-            'is_deleted' => 0
-        ]);
-
-        // Masukkan pengguna ke anggota grup sesuai urutan yang dipilih
-        // array_filter menghapus value kosong dari select opsional
-        $selectedVerifikators = array_unique(array_filter($request->verifikator));
-        
-        foreach ($selectedVerifikators as $verifId) {
-            \Illuminate\Support\Facades\DB::table('anggota_grup_verifikasi')->insert([
-                'id_grup_verifikasi' => $grupVerifikasi->id,
-                'id_pengguna' => $verifId,
-                'created_at' => now(),
-            ]);
-        }
-
         // Upload Lampiran jika ada
         $adaLampiran = 0;
         if ($request->hasFile('file_lampiran')) {
@@ -128,10 +107,10 @@ class PengajuanController extends Controller
 
         $pengajuan = Pengajuan::create([
             'id_pengguna' => $pengguna['id'],
-            'id_grup_verifikasi_verifikator' => $grupVerifikasi->id,
+            'id_grup_verifikasi_verifikator' => null,
             'judul' => $request->judul,
             'tipe' => $template->tipe,
-            'status' => 'POSTED',
+            'status' => 'Diproses Admin',
             'daftar_menimbang' => '',
             'daftar_memperhatikan' => '',
             'daftar_memutuskan' => '',
@@ -238,17 +217,17 @@ class PengajuanController extends Controller
         $isVerifier = ($pengguna['is_verifikator'] == 1 && !$isAdmin);
 
         $canEdit = false;
-        if ($pengajuan->status === 'POSTED') {
+        if ($pengajuan->status === 'Diproses Admin') {
             if ($isVerifier && !$isProposer) {
                 return redirect('/dashboard')->with('error', 'Dokumen ini masih dalam tahap penyusunan dan belum bisa ditinjau.');
             }
             if ($isProposer || $isAdmin) {
                 $canEdit = true;
             }
-        } elseif ($pengajuan->status === 'REJECTED') {
+        } elseif ($pengajuan->status === 'Ditolak Admin') {
             // Sesuai permintaan: Surat yang ditolak tidak bisa diedit lagi
             $canEdit = false;
-        } elseif ($pengajuan->status === 'REJECTED_BY_VERIFIER') {
+        } elseif ($pengajuan->status === 'Revisi') {
             if ($isAdmin) {
                 $canEdit = true;
             }
@@ -301,7 +280,17 @@ class PengajuanController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('pengajuan-edit', compact('pengajuan', 'config', 'isProposer', 'isAdmin', 'isVerifier', 'riwayat'));
+        $verifikator1 = \App\Models\Pengguna::where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
+            $q->where('tingkat', '1');
+        })->get();
+        $verifikator2 = \App\Models\Pengguna::where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
+            $q->where('tingkat', '2');
+        })->get();
+        $verifikator3 = \App\Models\Pengguna::where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
+            $q->where('tingkat', '3');
+        })->get();
+
+        return view('pengajuan-edit', compact('pengajuan', 'config', 'isProposer', 'isAdmin', 'isVerifier', 'riwayat', 'verifikator1', 'verifikator2', 'verifikator3'));
     }
 
     public function kirimVerifikasi($id)
@@ -310,7 +299,7 @@ class PengajuanController extends Controller
         
         $pengajuan = Pengajuan::findOrFail($id);
         
-        if ($pengajuan->status !== 'POSTED') {
+        if ($pengajuan->status !== 'Diproses Admin') {
             return back()->with('error', 'Dokumen tidak dapat dikirim karena status saat ini: ' . $pengajuan->status);
         }
 
@@ -318,7 +307,7 @@ class PengajuanController extends Controller
         return redirect('/dashboard')->with('success', 'Draf dokumen berhasil disimpan!');
     }
 
-    public function adminKirimVerifikator($id)
+    public function adminKirimVerifikator(Request $request, $id)
     {
         if (!session()->has('pengguna')) return redirect('/');
         
@@ -329,25 +318,45 @@ class PengajuanController extends Controller
 
         $pengajuan = Pengajuan::findOrFail($id);
         
-        if ($pengajuan->status !== 'POSTED') {
+        if ($pengajuan->status !== 'Diproses Admin') {
             return back()->with('error', 'Dokumen tidak dapat dikirim karena status saat ini: ' . $pengajuan->status);
         }
 
-        $verifikatorPertama = \Illuminate\Support\Facades\DB::table('anggota_grup_verifikasi')
-            ->where('id_grup_verifikasi', $pengajuan->id_grup_verifikasi_verifikator)
-            ->orderBy('id', 'asc')
-            ->first();
+        $request->validate([
+            'verifikator' => 'required|array|min:1|max:3',
+            'verifikator.0' => 'required|exists:pengguna,id',
+        ]);
+
+        // Buat Grup Verifikasi Ad-Hoc
+        $grupVerifikasi = GrupVerifikasi::create([
+            'nama_grup' => 'Ad-Hoc: ' . substr($pengajuan->judul, 0, 50) . ' (' . time() . ')',
+            'id_pengguna' => $pengguna['id'],
+            'is_deleted' => 0
+        ]);
+
+        $selectedVerifikators = array_unique(array_filter($request->verifikator));
+        
+        foreach ($selectedVerifikators as $verifId) {
+            \Illuminate\Support\Facades\DB::table('anggota_grup_verifikasi')->insert([
+                'id_grup_verifikasi' => $grupVerifikasi->id,
+                'id_pengguna' => $verifId,
+                'created_at' => now(),
+            ]);
+        }
+
+        $verifikatorPertamaId = reset($selectedVerifikators);
 
         $pengajuan->update([
-            'status' => 'REVIEWED',
+            'status' => 'Menunggu Verifikasi',
             'urutan_antrian' => 0,
-            'id_verifikator_sekarang' => $verifikatorPertama ? $verifikatorPertama->id_pengguna : null
+            'id_grup_verifikasi_verifikator' => $grupVerifikasi->id,
+            'id_verifikator_sekarang' => $verifikatorPertamaId
         ]);
 
         \App\Models\RiwayatPengajuan::create([
             'id_pengajuan' => $pengajuan->id,
             'id_pengguna' => $pengguna['id'],
-            'aksi' => 'DIREVIU',
+            'aksi' => 'Diteruskan ke Verifikator',
             'catatan_aksi' => 'Admin mengirim dokumen ke Antrian Verifikasi',
             'versi' => 1,
             'created_at' => now()
@@ -363,15 +372,15 @@ class PengajuanController extends Controller
         if (!$pengguna['is_admin']) return redirect('/dashboard')->with('error', 'Hanya Admin.');
 
         $pengajuan = Pengajuan::findOrFail($id);
-        if ($pengajuan->status !== 'REJECTED_BY_VERIFIER') return back();
+        if ($pengajuan->status !== 'Revisi') return back();
 
         // Kembali ke status REVIEWED tanpa mengubah urutan antrean
-        $pengajuan->update(['status' => 'REVIEWED']);
+        $pengajuan->update(['status' => 'Menunggu Verifikasi']);
 
         \App\Models\RiwayatPengajuan::create([
             'id_pengajuan' => $pengajuan->id,
             'id_pengguna' => $pengguna['id'],
-            'aksi' => 'DIREVIU',
+            'aksi' => 'Diteruskan ke Verifikator',
             'catatan_aksi' => 'Admin mengirim ulang dokumen ke Verifikator (Re-Review)',
             'versi' => 1,
             'created_at' => now()
@@ -387,10 +396,10 @@ class PengajuanController extends Controller
         if (!$pengguna['is_admin']) return redirect('/dashboard')->with('error', 'Hanya Admin.');
 
         $pengajuan = Pengajuan::findOrFail($id);
-        if (!in_array($pengajuan->status, ['POSTED', 'REJECTED_BY_VERIFIER'])) return back();
+        if (!in_array($pengajuan->status, ['Diproses Admin', 'Revisi'])) return back();
 
         $pengajuan->update([
-            'status' => 'REJECTED',
+            'status' => 'Ditolak Admin',
             'id_verifikator_sekarang' => null,
             'catatan' => $request->catatan ?? $pengajuan->catatan
         ]);
@@ -418,7 +427,7 @@ class PengajuanController extends Controller
 
         $pengajuan = Pengajuan::findOrFail($id);
         
-        if ($pengajuan->status !== 'REVIEWED') {
+        if ($pengajuan->status !== 'Menunggu Verifikasi') {
             return back()->with('error', 'Hanya dokumen berstatus REVIEWED yang dapat disetujui.');
         }
 
@@ -447,7 +456,7 @@ class PengajuanController extends Controller
             return redirect('/dashboard')->with('success', 'Dokumen disetujui dan diteruskan ke Verifikator selanjutnya.');
         } else {
             $pengajuan->update([
-                'status' => 'PUBLISHED',
+                'status' => 'Diterbitkan',
                 'id_verifikator_sekarang' => null
             ]);
 
@@ -660,12 +669,12 @@ class PengajuanController extends Controller
 
         $pengajuan = Pengajuan::findOrFail($id);
         
-        if ($pengajuan->status !== 'REVIEWED') {
+        if ($pengajuan->status !== 'Menunggu Verifikasi') {
             return back()->with('error', 'Hanya dokumen berstatus REVIEWED yang dapat ditolak.');
         }
 
         $pengajuan->update([
-            'status' => 'REJECTED_BY_VERIFIER',
+            'status' => 'Revisi',
             'catatan' => $request->catatan
         ]);
 
@@ -722,7 +731,7 @@ class PengajuanController extends Controller
         }
 
         // Hanya bisa dihapus jika statusnya DRAFT, POSTED, atau REJECTED (agar tidak ada "security problem")
-        if (!in_array($pengajuan->status, ['DRAFT', 'POSTED', 'REJECTED'])) {
+        if (!in_array($pengajuan->status, ['Draf', 'Diproses Admin', 'Ditolak Admin'])) {
             return back()->with('error', 'Dokumen ini sedang diproses atau sudah selesai, sehingga tidak dapat dihapus.');
         }
 

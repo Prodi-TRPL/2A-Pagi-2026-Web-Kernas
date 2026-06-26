@@ -36,40 +36,7 @@
                     <p class="text-xs text-gray-500 mb-2">Nama dokumen ini di sistem (contoh: SK Pengangkatan Dosen 2026)</p>
                     <input type="text" name="judul" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
                 </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="md:col-span-1">
-                        <label class="block text-sm font-semibold text-gray-800 mb-2">Verifikator 1 <span class="text-red-500">*</span></label>
-                        <select name="verifikator[]" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
-                            <option value="">-- Pilih Verifikator 1 --</option>
-                            @foreach($verifikator1 as $v)
-                            <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="md:col-span-1">
-                        <label class="block text-sm font-semibold text-gray-800 mb-2">Verifikator 2 (Opsional)</label>
-                        <select name="verifikator[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
-                            <option value="">-- Pilih Verifikator 2 --</option>
-                            @foreach($verifikator2 as $v)
-                            <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="md:col-span-1">
-                        <label class="block text-sm font-semibold text-gray-800 mb-2">Verifikator 3 (Opsional)</label>
-                        <select name="verifikator[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
-                            <option value="">-- Pilih Verifikator 3 --</option>
-                            @foreach($verifikator3 as $v)
-                            <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
-                            @endforeach
-                        </select>
-                    </div>
                 </div>
-                <p class="text-xs text-amber-600 mt-2 bg-amber-50 p-2 rounded border border-amber-200">
-                    <span class="font-bold">Info:</span> Verifikator paling akhir yang Anda pilih (Verifikator 1, 2, atau 3) akan secara otomatis menjadi penanda tangan (yang membubuhkan QR Code).
-                </p>
-            </div>
 
             <!-- Informasi Surat -->
             <div class="space-y-4">

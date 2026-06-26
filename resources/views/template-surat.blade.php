@@ -112,7 +112,7 @@
                             window.docEditor.destroyEditor();
                         }
 
-                        const onlyOfficeUrl = "http://localhost:8080"; 
+                        const onlyOfficeUrl = "{{ env('ONLYOFFICE_URL', 'http://localhost:8080') }}"; 
                         
                         if (typeof DocsAPI === 'undefined') {
                             let script = document.createElement('script');
