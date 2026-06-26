@@ -51,8 +51,8 @@ class TemplateSuratController extends Controller
                 $config["width"] = "100%";
                 $config["height"] = "100%";
 
-                // Jika library JWT tersedia (di-install via Composer), hasilkan token
-                // Kunci JWT wajib minimal 32 karakter (256 bit) untuk firebase/php-jwt versi 7+
+                // library JWT (di-install via Composer), hasilkan token
+                // Kunci JWT wajib minimal 32 karakter
                 $secret = env('ONLYOFFICE_JWT_SECRET', 'polibatam_secret_jwt_key_256bit_2026');
                 if (class_exists(\Firebase\JWT\JWT::class)) {
                     $token = \Firebase\JWT\JWT::encode($config, $secret, 'HS256');

@@ -77,7 +77,7 @@ class PegawaiController extends Controller
         ]);
     }
 
-    // (alur data: fungsi ini menerima data inputan profil dari modal edit profil di view 'pegawai' baris 330, memvalidasinya, lalu menyimpannya ke database menggunakan model pengguna)
+    // alur data: fungsi ini menerima data inputan profil dari modal edit profil di view 'pegawai' baris 330, memvalidasinya, lalu menyimpannya ke database menggunakan model pengguna
     public function updateProfil(Request $request, $id)
     {
         if (!session()->has('pengguna')) return response()->json(['error' => 'Unauthorized'], 401);
@@ -98,7 +98,7 @@ class PegawaiController extends Controller
     }
 
     // menggunakan fitur "sync" untuk edit tabel sangatlah berguna (reminder to use it more often on next project)
-    // (alur data: fungsi ini menerima aksi simpan dari modal atur peran di view 'pegawai' baris 204, lalu memperbarui peran pengguna di database menggunakan model pengguna) (lupakan ini)
+    // alur data: fungsi ini menerima aksi simpan dari modal atur peran di view 'pegawai' baris 204, lalu memperbarui peran pengguna di database menggunakan model pengguna (lupakan ini)
     public function updatePeran(Request $request, $id)
     {
         if (!session()->has('pengguna')) return response()->json(['error' => 'Unauthorized'], 401);

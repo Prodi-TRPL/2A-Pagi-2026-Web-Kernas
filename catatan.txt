@@ -1,4 +1,4 @@
-catatan untuk diri atau tim lain jika dilanjutkan
+catatan untuk diri
 1. dokumen dalam tabel pengajuan yang suda di publish di simpan di dua tempat tabel pengajuan(disembunyikan) sebagai file word dan dokumen sebagai pdf
 
 2. pengajuan dan pengguna menggunakan proses soft delete 
@@ -12,4 +12,6 @@ catatan untuk diri atau tim lain jika dilanjutkan
 6. DO NOT TOUCH file controller.php
 
 7. tanya pada pihak staff Tata usah jika bisa tentang alur surat
+
+8. 
 

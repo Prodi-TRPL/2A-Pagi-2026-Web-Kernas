@@ -84,9 +84,9 @@
             {{-- (alur data: form ini mengirim inputan 'username' dan 'password' ke fungsi login() pada authcontroller di baris 21) --}}
             <form method="POST" action="{{ route('login.post') }}">
                 @csrf
-                {{-- bagian input form yang digunakan untuk memasukkan username (nip/email) --}}
+                {{-- bagian input form yang digunakan untuk memasukkan username --}}
                 <div class="mb-5">
-                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1.5">Username DokPol</label>
+                    <label for="username" class="block text-sm font-medium text-gray-700 mb-1.5">Username</label>
                     <input type="text" id="username" name="username" value="{{ old('username') }}"
                         class="w-full h-11 px-3.5 rounded-lg border text-sm text-gray-800 transition-all duration-150 @error('username') border-red-400 bg-red-50 @else border-gray-300 bg-white @enderror"
                         autocomplete="username" placeholder="" required />

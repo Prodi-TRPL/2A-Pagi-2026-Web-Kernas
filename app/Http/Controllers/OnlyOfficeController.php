@@ -12,7 +12,7 @@ class OnlyOfficeController extends Controller
     public function callback(Request $request, $id)
     {
         $body = $request->all();
-
+        // error code for debugging
         // Status 2 = Dokumen ditutup dan siap disimpan
         // Status 6 = Dokumen sedang diedit, tapi user menekan Save (forcesave)
         // Status 3 = Save error
@@ -21,14 +21,14 @@ class OnlyOfficeController extends Controller
         if ($status == 2 || $status == 6) {
             $downloadUri = $body['url'];
             
-            // Docker ONLYOFFICE mungkin mengirim URL internalnya sendiri (misal http://172.17.0.2/...)
-            // Laravel (Host) tidak bisa mengakses IP internal Docker di Windows, jadi kita ubah domainnya ke localhost:8080
+            // Docker ONLYOFFICE mungkin mengirim URL internalnya sendiri (http://172.17.0.2/)
+            // Laravel tidak bisa mengakses IP internal Docker di Windows,ubah domainny ke localhost:8080
             $downloadUri = preg_replace('/^http:\/\/[^\/]+/', 'http://127.0.0.1:8080', $downloadUri);
             
             try {
                 // Unduh file dari Document Server
                 $newFileData = file_get_contents($downloadUri);
-                
+                // error code (jika terjadi)
                 if ($newFileData === false) {
                     throw new \Exception("Gagal mengunduh file dari $downloadUri");
                 }
@@ -44,7 +44,7 @@ class OnlyOfficeController extends Controller
             }
         }
 
-        // Harus me-return {"error": 0} agar ONLYOFFICE tahu callback sukses
+        // Harus me-return {"error": 0} agar ONLYOFFICE tau callback sukses
         return response()->json(['error' => 0]);
     }
 

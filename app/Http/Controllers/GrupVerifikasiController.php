@@ -12,7 +12,7 @@ class GrupVerifikasiController extends Controller
     {
         if (!session()->has('pengguna')) return redirect('/');
 
-        // Jangan tampilkan grup Ad-Hoc buatan sistem
+        // Jangan tampilkan grup Ad-Hoc
         $grups = GrupVerifikasi::with('pengguna')
             ->where('nama_grup', 'not like', 'Ad-Hoc:%')
             ->orderBy('id', 'desc')
