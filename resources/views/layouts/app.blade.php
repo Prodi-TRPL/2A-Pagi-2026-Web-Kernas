@@ -7,6 +7,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Override alert() bawaan
+        window.alert = function(message) {
+            Swal.fire({
+                text: message,
+                icon: 'info',
+                confirmButtonColor: '#0284c7', // sky-600
+                confirmButtonText: 'OK'
+            });
+        };
+
+        // Helper untuk confirm asinkron
+        window.appConfirm = function(message, isDanger = false) {
+            return Swal.fire({
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: isDanger ? '#ef4444' : '#0284c7', // red-500 or sky-600
+                cancelButtonColor: '#9ca3af', // gray-400
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Batal',
+                reverseButtons: true
+            });
+        };
+    </script>
     <style>
         [x-cloak] { display: none !important; }
         .stat-card { transition: transform 0.2s ease, box-shadow 0.2s ease; }
@@ -51,7 +77,7 @@
                     <div class="w-9 h-9 rounded-full bg-sky-600 flex items-center justify-center text-white text-sm font-bold">
                         {{ strtoupper(substr($user['nama'], 0, 2)) }}
                     </div>
-                    <a href="{{ route('logout') }}" class="text-xs text-red-500 hover:text-red-700 ml-2 font-semibold">Logout</a>
+                    <a href="{{ route('logout') }}" onclick="event.preventDefault(); appConfirm('Yakin ingin keluar dari aplikasi KERNAS?', true).then(res => { if(res.isConfirmed) window.location.href = this.href; })" class="text-xs text-red-500 hover:text-red-700 ml-2 font-semibold">Logout</a>
                 </div>
             </div>
 

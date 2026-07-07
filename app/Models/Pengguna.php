@@ -14,6 +14,7 @@ class Pengguna extends Model
         'password',
     ];
 
+    // ini untuk mendefinisikan relasi 'belongsToMany' ke entitas GrupVerifikasi
     public function grupVerifikasi()
     {
         return $this->belongsToMany(
@@ -24,21 +25,13 @@ class Pengguna extends Model
         );
     }
 
-    /**
-     *  check untuk verifikator (ini solusi sementara tolong perbaiki sebelum deploy pls) (nah man)
-     *
-     * @return bool
-     */
+    // ini untuk memeriksa apakah pengguna saat ini termasuk dalam grup verifikator
     public function isVerifikator()
     {
         return $this->grupVerifikasi()->exists();
     }
 
-    /**
-     * mengambil id dari tabel
-     *
-     * @return array
-     */
+    // ini untuk mengambil array ID grup verifikasi yang terkait dengan pengguna
     public function getGrupIds()
     {
         return $this->grupVerifikasi()->pluck('grup_verifikasi.id')->toArray();

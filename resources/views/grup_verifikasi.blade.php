@@ -300,7 +300,8 @@
                 },
 
                 async deleteGrup(id) {
-                    if(!confirm('Yakin ingin menghapus grup ini beserta relasi anggotanya?')) return;
+                    const konfirmasi = await appConfirm('Yakin ingin menghapus grup ini beserta relasi anggotanya?', true);
+                    if(!konfirmasi.isConfirmed) return;
                     try {
                         const res = await fetch(`/setup/grup-verifikasi/${id}`, {
                             method: 'DELETE',
@@ -342,7 +343,9 @@
                 },
 
                 async removeAnggota(id_pengguna) {
-                    if (!this.selectedGrup || !confirm('Keluarkan anggota ini dari grup?')) return;
+                    if (!this.selectedGrup) return;
+                    const konfirmasi = await appConfirm('Keluarkan anggota ini dari grup?', true);
+                    if (!konfirmasi.isConfirmed) return;
                     try {
                         const res = await fetch(`/setup/grup-verifikasi/${this.selectedGrup.id}/anggota/${id_pengguna}`, {
                             method: 'DELETE',

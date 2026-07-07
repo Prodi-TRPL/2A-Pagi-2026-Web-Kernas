@@ -347,20 +347,7 @@
 
             toast: { show: false, message: '', type: 'success' },
 
-            peraturan: [
-                { id: 1,  kode: 'UU No. 12 Tahun 2012',           judul: 'Pendidikan Tinggi',                                              jenis: 'UU',           tahun: 2012, keterangan: 'Dasar hukum penyelenggaraan pendidikan tinggi di Indonesia', ditambah_oleh: 'Admin' },
-                { id: 2,  kode: 'UU No. 20 Tahun 2003',           judul: 'Sistem Pendidikan Nasional',                                     jenis: 'UU',           tahun: 2003, keterangan: 'Landasan sistem pendidikan nasional',                          ditambah_oleh: 'Admin' },
-                { id: 3,  kode: 'PP No. 4 Tahun 2014',            judul: 'Penyelenggaraan Pendidikan Tinggi dan Pengelolaan Perguruan Tinggi', jenis: 'PP',        tahun: 2014, keterangan: '',                                                           ditambah_oleh: 'Admin' },
-                { id: 4,  kode: 'PP No. 37 Tahun 2009',           judul: 'Dosen',                                                          jenis: 'PP',           tahun: 2009, keterangan: 'Peraturan mengenai dosen sebagai tenaga pendidik',            ditambah_oleh: 'Admin' },
-                { id: 5,  kode: 'Perpres No. 8 Tahun 2012',       judul: 'Kerangka Kualifikasi Nasional Indonesia (KKNI)',                  jenis: 'Perpres',      tahun: 2012, keterangan: 'Standar kompetensi lulusan perguruan tinggi',                ditambah_oleh: 'Admin' },
-                { id: 6,  kode: 'Permendikbud No. 3 Tahun 2020',  judul: 'Standar Nasional Pendidikan Tinggi',                             jenis: 'Permendikbud', tahun: 2020, keterangan: 'SN-Dikti yang mengatur standar mutu pendidikan tinggi',      ditambah_oleh: 'Admin' },
-                { id: 7,  kode: 'Permendikbud No. 7 Tahun 2020',  judul: 'Pendirian, Perubahan, Pembubaran PTN',                           jenis: 'Permendikbud', tahun: 2020, keterangan: '',                                                           ditambah_oleh: 'Admin' },
-                { id: 8,  kode: 'Permendikbud No. 53 Tahun 2023', judul: 'Penjaminan Mutu Pendidikan Tinggi',                              jenis: 'Permendikbud', tahun: 2023, keterangan: 'Ketentuan penjaminan mutu internal dan eksternal',            ditambah_oleh: 'Budi Santoso' },
-                { id: 9,  kode: 'Permenristek No. 44 Tahun 2015', judul: 'Standar Nasional Pendidikan Tinggi',                             jenis: 'Permenristek',tahun: 2015, keterangan: '',                                                            ditambah_oleh: 'Admin' },
-                { id: 10, kode: 'SK Dir No. 001/SK/2024',         judul: 'Pedoman Akademik Politeknik Negeri Batam 2024',                  jenis: 'SK Direktur',  tahun: 2024, keterangan: 'Pedoman akademik internal Polibatam',                        ditambah_oleh: 'Admin' },
-                { id: 11, kode: 'SK Dir No. 012/SK/2025',         judul: 'Struktur Organisasi dan Tata Kelola Polibatam',                  jenis: 'SK Direktur',  tahun: 2025, keterangan: '',                                                           ditambah_oleh: 'Admin' },
-                { id: 12, kode: 'SK Dir No. 025/SK/2025',         judul: 'Pedoman Pengajuan dan Distribusi Surat Keputusan Internal',      jenis: 'SK Direktur',  tahun: 2025, keterangan: 'Mengatur alur pengajuan dan distribusi SK di lingkungan Polibatam', ditambah_oleh: 'Dodi Prasojo' },
-            ],
+            peraturan: @json($peraturan),
 
             get filteredData() {
                 return this.peraturan.filter(p => {
@@ -389,7 +376,7 @@
                 this.errors = {};
                 if (mode === 'edit' && item) {
                     this.editId = item.id;
-                    this.form = { kode: item.kode, judul: item.judul, jenis: item.jenis, tahun: item.tahun, keterangan: item.keterangan };
+                    this.form = { kode: item.kode, judul: item.judul, jenis: item.jenis, tahun: item.tahun, keterangan: item.keterangan || '' };
                 } else {
                     this.editId = null;
                     this.form = { kode: '', judul: '', jenis: '', tahun: new Date().getFullYear(), keterangan: '' };
@@ -411,45 +398,69 @@
                 return Object.keys(this.errors).length === 0;
             },
 
-            simpanPeraturan() {
+            async simpanPeraturan() {
                 if (!this.validate()) return;
-
-                if (this.modalMode === 'tambah') {
-                    // INTEGRASI BACKEND: fetch POST /setup/peraturan
-                    const newId = Math.max(...this.peraturan.map(p => p.id)) + 1;
-                    this.peraturan.unshift({
-                        id: newId,
-                        kode: this.form.kode,
-                        judul: this.form.judul,
-                        jenis: this.form.jenis,
-                        tahun: parseInt(this.form.tahun),
-                        keterangan: this.form.keterangan,
-                        ditambah_oleh: 'Admin',
+                
+                try {
+                    const url = this.modalMode === 'tambah' 
+                        ? '/setup/peraturan' 
+                        : `/setup/peraturan/${this.editId}`;
+                        
+                    const method = this.modalMode === 'tambah' ? 'POST' : 'PUT';
+                    
+                    const res = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify(this.form)
                     });
-                    this.showToast('Peraturan berhasil ditambahkan', 'success');
-                } else {
-                    // INTEGRASI BACKEND: fetch PATCH /setup/peraturan/{id}
-                    const idx = this.peraturan.findIndex(p => p.id === this.editId);
-                    if (idx !== -1) {
-                        this.peraturan[idx] = {
-                            ...this.peraturan[idx],
-                            kode: this.form.kode,
-                            judul: this.form.judul,
-                            jenis: this.form.jenis,
-                            tahun: parseInt(this.form.tahun),
-                            keterangan: this.form.keterangan,
-                        };
+                    
+                    const result = await res.json();
+                    
+                    if (!res.ok) {
+                        this.showToast(result.message || 'Gagal menyimpan data', 'error');
+                        return;
                     }
-                    this.showToast('Peraturan berhasil diperbarui', 'success');
+
+                    if (this.modalMode === 'tambah') {
+                        this.peraturan.unshift(result.data);
+                        this.showToast('Peraturan berhasil ditambahkan', 'success');
+                    } else {
+                        const idx = this.peraturan.findIndex(p => p.id === this.editId);
+                        if (idx !== -1) {
+                            this.peraturan[idx] = result.data;
+                        }
+                        this.showToast('Peraturan berhasil diperbarui', 'success');
+                    }
+                    this.closeModal();
+                } catch(e) {
+                    this.showToast('Terjadi kesalahan server', 'error');
                 }
-                this.closeModal();
             },
 
-            hapusPeraturan(id) {
-                if (!confirm('Yakin ingin menghapus peraturan ini?')) return;
-                // INTEGRASI BACKEND: fetch DELETE /setup/peraturan/{id}
-                this.peraturan = this.peraturan.filter(p => p.id !== id);
-                this.showToast('Peraturan berhasil dihapus', 'success');
+            async hapusPeraturan(id) {
+                const konfirmasi = await appConfirm('Yakin ingin menghapus peraturan ini?', true);
+                if (!konfirmasi.isConfirmed) return;
+                
+                try {
+                    const res = await fetch(`/setup/peraturan/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    });
+                    
+                    if (res.ok) {
+                        this.peraturan = this.peraturan.filter(p => p.id !== id);
+                        this.showToast('Peraturan berhasil dihapus', 'success');
+                    } else {
+                        this.showToast('Gagal menghapus data', 'error');
+                    }
+                } catch(e) {
+                    this.showToast('Terjadi kesalahan server', 'error');
+                }
             },
 
             showToast(message, type = 'success') {

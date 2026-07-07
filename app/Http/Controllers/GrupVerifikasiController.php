@@ -8,6 +8,7 @@ use App\Models\Pengguna;
 
 class GrupVerifikasiController extends Controller
 {
+    // ini untuk menampilkan daftar grup verifikasi beserta data karyawan pada view 'grup_verifikasi'
     public function index()
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -23,6 +24,7 @@ class GrupVerifikasiController extends Controller
         return view('grup_verifikasi', compact('grups', 'karyawan'));
     }
 
+    // ini untuk menyimpan data grup verifikasi baru ke dalam database melalui request AJAX/JSON
     public function store(Request $request)
     {
         if (!session()->has('pengguna')) return response()->json(['error' => 'Unauthorized'], 401);
@@ -43,6 +45,7 @@ class GrupVerifikasiController extends Controller
         return response()->json(['message' => 'Grup berhasil dibuat', 'grup' => $grup]);
     }
 
+    // ini untuk memperbarui informasi (nama dan tingkat) dari sebuah grup verifikasi yang sudah ada
     public function update(Request $request, $id)
     {
         if (!session()->has('pengguna')) return response()->json(['error' => 'Unauthorized'], 401);
@@ -63,6 +66,7 @@ class GrupVerifikasiController extends Controller
         return response()->json(['message' => 'Grup berhasil diperbarui', 'grup' => $grup]);
     }
 
+    // ini untuk menghapus grup verifikasi dan semua relasi anggotanya dari database
     public function destroy($id)
     {
         if (!session()->has('pengguna')) return response()->json(['error' => 'Unauthorized'], 401);
@@ -75,6 +79,7 @@ class GrupVerifikasiController extends Controller
         return response()->json(['message' => 'Grup berhasil dihapus']);
     }
 
+    // ini untuk menambahkan pengguna (karyawan) sebagai anggota ke dalam suatu grup verifikasi tertentu
     public function addAnggota(Request $request, $id)
     {
         if (!session()->has('pengguna')) return response()->json(['error' => 'Unauthorized'], 401);
@@ -91,6 +96,7 @@ class GrupVerifikasiController extends Controller
         return response()->json(['message' => 'Anggota berhasil ditambahkan', 'pengguna' => $pengguna]);
     }
 
+    // ini untuk mengeluarkan/menghapus seorang pengguna dari keanggotaan grup verifikasi
     public function removeAnggota($id, $id_pengguna)
     {
         if (!session()->has('pengguna')) return response()->json(['error' => 'Unauthorized'], 401);

@@ -27,11 +27,13 @@ class RiwayatPengajuan extends Model
         'created_at' => 'datetime'
     ];
 
+    // ini untuk mendefinisikan relasi 'belongsTo' antara RiwayatPengajuan dan Pengajuan terkait
     public function pengajuan()
     {
         return $this->belongsTo(Pengajuan::class, 'id_pengajuan');
     }
 
+    // ini untuk mendefinisikan relasi 'belongsTo' antara RiwayatPengajuan dan Pengguna yang melakukan aksi
     public function pengguna()
     {
         return $this->belongsTo(Pengguna::class, 'id_pengguna');

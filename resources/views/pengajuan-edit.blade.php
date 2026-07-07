@@ -158,8 +158,13 @@
                                             </div>
                                         </div>
 
-                                        <form action="/pengajuan/{{ $pengajuan->id }}/admin-kirim" method="POST" class="mt-5 space-y-4">
+                                        <form action="/pengajuan/{{ $pengajuan->id }}/admin-kirim" method="POST" class="mt-5 space-y-4 text-left">
                                             @csrf
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-800 mb-1">Nomor Surat <span class="text-red-500">*</span></label>
+                                                <input type="text" name="nomor_surat" required placeholder="Contoh: 001/SK/2026" value="{{ $pengajuan->nomor_diusulkan }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
+                                                <p class="text-xs text-gray-500 mt-1">Nomor ini akan otomatis disisipkan ke dalam dokumen.</p>
+                                            </div>
                                             <div>
                                                 <label class="block text-sm font-semibold text-gray-800 mb-1">Verifikator 1 <span class="text-red-500">*</span></label>
                                                 <select name="verifikator[]" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
@@ -204,7 +209,7 @@
                 @endif
                 @if($isProposer)
                     @if($pengajuan->status === 'Ditolak Admin')
-                        <form action="/pengajuan/{{ $pengajuan->id }}/hapus" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengajuan yang ditolak ini? Ini tidak bisa dikembalikan.');">
+                        <form action="/pengajuan/{{ $pengajuan->id }}/hapus" method="POST" onsubmit="event.preventDefault(); appConfirm('Apakah Anda yakin ingin menghapus pengajuan yang ditolak ini? Ini tidak bisa dikembalikan.', true).then(res => { if(res.isConfirmed) this.submit(); });">
                             @csrf
                             <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -226,7 +231,7 @@
                 @endif
             @elseif($pengajuan->status === 'Menunggu Verifikasi')
                 @if($isVerifier)
-                    <form action="/pengajuan/{{ $pengajuan->id }}/terima" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin MENYETUJUI dokumen ini?');">
+                    <form action="/pengajuan/{{ $pengajuan->id }}/terima" method="POST" onsubmit="event.preventDefault(); appConfirm('Apakah Anda yakin ingin MENYETUJUI dokumen ini?').then(res => { if(res.isConfirmed) this.submit(); });">
                         @csrf
                         <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors shadow-sm flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
@@ -265,7 +270,7 @@
                 @endif
             @elseif($pengajuan->status === 'Revisi')
                 @if($isAdmin)
-                    <form action="/pengajuan/{{ $pengajuan->id }}/admin-kirim-ulang" method="POST" onsubmit="return confirm('Kirim ulang dokumen ini ke Verifikator yang sama?');">
+                    <form action="/pengajuan/{{ $pengajuan->id }}/admin-kirim-ulang" method="POST" onsubmit="event.preventDefault(); appConfirm('Kirim ulang dokumen ini ke Verifikator yang sama?').then(res => { if(res.isConfirmed) this.submit(); });">
                         @csrf
                         <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>

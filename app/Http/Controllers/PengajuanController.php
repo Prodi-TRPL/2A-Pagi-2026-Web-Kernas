@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use App\Models\TemplateSurat;
 use App\Models\Pengajuan;
 use App\Models\GrupVerifikasi;
@@ -10,6 +11,7 @@ use PhpOffice\PhpWord\TemplateProcessor;
 
 class PengajuanController extends Controller
 {
+    // ini untuk menampilkan daftar pengajuan surat (berdasarkan akses pengguna) ke view 'pengajuan-surat'
     public function index()
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -38,9 +40,16 @@ class PengajuanController extends Controller
                 ];
             });
 
-        return view('pengajuan-surat', compact('pengajuans'));
+        // Ambil template surat aktif untuk dropdown (fitur "Buat Pengajuan Baru" untuk Admin & Verifikator)
+        $templates = \App\Models\TemplateSurat::where('is_aktif', 1)->get();
+        $templatesArahan = $templates->whereIn('tipe', ['Arahan', 'SK', 'ST', 'SE', 'Instruksi', 'SOP']);
+        $templatesKorespondensi = $templates->whereIn('tipe', ['Korespondensi', 'Surat Dinas', 'Nota Dinas', 'Surat Edaran', 'Surat Undangan']);
+        $templatesKhusus = $templates->whereIn('tipe', ['Khusus', 'MoU', 'Perjanjian', 'Surat Kuasa', 'Berita Acara']);
+
+        return view('pengajuan-surat', compact('pengajuans', 'templatesArahan', 'templatesKorespondensi', 'templatesKhusus'));
     }
 
+    // ini untuk menampilkan halaman pilih jenis pengajuan baru
     public function create()
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -52,6 +61,7 @@ class PengajuanController extends Controller
         return view('pengajuan-baru', compact('templates', 'grupVerifikasi'));
     }
 
+    // ini untuk menampilkan form pengajuan surat dengan template SK/ST beserta pilihan verifikator
     public function formContohSuratSatu()
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -61,21 +71,24 @@ class PengajuanController extends Controller
             return redirect('/pengajuan/baru')->with('error', 'Template Contoh Surat Satu tidak ditemukan.');
         }
 
-        $penggunas = \App\Models\Pengguna::where('is_deleted', 0)->orderBy('nama')->get();
+        $penggunas = \App\Models\Pengguna::select('id', 'nama', 'nip', 'jabatan')->where('is_deleted', 0)->orderBy('nama')->get();
 
-        $verifikator1 = \App\Models\Pengguna::where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
+        $verifikator1 = \App\Models\Pengguna::select('id', 'nama', 'nip', 'jabatan')->where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
             $q->where('tingkat', '1');
         })->get();
-        $verifikator2 = \App\Models\Pengguna::where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
+        $verifikator2 = \App\Models\Pengguna::select('id', 'nama', 'nip', 'jabatan')->where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
             $q->where('tingkat', '2');
         })->get();
-        $verifikator3 = \App\Models\Pengguna::where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
+        $verifikator3 = \App\Models\Pengguna::select('id', 'nama', 'nip', 'jabatan')->where('is_deleted', 0)->whereHas('grupVerifikasi', function($q) {
             $q->where('tingkat', '3');
         })->get();
+        
+        $peraturans = \App\Models\Peraturan::orderBy('tahun', 'desc')->orderBy('kode', 'asc')->get();
 
-        return view('forms.contoh-surat-satu', compact('template', 'penggunas', 'verifikator1', 'verifikator2', 'verifikator3'));
+        return view('forms.contoh-surat-satu', compact('template', 'penggunas', 'verifikator1', 'verifikator2', 'verifikator3', 'peraturans'));
     }
 
+    // ini untuk memproses data dari form pengajuan SK/ST, membuat file dokumen docx dari template, dan menyimpannya ke database
     public function storeContohSuratSatu(Request $request)
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -92,8 +105,8 @@ class PengajuanController extends Controller
             'diusulkan.*.NAMA_DIUSUL' => 'required|string',
             'diusulkan.*.NIP_DIUSUL' => 'required|string',
             'diusulkan.*.JABATAN_DIUSUL' => 'required|string',
-            'file_lampiran' => 'nullable|array',
-            'file_lampiran.*' => 'file|max:10240',
+            'file_lampiran' => 'nullable|array|max:10',
+            'file_lampiran.*' => 'file|max:5120|mimes:pdf|mimetypes:application/pdf',
         ]);
 
         $template = TemplateSurat::findOrFail($request->id_template);
@@ -121,15 +134,30 @@ class PengajuanController extends Controller
 
         if ($request->hasFile('file_lampiran')) {
             foreach ($request->file('file_lampiran') as $file) {
-                $filenameLampiran = 'lampiran_' . time() . '_' . $file->getClientOriginalName();
-                $file->storeAs('lampiran_pengajuan', $filenameLampiran, 'public');
-                
+                // === VALIDASI MAGIC BYTES PDF ===
+                // Cek 4 byte pertama isi file harus '%PDF' agar file tidak bisa dipalsukan
+                $handle = fopen($file->getRealPath(), 'rb');
+                $magic  = fread($handle, 4);
+                fclose($handle);
+                if ($magic !== '%PDF') {
+                    // Hapus pengajuan yang sudah dibuat agar tidak orphan
+                    $pengajuan->delete();
+                    return back()->with('error', 'File lampiran yang diunggah bukan file PDF yang valid.');
+                }
+
+                // Nama asli disimpan di DB untuk tampilan (sudah disanitasi)
+                $namaAsli       = preg_replace('/[^\w\-\.\s]/', '', $file->getClientOriginalName());
+                // Nama penyimpanan pakai UUID aman, bukan nama dari user
+                $filenameSimpan = 'lmp_' . $pengajuan->id . '_' . Str::uuid() . '.pdf';
+
+                $file->storeAs('lampiran_pengajuan', $filenameSimpan, 'public');
+
                 \Illuminate\Support\Facades\DB::table('lampiran_pengajuan')->insert([
                     'id_pengajuan' => $pengajuan->id,
-                    'nama_file' => $file->getClientOriginalName(),
-                    'filepath' => 'lampiran_pengajuan/' . $filenameLampiran,
-                    'created_at' => now(),
-                    'updated_at' => now()
+                    'nama_file'   => $namaAsli,
+                    'filepath'    => 'lampiran_pengajuan/' . $filenameSimpan,
+                    'created_at'  => now(),
+                    'updated_at'  => now()
                 ]);
             }
         }
@@ -152,12 +180,36 @@ class PengajuanController extends Controller
                 $teksLampiran = $jumlahLampiranInt . ' (' . $terbilang . ') Berkas';
             }
             
-            // Injeksi data ke placeholder
-            $templateProcessor->setValue('NOMOR_SURAT', $request->NOMOR_SURAT ?? '');
+            $templateProcessor->setValue('NOMOR_SURAT', htmlspecialchars(trim($request->NOMOR_SURAT ?? '')) ?: '${NOMOR_SURAT}');
             $templateProcessor->setValue('TANGGAL_SURAT', \Carbon\Carbon::parse($request->TANGGAL_SURAT)->translatedFormat('d F Y'));
             $templateProcessor->setValue('JUMLAH-LAMPIRAN', $teksLampiran);
-            $templateProcessor->setValue('HAL', $request->HAL);
-            $templateProcessor->setValue('NAMA_PENGUSUL', $request->NAMA_PENGUSUL);
+            $templateProcessor->setValue('HAL', htmlspecialchars(trim($request->HAL ?? '')));
+            $templateProcessor->setValue('NAMA_PENGUSUL', htmlspecialchars(trim($request->NAMA_PENGUSUL ?? '')));
+
+            // Injeksi Dasar Peraturan (Mengingat)
+            $mengingatText = '';
+            if ($request->has('peraturan')) {
+                $peraturanIds = $request->peraturan;
+                $peraturans = \App\Models\Peraturan::whereIn('id', $peraturanIds)->get();
+                $count = 1;
+                foreach ($peraturans as $p) {
+                    // Simpan relasi ke pengajuan_peraturan
+                    \Illuminate\Support\Facades\DB::table('pengajuan_peraturan')->insert([
+                        'id_pengajuan' => $pengajuan->id,
+                        'id_peraturan' => $p->id,
+                        'created_at' => now(),
+                    ]);
+                    
+                    // Format untuk DOCX
+                    $mengingatText .= $count . '. ' . htmlspecialchars($p->kode . ' tentang ' . $p->judul) . '<w:br/>';
+                    $count++;
+                }
+            }
+            // Jika ada text, hilangkan <w:br/> terakhir. Jika kosong, biarkan placeholder.
+            if ($mengingatText) {
+                $mengingatText = substr($mengingatText, 0, -8); 
+            }
+            $templateProcessor->setValue('MENGINGAT', $mengingatText ?: '${MENGINGAT}');
             
             // Injeksi data tabel dinamis (clone row)
             $templateProcessor->cloneRowAndSetValues('NAMA_DIUSUL', $request->diusulkan);
@@ -201,10 +253,179 @@ class PengajuanController extends Controller
 
         } catch (\Exception $e) {
             $pengajuan->delete();
-            return back()->with('error', 'Gagal memproses template: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Gagal memproses template pengajuan #' . ($pengajuan->id ?? '?') . ': ' . $e->getMessage());
+            return back()->with('error', 'Gagal memproses template surat. Silakan coba lagi atau hubungi administrator.');
         }
     }
 
+    // ini untuk menampilkan form pengajuan dokumen dinas/arahan
+    public function formDinasArahan()
+    {
+        if (!session()->has('pengguna')) return redirect('/');
+        
+        $template = \App\Models\TemplateSurat::where('nama_template', 'LIKE', '%Arahan%')->orWhere('tipe', 'Arahan')->first();
+        if (!$template) {
+            return redirect('/pengajuan/baru')->with('error', 'Template Surat Dinas Arahan tidak ditemukan.');
+        }
+
+        $peraturans = \App\Models\Peraturan::orderBy('tahun', 'desc')->orderBy('kode', 'asc')->get();
+
+        return view('forms.dinas-arahan', compact('template', 'peraturans'));
+    }
+
+    // ini untuk memproses pengajuan dokumen dinas/arahan yang diunggah langsung (PDF)
+    public function storeDinasArahan(\Illuminate\Http\Request $request)
+    {
+        if (!session()->has('pengguna')) return redirect('/');
+
+        $request->validate([
+            'id_template' => 'required|exists:template_surat,id',
+            'judul' => 'required|string|max:200',
+            'NOMOR_SURAT' => 'nullable|string',
+            'TANGGAL_SURAT' => 'required|string',
+            'TENTANG_SURAT' => 'required|string',
+            'MENETAPKAN_TENTANG' => 'required|string',
+            'file_lampiran' => 'nullable|array|max:10',
+            'file_lampiran.*' => 'file|max:5120|mimes:pdf|mimetypes:application/pdf',
+        ]);
+
+        $template = \App\Models\TemplateSurat::findOrFail($request->id_template);
+        $pengguna = session('pengguna');
+
+        $adaLampiran = $request->hasFile('file_lampiran') ? 1 : 0;
+
+        $pengajuan = \App\Models\Pengajuan::create([
+            'id_pengguna' => $pengguna['id'],
+            'id_grup_verifikasi_verifikator' => null,
+            'judul' => $request->judul,
+            'tipe' => $template->tipe,
+            'status' => 'Diproses Admin',
+            'daftar_menimbang' => '',
+            'daftar_memperhatikan' => '',
+            'daftar_memutuskan' => '',
+            'ada_lampiran' => $adaLampiran,
+            'filepath_lampiran' => null,
+            'nomor_diusulkan' => $request->NOMOR_SURAT,
+        ]);
+
+        if ($request->hasFile('file_lampiran')) {
+            foreach ($request->file('file_lampiran') as $file) {
+                $handle = fopen($file->getRealPath(), 'rb');
+                $magic  = fread($handle, 4);
+                fclose($handle);
+                if ($magic !== '%PDF') {
+                    $pengajuan->delete();
+                    return back()->with('error', 'File lampiran yang diunggah bukan file PDF yang valid.');
+                }
+                $namaAsli       = preg_replace('/[^\w\-\.\s]/', '', $file->getClientOriginalName());
+                $filenameSimpan = 'lmp_' . $pengajuan->id . '_' . \Illuminate\Support\Str::uuid() . '.pdf';
+                $file->storeAs('lampiran_pengajuan', $filenameSimpan, 'public');
+                \Illuminate\Support\Facades\DB::table('lampiran_pengajuan')->insert([
+                    'id_pengajuan' => $pengajuan->id,
+                    'nama_file'   => $namaAsli,
+                    'filepath'    => 'lampiran_pengajuan/' . $filenameSimpan,
+                    'created_at'  => now(),
+                    'updated_at'  => now()
+                ]);
+            }
+        }
+
+        $templatePath = storage_path('app/public/' . $template->filepath);
+        if (!file_exists($templatePath)) {
+            $pengajuan->delete();
+            return back()->with('error', 'File template surat tidak ditemukan di server.');
+        }
+
+        try {
+            $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($templatePath);
+            
+            $templateProcessor->setValue('NOMOR_SURAT', htmlspecialchars(trim($request->NOMOR_SURAT ?? '')) ?: '${NOMOR_SURAT}');
+            $templateProcessor->setValue('TANGGAL_SURAT', \Carbon\Carbon::parse($request->TANGGAL_SURAT)->translatedFormat('d F Y'));
+            $templateProcessor->setValue('TAHUN_SURAT', \Carbon\Carbon::parse($request->TANGGAL_SURAT)->format('Y'));
+            $templateProcessor->setValue('TENTANG_SURAT', htmlspecialchars(trim($request->TENTANG_SURAT ?? '')) ?: '');
+            $templateProcessor->setValue('MENETAPKAN_TENTANG', htmlspecialchars(trim($request->MENETAPKAN_TENTANG ?? '')) ?: '');
+            
+            $menimbangText = '';
+            if ($request->has('menimbang') && is_array($request->menimbang)) {
+                $alphabet = range('a', 'z');
+                $idx = 0;
+                foreach ($request->menimbang as $m) {
+                    if (!empty(trim($m))) {
+                        $letter = $alphabet[$idx] ?? 'a';
+                        $menimbangText .= $letter . '. ' . htmlspecialchars(trim($m)) . '<w:br/>';
+                        $idx++;
+                    }
+                }
+            }
+            if ($menimbangText) {
+                $menimbangText = substr($menimbangText, 0, -7); // remove last <w:br/> (7 chars)
+            }
+            $templateProcessor->setValue('MENIMBANG_SURAT', $menimbangText ?: '${MENIMBANG_SURAT}');
+            $pasalText = '';
+            if ($request->has('pasal') && is_array($request->pasal)) {
+                $pasalCount = 1;
+                foreach ($request->pasal as $p) {
+                    if (!empty(trim($p))) {
+                        $pasalText .= 'Pasal ' . $pasalCount . '<w:br/>' . htmlspecialchars(trim($p)) . '<w:br/><w:br/>';
+                        $pasalCount++;
+                    }
+                }
+            }
+            if ($pasalText) {
+                $pasalText = substr($pasalText, 0, -14); // remove last <w:br/><w:br/> (14 chars)
+            }
+            $templateProcessor->setValue('PASAL_SURAT', $pasalText ?: '${PASAL_SURAT}');
+
+            $mengingatText = '';
+            if ($request->has('peraturan')) {
+                $peraturans = \App\Models\Peraturan::whereIn('id', $request->peraturan)->get();
+                $count = 1;
+                foreach ($peraturans as $p) {
+                    \Illuminate\Support\Facades\DB::table('pengajuan_peraturan')->insert([
+                        'id_pengajuan' => $pengajuan->id,
+                        'id_peraturan' => $p->id,
+                        'created_at' => now(),
+                    ]);
+                    $mengingatText .= $count . '. ' . htmlspecialchars($p->kode . ' tentang ' . $p->judul) . '<w:br/>';
+                    $count++;
+                }
+            }
+            if ($mengingatText) {
+                $mengingatText = substr($mengingatText, 0, -8); 
+            }
+            $templateProcessor->setValue('MENGINGAT', $mengingatText ?: '${MENGINGAT}');
+            
+            $filename = 'pengajuan_' . $pengajuan->id . '_' . time() . '.docx';
+            $saveDir = storage_path('app/public/pengajuan');
+            if (!file_exists($saveDir)) {
+                mkdir($saveDir, 0755, true);
+            }
+
+            $templateProcessor->saveAs($saveDir . '/' . $filename);
+
+            $pengajuan->update([
+                'filepath' => 'pengajuan/' . $filename
+            ]);
+
+            \App\Models\RiwayatPengajuan::create([
+                'id_pengajuan' => $pengajuan->id,
+                'id_pengguna' => $pengguna['id'],
+                'aksi' => 'DIBUAT',
+                'catatan_aksi' => 'Pengajuan Dinas Arahan dibuat',
+                'versi' => 1,
+                'created_at' => now()
+            ]);
+
+            return redirect('/pengajuan/' . $pengajuan->id . '/edit')->with('success', 'Pengajuan berhasil dibuat! Silakan tinjau draf dokumen Anda.');
+
+        } catch (\Exception $e) {
+            $pengajuan->delete();
+            \Illuminate\Support\Facades\Log::error('Gagal memproses template arahan #' . ($pengajuan->id ?? '?') . ': ' . $e->getMessage());
+            return back()->with('error', 'Gagal memproses template surat. Silakan coba lagi atau hubungi administrator.');
+        }
+    }
+
+    // ini untuk membuka editor OnlyOffice (view 'pengajuan-edit') untuk mengedit dokumen pengajuan
     public function editDoc($id)
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -270,8 +491,8 @@ class PengajuanController extends Controller
             "height" => "100%"
         ];
 
-        $secret = env('ONLYOFFICE_JWT_SECRET', 'polibatam_secret_jwt_key_256bit_2026');
-        if (class_exists(\Firebase\JWT\JWT::class)) {
+        $secret = env('ONLYOFFICE_JWT_SECRET');
+        if (!empty($secret) && class_exists(\Firebase\JWT\JWT::class)) {
             $config['token'] = \Firebase\JWT\JWT::encode($config, $secret, 'HS256');
         }
 
@@ -293,6 +514,7 @@ class PengajuanController extends Controller
         return view('pengajuan-edit', compact('pengajuan', 'config', 'isProposer', 'isAdmin', 'isVerifier', 'riwayat', 'verifikator1', 'verifikator2', 'verifikator3'));
     }
 
+    // ini untuk mengirim pengajuan (draft) agar mulai diproses oleh Admin
     public function kirimVerifikasi($id)
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -307,6 +529,7 @@ class PengajuanController extends Controller
         return redirect('/dashboard')->with('success', 'Draf dokumen berhasil disimpan!');
     }
 
+    // ini untuk diproses oleh admin: mengirim dokumen pengajuan ke verifikator tingkat selanjutnya
     public function adminKirimVerifikator(Request $request, $id)
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -323,34 +546,44 @@ class PengajuanController extends Controller
         }
 
         $request->validate([
+            'nomor_surat' => 'required|string|max:100',
             'verifikator' => 'required|array|min:1|max:3',
             'verifikator.0' => 'required|exists:pengguna,id',
         ]);
-
-        // Buat Grup Verifikasi Ad-Hoc
-        $grupVerifikasi = GrupVerifikasi::create([
-            'nama_grup' => 'Ad-Hoc: ' . substr($pengajuan->judul, 0, 50) . ' (' . time() . ')',
-            'id_pengguna' => $pengguna['id'],
-            'is_deleted' => 0
-        ]);
-
-        $selectedVerifikators = array_unique(array_filter($request->verifikator));
         
-        foreach ($selectedVerifikators as $verifId) {
-            \Illuminate\Support\Facades\DB::table('anggota_grup_verifikasi')->insert([
-                'id_grup_verifikasi' => $grupVerifikasi->id,
+        // Simpan nomor yang diinput Admin ke dalam dokumen menggunakan PHPWord
+        $docPath = storage_path('app/public/' . $pengajuan->filepath);
+        if (file_exists($docPath)) {
+            try {
+                $templateProcessor = new \PhpOffice\PhpWord\TemplateProcessor($docPath);
+                $templateProcessor->setValue('NOMOR_SURAT', htmlspecialchars(trim($request->nomor_surat ?? '')));
+                $templateProcessor->saveAs($docPath);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::warning('Gagal menyisipkan nomor surat: ' . $e->getMessage());
+            }
+        }
+
+        $selectedVerifikators = array_values(array_unique(array_filter($request->verifikator)));
+        
+        \Illuminate\Support\Facades\DB::table('grup_verifikasi_pengajuan')->where('id_pengajuan', $pengajuan->id)->delete();
+
+        foreach ($selectedVerifikators as $index => $verifId) {
+            \Illuminate\Support\Facades\DB::table('grup_verifikasi_pengajuan')->insert([
+                'id_pengajuan' => $pengajuan->id,
                 'id_pengguna' => $verifId,
+                'urutan' => $index,
                 'created_at' => now(),
             ]);
         }
 
-        $verifikatorPertamaId = reset($selectedVerifikators);
+        $verifikatorPertamaId = $selectedVerifikators[0] ?? null;
 
         $pengajuan->update([
             'status' => 'Menunggu Verifikasi',
             'urutan_antrian' => 0,
-            'id_grup_verifikasi_verifikator' => $grupVerifikasi->id,
-            'id_verifikator_sekarang' => $verifikatorPertamaId
+            'id_grup_verifikasi_verifikator' => null,
+            'id_verifikator_sekarang' => $verifikatorPertamaId,
+            'nomor_diusulkan' => $request->nomor_surat
         ]);
 
         \App\Models\RiwayatPengajuan::create([
@@ -365,6 +598,7 @@ class PengajuanController extends Controller
         return redirect('/dashboard')->with('success', 'Dokumen berhasil dikirim dan kini siap ditinjau oleh Verifikator!');
     }
 
+    // ini untuk diproses oleh admin: mengirim ulang dokumen pengajuan ke verifikator jika ada perbaikan
     public function adminKirimUlangVerifikator($id)
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -389,6 +623,7 @@ class PengajuanController extends Controller
         return redirect('/dashboard')->with('success', 'Dokumen berhasil dikirim ulang ke Verifikator.');
     }
 
+    // ini untuk diproses oleh admin: mengembalikan dokumen ke pengusul untuk direvisi
     public function adminKembalikanPengusul(Request $request, $id)
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -416,6 +651,7 @@ class PengajuanController extends Controller
         return redirect('/dashboard')->with('success', 'Dokumen dikembalikan ke Pengusul untuk direvisi.');
     }
 
+    // ini untuk menangani persetujuan (acc) dokumen oleh verifikator atau penyelesaian dokumen menjadi Terbit oleh admin
     public function terimaPengajuan($id)
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -431,9 +667,9 @@ class PengajuanController extends Controller
             return back()->with('error', 'Hanya dokumen berstatus REVIEWED yang dapat disetujui.');
         }
 
-        $verifikators = \Illuminate\Support\Facades\DB::table('anggota_grup_verifikasi')
-            ->where('id_grup_verifikasi', $pengajuan->id_grup_verifikasi_verifikator)
-            ->orderBy('id', 'asc')
+        $verifikators = \Illuminate\Support\Facades\DB::table('grup_verifikasi_pengajuan')
+            ->where('id_pengajuan', $pengajuan->id)
+            ->orderBy('urutan', 'asc')
             ->get();
         
         $nextUrutan = $pengajuan->urutan_antrian + 1;
@@ -462,13 +698,26 @@ class PengajuanController extends Controller
 
             // === INJEKSI QR CODE ===
             try {
+                // Generate Nomor Dokumen terlebih dahulu agar bisa masuk ke QR Code
+                $tahun = date('Y');
+                $lastNomor = \App\Models\NomorDokumen::where('tipe', $pengajuan->tipe)
+                                ->where('tahun', $tahun)
+                                ->orderBy('urutan', 'desc')
+                                ->first();
+                $urutan = $lastNomor ? $lastNomor->urutan + 1 : 1;
+                
+                // Gunakan nomor surat usulan Admin jika tersedia, jika tidak buat otomatis
+                $nomorTerformat = !empty($pengajuan->nomor_diusulkan) 
+                                    ? $pengajuan->nomor_diusulkan 
+                                    : sprintf('%03d/%s/%d', $urutan, $pengajuan->tipe, $tahun);
+
                 // Siapkan data QR Code
                 $namaVerifikator = $pengguna['nama'];
                 $grupVerifikator = $pengajuan->grupVerifikator->nama_grup ?? 'Verifikator';
                 $judulSurat = $pengajuan->judul;
                 $tanggal = now()->translatedFormat('d F Y H:i:s');
                 
-                $qrContent = "Ditandatangani oleh: {$namaVerifikator}\nGrup: {$grupVerifikator}\nDokumen: {$judulSurat}\nTanggal: {$tanggal}";
+                $qrContent = "Ditandatangani oleh: {$namaVerifikator}\nGrup: {$grupVerifikator}\nNomor: {$nomorTerformat}\nDokumen: {$judulSurat}\nTanggal: {$tanggal}";
                 
                 // Pastikan direktori ada
                 $pengajuanDir = storage_path('app/public/pengajuan');
@@ -482,11 +731,49 @@ class PengajuanController extends Controller
                 
                 $qrOptions = new \chillerlan\QRCode\QROptions([
                     'outputInterface' => \chillerlan\QRCode\Output\QRGdImagePNG::class,
-                    'eccLevel' => \chillerlan\QRCode\Common\EccLevel::L,
-                    'scale' => 4,
+                    'eccLevel' => \chillerlan\QRCode\Common\EccLevel::H,
+                    'scale' => 8,
                     'imageBase64' => false,
                 ]);
                 (new \chillerlan\QRCode\QRCode($qrOptions))->render($qrContent, $qrPath);
+                
+                // === Sisipkan Logo ke Tengah QR Code ===
+                $logoPath = public_path('images/logo_polibatam.png');
+                if (file_exists($logoPath) && file_exists($qrPath)) {
+                    $qrImage = imagecreatefrompng($qrPath);
+                    $logo = imagecreatefrompng($logoPath);
+                    
+                    imagealphablending($qrImage, true);
+                    imagesavealpha($qrImage, true);
+                    
+                    $QR_width = imagesx($qrImage);
+                    $QR_height = imagesy($qrImage);
+                    $logo_width = imagesx($logo);
+                    $logo_height = imagesy($logo);
+                
+                    // Skala logo menjadi sekitar 30% lebar QR Code
+                    $logo_qr_width = (int) ($QR_width / 3); 
+                    $scale = $logo_width / $logo_qr_width;
+                    $logo_qr_height = (int) ($logo_height / $scale);
+                
+                    // Hitung posisi tengah
+                    $x = (int) (($QR_width - $logo_qr_width) / 2);
+                    $y = (int) (($QR_height - $logo_qr_height) / 2);
+                
+                    // Merge image
+                    imagecopyresampled(
+                        $qrImage, $logo, 
+                        $x, $y, 
+                        0, 0, 
+                        $logo_qr_width, $logo_qr_height, 
+                        $logo_width, $logo_height
+                    );
+                    
+                    // Save kembali QR Code yang sudah ada logo
+                    imagepng($qrImage, $qrPath);
+                    imagedestroy($logo);
+                    imagedestroy($qrImage);
+                }
 
                 // Path ke file dokumen word
                 $docPath = storage_path('app/public/' . $pengajuan->filepath);
@@ -547,8 +834,8 @@ class PengajuanController extends Controller
                     ];
                     
                     $headers = [];
-                    if (class_exists(\Firebase\JWT\JWT::class)) {
-                        $secret = env('ONLYOFFICE_JWT_SECRET', 'polibatam_secret_jwt_key_256bit_2026');
+                    $secret = env('ONLYOFFICE_JWT_SECRET');
+                    if (!empty($secret) && class_exists(\Firebase\JWT\JWT::class)) {
                         $token = \Firebase\JWT\JWT::encode($payload, $secret, 'HS256');
                         $payload['token'] = $token;
                         $headers['Authorization'] = 'Bearer ' . $token;
@@ -581,15 +868,7 @@ class PengajuanController extends Controller
                     \Illuminate\Support\Facades\Log::error('ONLYOFFICE Convert Exception: ' . $e->getMessage());
                 }
                 
-                // Generate Nomor Dokumen
-                $tahun = date('Y');
-                $lastNomor = \App\Models\NomorDokumen::where('tipe', $pengajuan->tipe)
-                                ->where('tahun', $tahun)
-                                ->orderBy('urutan', 'desc')
-                                ->first();
-                $urutan = $lastNomor ? $lastNomor->urutan + 1 : 1;
-                $nomorTerformat = sprintf('%03d/%s/%d', $urutan, $pengajuan->tipe, $tahun);
-                
+                // Record Nomor Dokumen menggunakan variabel yang sudah digenerate di atas
                 $nomorDokumen = \App\Models\NomorDokumen::create([
                     'tipe' => $pengajuan->tipe,
                     'tahun' => $tahun,
@@ -631,7 +910,8 @@ class PengajuanController extends Controller
                 foreach ($grupVerifikasi as $gv) {
                     \Illuminate\Support\Facades\DB::table('grup_verifikasi_dokumen')->insert([
                         'id_dokumen' => $dokumenBaru->id,
-                        'id_grup_verifikasi' => $gv->id_grup_verifikasi,
+                        'id_pengguna' => $gv->id_pengguna,
+                        'urutan' => $gv->urutan,
                         'created_at' => now()
                     ]);
                 }
@@ -654,6 +934,7 @@ class PengajuanController extends Controller
         }
     }
 
+    // ini untuk menangani penolakan dokumen pengajuan oleh verifikator atau admin (dikembalikan ke tahap sebelumnya)
     public function tolakPengajuan(Request $request, $id)
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -689,6 +970,7 @@ class PengajuanController extends Controller
 
         return redirect('/dashboard')->with('success', 'Dokumen ditolak dan dikembalikan ke Admin.');
     }
+    // ini untuk menampilkan daftar lampiran yang ada pada suatu pengajuan
     public function viewLampiran($id)
     {
         if (!session()->has('pengguna')) return redirect('/');
@@ -700,11 +982,13 @@ class PengajuanController extends Controller
         $isProposer = ($pengajuan->id_pengguna == $pengguna['id']);
         
         if (!$isAdmin && !$isProposer) {
-            $isVerifier = \Illuminate\Support\Facades\DB::table('anggota_grup_verifikasi')
-                ->where('id_grup_verifikasi', $pengajuan->id_grup_verifikasi_verifikator)
+            // Fix IDOR: jika id_grup_verifikasi_verifikator NULL, query akan return false
+            // sehingga non-admin/non-pemilik tidak bisa akses saat belum ada verifikator
+            $isVerifier = \Illuminate\Support\Facades\DB::table('grup_verifikasi_pengajuan')
+                ->where('id_pengajuan', $pengajuan->id)
                 ->where('id_pengguna', $pengguna['id'])
                 ->exists();
-                
+
             if (!$isVerifier) {
                 return redirect('/dashboard')->with('error', 'Anda tidak memiliki akses ke lampiran ini.');
             }
@@ -717,7 +1001,63 @@ class PengajuanController extends Controller
             
         return view('pengajuan-lampiran', compact('pengajuan', 'lampirans'));
     }
+
+    /**
+     * Download individual lampiran melalui controller (terproteksi auth + kepemilikan so dont worry hehe).
+     * Mencegah akses publik langsung via /storage/lampiran_pengajuan/...
+     */
+    // ini untuk mengunduh file lampiran dari suatu pengajuan
+    public function unduhLampiran($pengajuanId, $lampiranId)
+    {
+        if (!session()->has('pengguna')) return redirect('/');
+        $pengguna = session('pengguna');
+
+        $pengajuan = Pengajuan::findOrFail($pengajuanId);
+
+        $isAdmin    = $pengguna['is_admin'];
+        $isProposer = ($pengajuan->id_pengguna == $pengguna['id']);
+
+        if (!$isAdmin && !$isProposer) {
+            $isVerifier = \Illuminate\Support\Facades\DB::table('grup_verifikasi_pengajuan')
+                ->where('id_pengajuan', $pengajuan->id)
+                ->where('id_pengguna', $pengguna['id'])
+                ->exists();
+            if (!$isVerifier) {
+                abort(403, 'Anda tidak memiliki akses ke lampiran ini.');
+            }
+        }
+
+        $lampiran = \Illuminate\Support\Facades\DB::table('lampiran_pengajuan')
+            ->where('id', $lampiranId)
+            ->where('id_pengajuan', $pengajuanId)
+            ->first();
+
+        if (!$lampiran) abort(404);
+
+        // Validasi path aman (harus dalam direktori lampiran_pengajuan)
+        $filePath = storage_path('app/public/' . $lampiran->filepath);
+        $allowed  = storage_path('app/public/lampiran_pengajuan');
+        if (!str_starts_with(realpath($filePath) ?: '', realpath($allowed))) {
+            abort(403);
+        }
+
+        if (!file_exists($filePath)) abort(404);
+
+        if (request()->has('download')) {
+            return response()->download($filePath, $lampiran->nama_file, [
+                'Content-Type'        => 'application/pdf',
+                'X-Content-Type-Options' => 'nosniff',
+            ]);
+        }
+        
+        return response()->file($filePath, [
+            'Content-Type'        => 'application/pdf',
+            'X-Content-Type-Options' => 'nosniff',
+            'Content-Disposition' => 'inline; filename="' . addslashes($lampiran->nama_file) . '"'
+        ]);
+    }
      // jlogic penghapusan surat (self explenatory)
+    // ini untuk menghapus data pengajuan (soft delete) jika statusnya masih mengizinkan untuk dihapus
     public function hapusPengajuan(Request $request, $id)
     {
         if (!session()->has('pengguna')) return redirect('/');

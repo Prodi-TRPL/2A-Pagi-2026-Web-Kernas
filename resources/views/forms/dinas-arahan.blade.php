@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Form Contoh Surat Satu — KERNAS')
+@section('title', 'Form Surat Dinas Arahan — KERNAS')
 
 @section('content')
-<div class="max-w-screen-xl mx-auto px-4 py-8" x-data="suratForm(@js($penggunas))">
+<div class="max-w-screen-xl mx-auto px-4 py-8">
     <div class="mb-6 flex items-center gap-4">
         <a href="/dashboard" class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm" title="Kembali ke Beranda">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
         </a>
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">Form: Contoh Surat Satu</h1>
-            <p class="text-sm text-gray-500 mt-1">Lengkapi informasi di bawah ini untuk menggenerate draft surat.</p>
+            <h1 class="text-2xl font-bold text-gray-900">Form: Surat Dinas Arahan</h1>
+            <p class="text-sm text-gray-500 mt-1">Lengkapi informasi di bawah ini untuk menggenerate draft surat Arahan / Peraturan.</p>
         </div>
     </div>
 
@@ -22,99 +22,73 @@
     @endif
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
-        <form action="/pengajuan/form/contoh-surat-satu" method="POST" enctype="multipart/form-data" class="p-6 space-y-8">
+        <form action="/pengajuan/form/dinas-arahan" method="POST" enctype="multipart/form-data" class="p-6 space-y-8">
             @csrf
             
             <input type="hidden" name="id_template" value="{{ $template->id }}">
 
-            <!-- Metadata Surat -->
+            <!-- Metadata atau nama atau judul surat idk -->
             <div class="space-y-4">
                 <h3 class="text-sm font-bold text-sky-700 uppercase tracking-wider border-b pb-2">1. Metadata Surat</h3>
                 
                 <div>
                     <label class="block text-sm font-semibold text-gray-800 mb-2">Judul Dokumen (Sistem) <span class="text-red-500">*</span></label>
-                    <p class="text-xs text-gray-500 mb-2">Nama dokumen ini di sistem (contoh: SK Pengangkatan Dosen 2026)</p>
+                    <p class="text-xs text-gray-500 mb-2">Nama dokumen ini di sistem (contoh: Peraturan Direktur No 1 Tahun 2026)</p>
                     <input type="text" name="judul" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
                 </div>
-                </div>
+            </div>
 
-            <!-- Informasi Surat -->
+            <!-- Info Surat -->
             <div class="space-y-4">
-                <h3 class="text-sm font-bold text-sky-700 uppercase tracking-wider border-b pb-2">2. Informasi Kepala Surat</h3>
+                <h3 class="text-sm font-bold text-sky-700 uppercase tracking-wider border-b pb-2">2. Kepala Surat</h3>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-semibold text-gray-800 mb-2">Nomor Surat</label>
-                        <input type="text" name="NOMOR_SURAT" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none" placeholder="123/UN.1/2026">
+                        <input type="text" name="NOMOR_SURAT" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none" placeholder="01/UN.1/2026">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-800 mb-2">Tanggal Surat <span class="text-red-500">*</span></label>
+                        <label class="block text-sm font-semibold text-gray-800 mb-2">Tanggal Penetapan <span class="text-red-500">*</span></label>
                         <input type="date" name="TANGGAL_SURAT" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-2">Hal / Perihal <span class="text-red-500">*</span></label>
-                    <input type="text" name="HAL" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none" placeholder="Pengajuan Kenaikan Pangkat">
+                    <label class="block text-sm font-semibold text-gray-800 mb-2">Tentang / Perihal <span class="text-red-500">*</span></label>
+                    <input type="text" name="TENTANG_SURAT" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none" placeholder="TENTANG PENETAPAN JADWAL AKADEMIK">
                 </div>
-            </div>
-
-            <!-- Identitas Personal -->
-            <div class="space-y-4">
-                <h3 class="text-sm font-bold text-sky-700 uppercase tracking-wider border-b pb-2">3. Identitas Terkait</h3>
                 
                 <div>
-                    <label class="block text-sm font-semibold text-gray-800 mb-2">Nama Pengusul <span class="text-red-500">*</span></label>
-                    <input type="text" name="NAMA_PENGUSUL" required class="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none" placeholder="Prof. Dr. Pengusul">
-                </div>
-
-                <div class="pt-4">
-                    <label class="block text-sm font-semibold text-gray-800 mb-2">Daftar "Yang Diusulkan" <span class="text-red-500">*</span></label>
-                    <p class="text-xs text-gray-500 mb-3">Tabel di dalam dokumen akan secara otomatis menyesuaikan jumlah orang yang Anda tambahkan di sini.</p>
-                    
-                    <div class="space-y-3">
-                        <template x-for="(orang, index) in daftarDiusulkan" :key="index">
-                            <div class="flex items-start gap-4 p-4 border border-gray-200 rounded-xl bg-gray-50 relative group transition-colors hover:border-sky-300">
-                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 flex-1">
-                                    <div>
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Pilih Pegawai <span class="text-red-500">*</span></label>
-                                        <select :name="'diusulkan['+index+'][id_pengguna]'" x-model="orang.id_pengguna" @change="onPegawaiChange(index)" required class="w-full px-3 py-1.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-sky-500 outline-none text-sm">
-                                            <option value="">-- Pilih Pegawai --</option>
-                                            <template x-for="p in penggunas" :key="p.id">
-                                                <option :value="p.id" x-text="p.nama"></option>
-                                            </template>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Nama</label>
-                                        <input type="text" :name="'diusulkan['+index+'][NAMA_DIUSUL]'" x-model="orang.nama" readonly class="w-full px-3 py-1.5 border border-gray-300 rounded-md bg-gray-100 text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">NIP</label>
-                                        <input type="text" :name="'diusulkan['+index+'][NIP_DIUSUL]'" x-model="orang.nip" readonly class="w-full px-3 py-1.5 border border-gray-300 rounded-md bg-gray-100 text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs font-semibold text-gray-600 mb-1">Jabatan</label>
-                                        <input type="text" :name="'diusulkan['+index+'][JABATAN_DIUSUL]'" x-model="orang.jabatan" readonly class="w-full px-3 py-1.5 border border-gray-300 rounded-md bg-gray-100 text-sm">
-                                    </div>
-                                </div>
-                                <button type="button" @click="hapusDiusulkan(index)" x-show="daftarDiusulkan.length > 1" class="mt-6 p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
-                                </button>
-                            </div>
-                        </template>
-                    </div>
-
-                    <button type="button" @click="tambahDiusulkan()" class="mt-4 flex items-center gap-2 px-4 py-2 text-sm font-semibold text-sky-600 bg-sky-50 hover:bg-sky-100 rounded-lg border border-sky-200 transition-colors">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-                        Tambah Orang
-                    </button>
+                    <label class="block text-sm font-semibold text-gray-800 mb-2">Menetapkan Tentang <span class="text-red-500">*</span></label>
+                    <input type="text" name="MENETAPKAN_TENTANG" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none" placeholder="PENETAPAN JADWAL AKADEMIK TAHUN 2026">
                 </div>
             </div>
 
-            <!-- Pilihan Peraturan -->
+            <!-- Menimbang -->
+            <div class="space-y-4" x-data="{ menimbangs: ['', ''] }">
+                <div class="flex items-center justify-between border-b pb-2">
+                    <h3 class="text-sm font-bold text-sky-700 uppercase tracking-wider">3. Dasar Menimbang</h3>
+                    <button type="button" @click="menimbangs.push('')" class="text-xs bg-sky-100 hover:bg-sky-200 text-sky-700 px-3 py-1 rounded-lg font-bold transition-colors">
+                        + Tambah Butir
+                    </button>
+                </div>
+                
+                <template x-for="(menimbang, index) in menimbangs" :key="index">
+                    <div class="relative">
+                        <label class="block text-sm font-semibold text-gray-800 mb-2" x-text="'Menimbang (Butir ' + String.fromCharCode(97 + index) + ')'"></label>
+                        <div class="flex gap-2">
+                            <textarea name="menimbang[]" x-model="menimbangs[index]" rows="2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none text-sm" placeholder="bahwa..."></textarea>
+                            <button type="button" x-show="menimbangs.length > 1" @click="menimbangs.splice(index, 1)" class="px-3 py-2 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors flex-shrink-0 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Mengingat  -->
             <div class="space-y-4">
-                <h3 class="text-sm font-bold text-sky-700 uppercase tracking-wider border-b pb-2">4. Dasar Peraturan (Bagian Mengingat)</h3>
+                <h3 class="text-sm font-bold text-sky-700 uppercase tracking-wider border-b pb-2">4. Dasar Peraturan</h3>
                 
                 <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
                     <p class="text-xs text-gray-500 mb-3">Pilih peraturan mana saja yang menjadi dasar/landasan surat ini. Peraturan yang dipilih akan otomatis dimasukkan ke bagian <b>Mengingat</b>.</p>
@@ -122,7 +96,7 @@
                     <div class="max-h-60 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
                         @foreach($peraturans as $p)
                         <label class="flex items-start gap-3 p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-sky-50 hover:border-sky-200 transition-colors">
-                            <input type="checkbox" name="peraturan[]" value="{{ $p->id }}" class="mt-1 w-4 h-4 text-sky-600 border-gray-300 rounded focus:ring-sky-500">
+                            <input type="checkbox" name="peraturan[]" value="{{ $p->id }}" class="mt-1 w-4 h-4 text-sky-600 border-gray-300 rounded focus:ring-2 focus:ring-sky-500">
                             <div>
                                 <p class="text-sm font-semibold text-gray-800">{{ $p->kode }}</p>
                                 <p class="text-xs text-gray-500">{{ $p->judul }} ({{ $p->tahun }})</p>
@@ -133,18 +107,38 @@
                 </div>
             </div>
 
-            <!-- Lampiran Opsional -->
+            <!-- Pasal Dinamis -->
+            <div class="space-y-4" x-data="{ pasals: [''] }">
+                <div class="flex items-center justify-between border-b pb-2">
+                    <h3 class="text-sm font-bold text-sky-700 uppercase tracking-wider">5. Isi Keputusan (Pasal-Pasal)</h3>
+                    <button type="button" @click="pasals.push('')" class="text-xs bg-sky-100 hover:bg-sky-200 text-sky-700 px-3 py-1 rounded-lg font-bold transition-colors">
+                        + Tambah Pasal
+                    </button>
+                </div>
+                
+                <template x-for="(pasal, index) in pasals" :key="index">
+                    <div class="relative">
+                        <label class="block text-sm font-semibold text-gray-800 mb-1" x-text="'Isi Pasal ' + (index + 1)"></label>
+                        <div class="flex gap-2">
+                            <textarea name="pasal[]" x-model="pasals[index]" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none text-sm"></textarea>
+                            <button type="button" x-show="pasals.length > 1" @click="pasals.splice(index, 1)" class="px-3 py-2 bg-red-50 text-red-500 hover:bg-red-100 rounded-lg transition-colors flex-shrink-0 flex items-center justify-center">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- lampiran (opsional) -->
             <div class="space-y-4">
-                <h3 class="text-sm font-bold text-sky-700 uppercase tracking-wider border-b pb-2">5. Lampiran Pendukung</h3>
+                <h3 class="text-sm font-bold text-sky-700 uppercase tracking-wider border-b pb-2">6. Lampiran Pendukung</h3>
                 
                 <div x-data="{ 
                     files: [], 
                     isDropping: false,
                     addFiles(fileList) {
                         let dt = new DataTransfer();
-                        // Masukkan file lama
                         this.files.forEach(f => dt.items.add(f));
-                        // Masukkan file baru — hanya PDF yang diizinkan
                         let rejected = [];
                         Array.from(fileList).forEach(f => {
                             if (f.type !== 'application/pdf') {
@@ -185,7 +179,6 @@
                             <p class="text-sm font-medium text-gray-800">Unggah File Lampiran PDF (Opsional)</p>
                             <p class="text-xs text-gray-500 mt-1">Tarik & lepas file di sini, atau <span class="text-sky-600 font-semibold">klik untuk mencari</span></p>
                             <p class="text-[10px] text-gray-400 mt-2">Hanya file <strong>PDF</strong> yang diterima, maksimal 5 MB per file.</p>
-                            <p class="text-[10px] text-gray-400 mt-1">Jumlah lampiran pada dokumen akan dihitung otomatis oleh sistem.</p>
                         </div>
                     </div>
                     
@@ -221,36 +214,4 @@
         </form>
     </div>
 </div>
-
-<script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('suratForm', (penggunasData = []) => ({
-        penggunas: penggunasData,
-        daftarDiusulkan: [
-            { id_pengguna: '', nama: '', nip: '', jabatan: '' }
-        ],
-        tambahDiusulkan() {
-            this.daftarDiusulkan.push({ id_pengguna: '', nama: '', nip: '', jabatan: '' });
-        },
-        hapusDiusulkan(index) {
-            if (this.daftarDiusulkan.length > 1) {
-                this.daftarDiusulkan.splice(index, 1);
-            }
-        },
-        onPegawaiChange(index) {
-            const selectedId = this.daftarDiusulkan[index].id_pengguna;
-            const p = this.penggunas.find(x => x.id == selectedId);
-            if (p) {
-                this.daftarDiusulkan[index].nama = p.nama;
-                this.daftarDiusulkan[index].nip = p.nip;
-                this.daftarDiusulkan[index].jabatan = p.jabatan || 'Staf';
-            } else {
-                this.daftarDiusulkan[index].nama = '';
-                this.daftarDiusulkan[index].nip = '';
-                this.daftarDiusulkan[index].jabatan = '';
-            }
-        }
-    }));
-});
-</script>
 @endsection

@@ -4,6 +4,7 @@
 // jangan hapus ini btw
 namespace App\Http\Controllers;
 
+// ini untuk base controller bawaan Laravel yang di-extend oleh controller lainnya
 abstract class Controller
 {
     //nothing

@@ -26,7 +26,9 @@
                             $formUrl = '#';
                             if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
                                 $formUrl = '/pengajuan/form/contoh-surat-satu';
-                            }
+                            } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-arahan';
+                        }
                         @endphp
                         <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
                     @endforeach
@@ -43,7 +45,9 @@
                             $formUrl = '#';
                             if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
                                 $formUrl = '/pengajuan/form/contoh-surat-satu';
-                            }
+                            } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-arahan';
+                        }
                         @endphp
                         <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
                     @endforeach
@@ -60,7 +64,9 @@
                             $formUrl = '#';
                             if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
                                 $formUrl = '/pengajuan/form/contoh-surat-satu';
-                            }
+                            } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-arahan';
+                        }
                         @endphp
                         <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
                     @endforeach
@@ -211,7 +217,6 @@
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="bg-gray-50 border-b border-gray-200">
-                            <th class="text-left px-5 py-3 font-semibold text-gray-600 w-36">NO. ANTRIAN</th>
                             <th class="text-left px-5 py-3 font-semibold text-gray-600">JUDUL PENGAJUAN</th>
                             <th class="text-left px-5 py-3 font-semibold text-gray-600 w-24">JENIS</th>
                             <th class="text-left px-5 py-3 font-semibold text-gray-600 w-36">PENGAJU</th>
@@ -232,9 +237,6 @@
                         --}}
                         <template x-for="item in filteredPengajuanProses" :key="item.id">
                             <tr @click="window.location.href = '/pengajuan/' + item.id + '/edit'" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer">
-                                <td class="px-5 py-3.5">
-                                    <span class="font-mono text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded" x-text="'#' + String(item.urutan_antrian).padStart(3, '0')"></span>
-                                </td>
                                 <td class="px-5 py-3.5">
                                     <p class="font-medium text-gray-800" x-text="item.judul"></p>
                                     <p class="text-xs text-gray-400 mt-0.5" x-text="item.grup_verifikasi"></p>
@@ -263,7 +265,7 @@
                                         </a>
                                         
                                         <template x-if="item.can_delete">
-                                            <form :action="'/pengajuan/' + item.id + '/hapus'" method="POST" @submit="return confirm('Apakah Anda yakin ingin menghapus pengajuan ini? Ini tidak bisa dikembalikan.')">
+                                            <form :action="'/pengajuan/' + item.id + '/hapus'" method="POST" @submit.prevent="appConfirm('Apakah Anda yakin ingin menghapus pengajuan ini? Ini tidak bisa dikembalikan.', true).then(res => { if(res.isConfirmed) $el.submit() })">
                                                 @csrf
                                                 <button type="submit" class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors">
                                                     Hapus

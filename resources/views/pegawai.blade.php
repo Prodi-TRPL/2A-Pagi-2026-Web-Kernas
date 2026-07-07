@@ -651,7 +651,8 @@
                 },
 
                 async hapusPegawai(id, nama) {
-                    if (!confirm(`Apakah Anda yakin ingin menghapus pegawai ${nama}?`)) return;
+                    const konfirmasi = await appConfirm(`Apakah Anda yakin ingin menghapus pegawai ${nama}?`, true);
+                    if (!konfirmasi.isConfirmed) return;
 
                     try {
                         const res = await fetch(`/setup/manajemen-karyawan/${id}`, {

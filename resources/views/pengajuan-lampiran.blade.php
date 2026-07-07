@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="h-[calc(100vh-64px)] flex flex-col bg-gray-100" x-data="{
-    lampirans: {{ json_encode($lampirans) }},
+    lampirans: @js($lampirans),
     activeLampiran: {{ count($lampirans) > 0 ? 0 : 'null' }}
 }">
     <!-- Header -->
@@ -40,15 +40,17 @@
                             <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                             <span class="text-sm font-bold text-gray-700" x-text="lampirans[activeLampiran].nama_file"></span>
                         </div>
-                        <a :href="'/storage/' + lampirans[activeLampiran].filepath" target="_blank" class="text-xs font-semibold text-sky-600 hover:text-sky-800 flex items-center gap-1">
-                            Buka di Tab Baru
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        {{-- Link download melalui controller terproteksi, bukan akses /storage langsung --}}
+                        <a :href="'/pengajuan/{{ $pengajuan->id }}/lampiran/' + lampirans[activeLampiran].id + '/unduh?download=1'" 
+                           class="text-xs font-semibold text-sky-600 hover:text-sky-800 flex items-center gap-1">
+                            Unduh
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                         </a>
                     </div>
                     
-                    <!-- Iframe Viewer -->
+                    <!-- Iframe Viewer — PDF ditampilkan via route terproteksi -->
                     <div class="flex-1 w-full bg-gray-100">
-                        <iframe :src="'/storage/' + lampirans[activeLampiran].filepath" class="w-full h-full border-0"></iframe>
+                        <iframe :src="'/pengajuan/{{ $pengajuan->id }}/lampiran/' + lampirans[activeLampiran].id + '/unduh'" class="w-full h-full border-0"></iframe>
                     </div>
                 </div>
             </div>

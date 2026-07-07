@@ -10,9 +10,7 @@ class GrupVerifikasi extends Model
     
     protected $guarded = ['id'];
     
-    /**
-     * mengambil pengguna berdasarkan grup verifikasi
-     */
+    // ini untuk mengambil pengguna berdasarkan grup verifikasi
     public function pengguna()
     {
         return $this->belongsToMany(

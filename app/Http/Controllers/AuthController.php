@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
+    // ini untuk menampilkan halaman form login (view 'login') atau mengalihkan ke dashboard jika sudah login
     public function showLogin()
     {
         // chek sytem unutk loggin (ubah jika ada cara yang lebih "clean")
@@ -18,7 +19,7 @@ class AuthController extends Controller
         return view('login');
     }
 
-    // (alur: fungsi ini menerima aksi submit dari form login di view 'login' baris 78, memvalidasi datanya menggunakan model pengguna, lalu menyimpannya ke session)
+    // ini untuk menerima aksi submit dari form login, memvalidasi data menggunakan model Pengguna, dan menyimpan info ke session
     public function login(Request $request)
     {
         $request->validate([
@@ -50,6 +51,7 @@ class AuthController extends Controller
         return back()->with('error', 'Username atau password salah. Pastikan menggunakan akun DokPol Anda.')->withInput();
     }
     
+    // ini untuk menghapus sesi login pengguna dan mengarahkannya kembali ke halaman awal
     public function logout()
     {
         session()->forget('pengguna');

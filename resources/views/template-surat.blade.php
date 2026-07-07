@@ -68,6 +68,9 @@
                               x-text="selectedTemplate ? selectedTemplate.jenis + ' v' + selectedTemplate.versi : ''"></span>
                         <h2 class="text-sm font-bold text-gray-800" x-text="selectedTemplate?.nama"></h2>
                         <span x-show="selectedTemplate?.is_aktif" class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-semibold">● Aktif</span>
+                        <button @click="openEditModal()" class="ml-2 p-1 text-gray-400 hover:text-sky-600 transition-colors" title="Edit Info Template">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        </button>
                     </div>
                 </div>
                 <div x-show="!selectedTemplate" class="text-sm text-gray-400">
@@ -89,6 +92,52 @@
                 <p class="text-xs mt-1">Pilih template dari panel kiri</p>
             </div>
         </div>
+
+        {{-- Modal Edit Template --}}
+        <div x-show="isEditModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div @click.away="isEditModalOpen = false" class="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-gray-800">Edit Info Template</h3>
+                    <button @click="isEditModalOpen = false" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Template</label>
+                        <input type="text" x-model="editForm.nama_template" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Tipe Surat</label>
+                        <select x-model="editForm.tipe" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
+                            <option value="SK">SK (Surat Keputusan)</option>
+                            <option value="ST">ST (Surat Tugas)</option>
+                            <option value="Arahan">Arahan</option>
+                            <option value="SE">SE (Surat Edaran)</option>
+                            <option value="Instruksi">Instruksi</option>
+                            <option value="SOP">SOP</option>
+                            <option value="Korespondensi">Korespondensi (Umum)</option>
+                            <option value="Surat Dinas">Surat Dinas</option>
+                            <option value="Nota Dinas">Nota Dinas</option>
+                            <option value="Surat Undangan">Surat Undangan</option>
+                            <option value="Khusus">Khusus</option>
+                            <option value="MoU">MoU</option>
+                            <option value="Perjanjian">Perjanjian</option>
+                            <option value="Surat Kuasa">Surat Kuasa</option>
+                            <option value="Berita Acara">Berita Acara</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-6 flex justify-end gap-2">
+                    <button @click="isEditModalOpen = false" class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors">Batal</button>
+                    <button @click="simpanEditTemplate()" :disabled="isSaving" class="px-4 py-2 text-sm font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors flex items-center gap-2">
+                        <span x-text="isSaving ? 'Menyimpan...' : 'Simpan Perubahan'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -97,6 +146,12 @@
                 templates: initialTemplates,
                 filterJenis: 'semua',
                 selectedTemplate: null,
+                isEditModalOpen: false,
+                isSaving: false,
+                editForm: {
+                    nama_template: '',
+                    tipe: ''
+                },
 
                 init() {
                     if (this.templates && this.templates.length > 0) {
@@ -132,6 +187,55 @@
 
                 saveTemplate() {
                     alert('Proses penyimpanan via ONLYOFFICE akan diproses secara asynchronous (Callback API). Pastikan container docker berjalan.');
+                },
+
+                openEditModal() {
+                    if (!this.selectedTemplate) return;
+                    this.editForm.nama_template = this.selectedTemplate.nama;
+                    this.editForm.tipe = this.selectedTemplate.jenis;
+                    this.isEditModalOpen = true;
+                },
+
+                async simpanEditTemplate() {
+                    if (!this.selectedTemplate || !this.editForm.nama_template || !this.editForm.tipe) {
+                        alert('Pastikan semua form terisi');
+                        return;
+                    }
+                    
+                    this.isSaving = true;
+                    try {
+                        const res = await fetch('/setup/template-surat/' + this.selectedTemplate.id, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify(this.editForm)
+                        });
+                        
+                        const result = await res.json();
+                        
+                        if (res.ok && result.success) {
+                            // Update lokal state UI
+                            this.selectedTemplate.nama = result.data.nama;
+                            this.selectedTemplate.jenis = result.data.jenis;
+                            
+                            // Update item di array templates
+                            const index = this.templates.findIndex(t => t.id === this.selectedTemplate.id);
+                            if (index !== -1) {
+                                this.templates[index].nama = result.data.nama;
+                                this.templates[index].jenis = result.data.jenis;
+                            }
+                            
+                            this.isEditModalOpen = false;
+                        } else {
+                            alert(result.message || 'Gagal menyimpan perubahan');
+                        }
+                    } catch (e) {
+                        alert('Terjadi kesalahan jaringan.');
+                    } finally {
+                        this.isSaving = false;
+                    }
                 }
             };
         }

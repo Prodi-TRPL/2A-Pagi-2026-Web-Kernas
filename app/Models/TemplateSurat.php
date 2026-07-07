@@ -10,13 +10,9 @@ class TemplateSurat extends Model
     
     protected $guarded = ['id'];
 
+    // ini untuk mendefinisikan relasi 'belongsTo' antara TemplateSurat dan Pengguna (pembuat template)
     public function pembuat()
     {
         return $this->belongsTo(Pengguna::class, 'id_pengguna');
-    }
-
-    public function masukan()
-    {
-        return $this->belongsToMany(Masukan::class, 'template_masukan', 'id_template_surat', 'id_masukan');
     }
 }

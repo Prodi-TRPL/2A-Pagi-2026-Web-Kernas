@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\TemplateSurat;
-use App\Models\Masukan;
 
 class TemplateSuratController extends Controller
 {
+    // ini untuk mengambil daftar template surat beserta konfigurasi OnlyOffice-nya lalu menampilkannya di view 'template-surat'
     public function index()
     {
         if (!session()->has('pengguna')) return redirect('/');
 
-        $templates = TemplateSurat::with('masukan', 'pembuat')
+        $templates = TemplateSurat::with('pembuat')
             ->orderBy('tipe')
             ->orderBy('nama_template')
             ->get()
@@ -53,8 +53,8 @@ class TemplateSuratController extends Controller
 
                 // library JWT (di-install via Composer), hasilkan token
                 // Kunci JWT wajib minimal 32 karakter
-                $secret = env('ONLYOFFICE_JWT_SECRET', 'polibatam_secret_jwt_key_256bit_2026');
-                if (class_exists(\Firebase\JWT\JWT::class)) {
+                $secret = env('ONLYOFFICE_JWT_SECRET');
+                if (!empty($secret) && class_exists(\Firebase\JWT\JWT::class)) {
                     $token = \Firebase\JWT\JWT::encode($config, $secret, 'HS256');
                     $config['token'] = $token;
                 }
@@ -76,5 +76,38 @@ class TemplateSuratController extends Controller
             });
 
         return view('template-surat', compact('templates'));
+    }
+    // ini untuk memperbarui informasi dasar template surat (nama dan tipe) di database
+    public function update(Request $request, $id)
+    {
+        if (!session()->has('pengguna')) return response()->json(['message' => 'Unauthorized'], 401);
+        
+        $pengguna = session('pengguna');
+        if (!$pengguna['is_admin']) return response()->json(['message' => 'Forbidden'], 403);
+
+        $request->validate([
+            'nama_template' => 'required|string|max:255',
+            'tipe' => 'required|string|max:100',
+        ]);
+
+        $template = TemplateSurat::findOrFail($id);
+        $template->update([
+            'nama_template' => $request->nama_template,
+            'tipe' => $request->tipe
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'id' => $template->id,
+                'jenis' => $template->tipe,
+                'nama' => $template->nama_template,
+                'versi' => $template->versi,
+                'is_aktif' => $template->is_aktif == 1,
+                'filepath' => asset('storage/' . $template->filepath), // simplified for ui response
+                'dibuat_oleh' => $template->pembuat ? $template->pembuat->nama : 'Sistem',
+                'tgl_dibuat' => $template->created_at ? $template->created_at->format('d M Y') : 'Baru saja',
+            ]
+        ]);
     }
 }

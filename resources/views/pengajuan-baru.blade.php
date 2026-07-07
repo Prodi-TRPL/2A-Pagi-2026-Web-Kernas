@@ -24,6 +24,8 @@
                 $formUrl = '#';
                 if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
                     $formUrl = '/pengajuan/form/contoh-surat-satu';
+                } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                    $formUrl = '/pengajuan/form/dinas-arahan';
                 }
             @endphp
             <a href="{{ $formUrl }}" class="relative flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:border-sky-300 hover:bg-sky-50 transition-colors group">

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class OnlyOfficeController extends Controller
 {
+    // ini untuk menerima request callback dari server OnlyOffice saat file template selesai diedit dan menyimpannya kembali
     public function callback(Request $request, $id)
     {
         $body = $request->all();
@@ -48,6 +49,7 @@ class OnlyOfficeController extends Controller
         return response()->json(['error' => 0]);
     }
 
+    // ini untuk menerima request callback dari OnlyOffice saat file pengajuan selesai diedit dan menyimpannya
     public function callbackPengajuan(Request $request, $id)
     {
         $body = $request->all();

@@ -16,27 +16,57 @@
         {{-- Dropdown Naskah Dinas Arahan --}}
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Naskah Dinas Arahan</label>
-            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
+            <select onchange="if(this.value && this.value !== '#') window.location.href=this.value;" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
                 <option value="">-- Pilih Surat --</option>
-                {{-- Nanti bisa ditambahkan option spesifik seperti SK, ST, dll --}}
+                @foreach($templatesArahan ?? [] as $tmpl)
+                    @php
+                        $formUrl = '#';
+                        if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
+                            $formUrl = '/pengajuan/form/contoh-surat-satu';
+                        } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-arahan';
+                        }
+                    @endphp
+                    <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
+                @endforeach
             </select>
         </div>
 
         {{-- Dropdown Naskah Dinas Korespodensi --}}
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Naskah Dinas Korespodensi</label>
-            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
+            <select onchange="if(this.value && this.value !== '#') window.location.href=this.value;" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
                 <option value="">-- Pilih Surat --</option>
-                {{-- Nanti ditambahkan option surat korespodensi --}}
+                @foreach($templatesKorespondensi ?? [] as $tmpl)
+                    @php
+                        $formUrl = '#';
+                        if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
+                            $formUrl = '/pengajuan/form/contoh-surat-satu';
+                        } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-arahan';
+                        }
+                    @endphp
+                    <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
+                @endforeach
             </select>
         </div>
 
         {{-- Dropdown Naskah Dinas Khusus --}}
         <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Naskah Dinas Khusus</label>
-            <select class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
+            <select onchange="if(this.value && this.value !== '#') window.location.href=this.value;" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none text-sm text-gray-700 cursor-pointer">
                 <option value="">-- Pilih Surat --</option>
-                {{-- Nanti ditambahkan option surat khusus --}}
+                @foreach($templatesKhusus ?? [] as $tmpl)
+                    @php
+                        $formUrl = '#';
+                        if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
+                            $formUrl = '/pengajuan/form/contoh-surat-satu';
+                        } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-arahan';
+                        }
+                    @endphp
+                    <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
+                @endforeach
             </select>
         </div>
     </div>
@@ -72,7 +102,6 @@
             <table class="w-full text-sm text-left">
                 <thead class="bg-gray-50 border-b border-gray-200 text-gray-600">
                     <tr>
-                        <th class="px-5 py-3 font-semibold w-24">No. Antrian</th>
                         <th class="px-5 py-3 font-semibold">Judul Pengajuan</th>
                         <th class="px-5 py-3 font-semibold w-24">Jenis</th>
                         <th class="px-5 py-3 font-semibold w-32 text-center">Status</th>
@@ -83,10 +112,6 @@
                 <tbody class="divide-y divide-gray-100">
                     <template x-for="item in filteredData" :key="item.id">
                         <tr @click="window.location.href = '/pengajuan/' + item.id + '/edit'" class="hover:bg-gray-50 transition-colors border-b border-gray-50 cursor-pointer">
-                            <td class="px-5 py-3.5">
-                                <span class="font-mono text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded" x-text="'#' + String(item.id).padStart(3, '0')">
-                                </span>
-                            </td>
                             <td class="px-5 py-3.5">
                                 <p class="font-medium text-gray-800" x-text="item.judul"></p>
                             </td>

@@ -5,13 +5,16 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PegawaiController;
 
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/', [AuthController::class, 'login'])->name('login.post');
+Route::post('/', [AuthController::class, 'login'])->name('login.post')->middleware('throttle:5,1');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DokumenController;
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/dokumen-terbit', [DashboardController::class, 'dokumenTerbit'])->name('dokumen-terbit');
+Route::post('/dokumen-terbit/langsung', [DokumenController::class, 'uploadLangsung'])->name('dokumen.upload-langsung');
+Route::delete('/dokumen-terbit/{id}', [DokumenController::class, 'hapusPermanen']);
 
 Route::get('/setup/manajemen-karyawan', [PegawaiController::class, 'index']);
 Route::post('/setup/manajemen-karyawan', [PegawaiController::class, 'store']);
@@ -40,9 +43,20 @@ Route::get('/pengajuan-surat', [PengajuanController::class, 'index']);
 Route::get('/pengajuan/baru', [PengajuanController::class, 'create']);
 Route::get('/pengajuan/form/contoh-surat-satu', [PengajuanController::class, 'formContohSuratSatu']);
 Route::post('/pengajuan/form/contoh-surat-satu', [PengajuanController::class, 'storeContohSuratSatu']);
+Route::get('/pengajuan/form/dinas-arahan', [PengajuanController::class, 'formDinasArahan']);
+Route::post('/pengajuan/form/dinas-arahan', [PengajuanController::class, 'storeDinasArahan']);
 Route::get('/pengajuan/{id}/edit', [PengajuanController::class, 'editDoc']);
 Route::get('/pengajuan/{id}/lampiran', [PengajuanController::class, 'viewLampiran']);
+Route::get('/pengajuan/{pengajuanId}/lampiran/{lampiranId}/unduh', [PengajuanController::class, 'unduhLampiran'])->name('lampiran.unduh');
 Route::post('/pengajuan/{id}/kirim', [PengajuanController::class, 'kirimVerifikasi']);
+
+Route::get('/template/{id}/edit', [TemplateSuratController::class, 'editTemplate'])->name('template.edit');
+Route::put('/setup/template-surat/{id}', [TemplateSuratController::class, 'update']);
+Route::post('/template/{id}/simpan-dokumen', [TemplateSuratController::class, 'simpanDokumen']);
+
+// Dokumen Routes
+Route::get('/dokumen/{id}/unduh', [DokumenController::class, 'unduh'])->name('dokumen.unduh');
+Route::get('/dokumen/{id}/lihat', [DokumenController::class, 'lihat'])->name('dokumen.lihat');
 Route::post('/pengajuan/{id}/admin-kirim', [PengajuanController::class, 'adminKirimVerifikator']);
 Route::post('/pengajuan/{id}/admin-kirim-ulang', [PengajuanController::class, 'adminKirimUlangVerifikator']);
 Route::post('/pengajuan/{id}/admin-kembalikan', [PengajuanController::class, 'adminKembalikanPengusul']);
@@ -50,10 +64,11 @@ Route::post('/pengajuan/{id}/hapus', [PengajuanController::class, 'hapusPengajua
 Route::post('/pengajuan/{id}/terima', [PengajuanController::class, 'terimaPengajuan']);
 Route::post('/pengajuan/{id}/tolak', [PengajuanController::class, 'tolakPengajuan']);
 
-Route::get('/setup/peraturan', function () {
-    if (!session()->has('pengguna')) return redirect('/');
-    return view('peraturan');
-});
+use App\Http\Controllers\PeraturanController;
+Route::get('/setup/peraturan', [PeraturanController::class, 'index']);
+Route::post('/setup/peraturan', [PeraturanController::class, 'store']);
+Route::put('/setup/peraturan/{id}', [PeraturanController::class, 'update']);
+Route::delete('/setup/peraturan/{id}', [PeraturanController::class, 'destroy']);
 
 Route::get('/dashboard-admin', function () {
     return view('Admin/dashboard-admin');
