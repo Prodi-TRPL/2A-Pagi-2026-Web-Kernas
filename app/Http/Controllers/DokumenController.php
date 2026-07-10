@@ -89,7 +89,7 @@ class DokumenController extends Controller
             'file_pdf' => 'required|mimes:pdf|max:10240', // max 10MB
             'nama_dokumen' => 'required|string|max:200',
             'nomor_surat' => 'required|string|max:100|unique:nomor_dokumen,nomor_terformat',
-            'tipe_surat' => 'required|string|in:SK,ST,SE',
+            'tipe_surat' => 'required|string|in:Naskah Dinas Arahan,Naskah Dinas Korespondensi,Naskah Dinas Khusus',
         ]);
 
         try {

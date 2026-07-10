@@ -71,9 +71,9 @@
                 {{-- Filter Tipe --}}
                 <select x-model="filterTipe" class="w-full sm:w-auto px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none text-gray-600 bg-white">
                     <option value="">Semua Tipe</option>
-                    <option value="SK">SK</option>
-                    <option value="ST">ST</option>
-                    <option value="SE">SE</option>
+                    <option value="Naskah Dinas Arahan">Naskah Dinas Arahan</option>
+                    <option value="Naskah Dinas Korespondensi">Naskah Dinas Korespondensi</option>
+                    <option value="Naskah Dinas Khusus">Naskah Dinas Khusus</option>
                 </select>
                 
                 {{-- Filter Tanggal --}}
@@ -87,6 +87,8 @@
                     <tr>
                         <th class="px-5 py-3 font-semibold">Nomor Dokumen</th>
                         <th class="px-5 py-3 font-semibold">Judul Dokumen</th>
+                        <th class="px-5 py-3 font-semibold">Pengusul</th>
+                        <th class="px-5 py-3 font-semibold">Unit</th>
                         <th class="px-5 py-3 font-semibold w-24">Jenis</th>
                         <th class="px-5 py-3 font-semibold w-32 text-center">Tgl Terbit</th>
                         <th class="px-5 py-3 font-semibold w-32 text-center">Aksi</th>
@@ -100,6 +102,12 @@
                             </td>
                             <td class="px-5 py-3.5">
                                 <p class="font-medium text-gray-800" x-text="item.judul"></p>
+                            </td>
+                            <td class="px-5 py-3.5">
+                                <p class="font-medium text-gray-800" x-text="item.nama_pengusul"></p>
+                            </td>
+                            <td class="px-5 py-3.5">
+                                <p class="font-medium text-gray-800 max-w-[150px] truncate" :title="item.unit_pengusul" x-text="item.unit_pengusul"></p>
                             </td>
                             <td class="px-5 py-3.5">
                                 <span class="px-2 py-0.5 rounded text-xs font-bold bg-emerald-100 text-emerald-700" x-text="item.tipe"></span>
@@ -134,7 +142,7 @@
                         </tr>
                     </template>
                     <tr x-show="filteredData.length === 0">
-                        <td colspan="4" class="px-5 py-8 text-center text-gray-500">
+                        <td colspan="7" class="px-5 py-8 text-center text-gray-500">
                             Tidak ada dokumen yang ditemukan.
                         </td>
                     </tr>
@@ -182,9 +190,9 @@
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Tipe Surat</label>
                                 <select name="tipe_surat" required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none">
-                                    <option value="SK">Surat Keputusan (SK)</option>
-                                    <option value="ST">Surat Tugas (ST)</option>
-                                    <option value="SE">Surat Edaran (SE)</option>
+                                    <option value="Naskah Dinas Arahan">Naskah Dinas Arahan</option>
+                                    <option value="Naskah Dinas Korespondensi">Naskah Dinas Korespondensi</option>
+                                    <option value="Naskah Dinas Khusus">Naskah Dinas Khusus</option>
                                 </select>
                             </div>
                         </div>

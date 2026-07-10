@@ -18,21 +18,21 @@
             <div class="px-4 py-4 border-b border-gray-100">
                 <div class="flex items-center justify-between mb-3">
                     <h2 class="text-sm font-bold text-gray-800">Template Surat</h2>
-                    <button @click="alert('Fitur tambah sementara dinonaktifkan di V4')"
-                            class="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors">
-                        Versi Baru
-                    </button>
+                    
                 </div>
-                <div class="flex gap-1 bg-gray-100 rounded-lg p-1">
-                    <button @click="filterJenis = 'SK'"
-                            :class="filterJenis === 'SK' ? 'bg-white text-sky-600 shadow-sm font-semibold' : 'text-gray-500 hover:text-gray-700'"
-                            class="flex-1 py-1.5 text-xs rounded-md transition-all">SK</button>
-                    <button @click="filterJenis = 'ST'"
-                            :class="filterJenis === 'ST' ? 'bg-white text-sky-600 shadow-sm font-semibold' : 'text-gray-500 hover:text-gray-700'"
-                            class="flex-1 py-1.5 text-xs rounded-md transition-all">ST</button>
+                <div class="flex flex-wrap gap-1 bg-gray-100 rounded-lg p-1">
+                    <button @click="filterJenis = 'Naskah Dinas Arahan'"
+                            :class="filterJenis === 'Naskah Dinas Arahan' ? 'bg-white text-sky-600 shadow-sm font-semibold' : 'text-gray-500 hover:text-gray-700'"
+                            class="flex-1 py-1.5 px-2 text-xs rounded-md transition-all whitespace-nowrap">Arahan</button>
+                    <button @click="filterJenis = 'Naskah Dinas Korespondensi'"
+                            :class="filterJenis === 'Naskah Dinas Korespondensi' ? 'bg-white text-sky-600 shadow-sm font-semibold' : 'text-gray-500 hover:text-gray-700'"
+                            class="flex-1 py-1.5 px-2 text-xs rounded-md transition-all whitespace-nowrap">Korespondensi</button>
+                    <button @click="filterJenis = 'Naskah Dinas Khusus'"
+                            :class="filterJenis === 'Naskah Dinas Khusus' ? 'bg-white text-sky-600 shadow-sm font-semibold' : 'text-gray-500 hover:text-gray-700'"
+                            class="flex-1 py-1.5 px-2 text-xs rounded-md transition-all whitespace-nowrap">Khusus</button>
                     <button @click="filterJenis = 'semua'"
                             :class="filterJenis === 'semua' ? 'bg-white text-sky-600 shadow-sm font-semibold' : 'text-gray-500 hover:text-gray-700'"
-                            class="flex-1 py-1.5 text-xs rounded-md transition-all">Semua</button>
+                            class="flex-1 py-1.5 px-2 text-xs rounded-md transition-all">Semua</button>
                 </div>
             </div>
 
@@ -111,21 +111,9 @@
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Tipe Surat</label>
                         <select x-model="editForm.tipe" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
-                            <option value="SK">SK (Surat Keputusan)</option>
-                            <option value="ST">ST (Surat Tugas)</option>
-                            <option value="Arahan">Arahan</option>
-                            <option value="SE">SE (Surat Edaran)</option>
-                            <option value="Instruksi">Instruksi</option>
-                            <option value="SOP">SOP</option>
-                            <option value="Korespondensi">Korespondensi (Umum)</option>
-                            <option value="Surat Dinas">Surat Dinas</option>
-                            <option value="Nota Dinas">Nota Dinas</option>
-                            <option value="Surat Undangan">Surat Undangan</option>
-                            <option value="Khusus">Khusus</option>
-                            <option value="MoU">MoU</option>
-                            <option value="Perjanjian">Perjanjian</option>
-                            <option value="Surat Kuasa">Surat Kuasa</option>
-                            <option value="Berita Acara">Berita Acara</option>
+                            <option value="Naskah Dinas Arahan">Naskah Dinas Arahan</option>
+                            <option value="Naskah Dinas Korespondensi">Naskah Dinas Korespondensi</option>
+                            <option value="Naskah Dinas Khusus">Naskah Dinas Khusus</option>
                         </select>
                     </div>
                 </div>

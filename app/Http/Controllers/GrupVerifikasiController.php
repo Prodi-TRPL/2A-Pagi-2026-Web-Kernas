@@ -19,7 +19,7 @@ class GrupVerifikasiController extends Controller
             ->orderBy('id', 'desc')
             ->get();
         // Ambil data karyawan yang bukan admin super untuk bisa dijadikan anggota
-        $karyawan = Pengguna::where('is_admin', 0)->get(['id', 'nama', 'nip', 'jabatan', 'unit']);
+        $karyawan = Pengguna::where('is_admin', 0)->where('is_deleted', 0)->get(['id', 'nama', 'nip', 'jabatan', 'unit']);
 
         return view('grup_verifikasi', compact('grups', 'karyawan'));
     }

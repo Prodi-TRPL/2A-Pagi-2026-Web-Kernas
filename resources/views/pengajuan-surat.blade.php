@@ -23,9 +23,38 @@
                         $formUrl = '#';
                         if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
                             $formUrl = '/pengajuan/form/contoh-surat-satu';
-                        } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                        } elseif (stripos($tmpl->filepath, 'dinas_instruksi') !== false || stripos($tmpl->nama_template, 'Instruksi') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-instruksi';
+                        } elseif (stripos($tmpl->filepath, 'edaran') !== false) {
+                            $formUrl = '/pengajuan/form/arahan-edaran';
+                        } elseif (stripos($tmpl->filepath, 'perintah') !== false) {
+                            $formUrl = '/pengajuan/form/arahan-perintah';
+                        } elseif (stripos($tmpl->filepath, 'keputusan') !== false) {
+                            $formUrl = '/pengajuan/form/arahan-keputusan';
+                        } elseif (stripos($tmpl->filepath, 'tugas_biasa') !== false) {
+                            $formUrl = '/pengajuan/form/arahan-tugas-biasa';
+                        } elseif (stripos($tmpl->filepath, 'tugas_tabel') !== false) {
+                            $formUrl = '/pengajuan/form/arahan-tugas-tabel';
+                        } elseif (stripos($tmpl->filepath, 'dinas_arahan_bentuk_peraturan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
                             $formUrl = '/pengajuan/form/dinas-arahan';
+                        } elseif (stripos($tmpl->filepath, 'korespondensi_nota_dinas') !== false) {
+                            $formUrl = '/pengajuan/form/korespondensi-nota';
+                        } elseif (stripos($tmpl->filepath, 'korespondensi_surat_dinas') !== false) {
+                            $formUrl = '/pengajuan/form/korespondensi-dinas';
+                        } elseif (stripos($tmpl->filepath, 'korespondensi_surat_undangan') !== false) {
+                            $formUrl = '/pengajuan/form/korespondensi-undangan';
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_keterangan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-keterangan?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pengantar') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-pengantar?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pengumuman') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-pengumuman?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pernyataan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-pernyataan?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_rekomendasi') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-rekomendasi?id=' . $tmpl->id;
                         }
+
                     @endphp
                     <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
                 @endforeach
@@ -42,9 +71,28 @@
                         $formUrl = '#';
                         if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
                             $formUrl = '/pengajuan/form/contoh-surat-satu';
-                        } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                        } elseif (stripos($tmpl->filepath, 'dinas_instruksi') !== false || stripos($tmpl->nama_template, 'Instruksi') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-instruksi';
+                        } elseif (stripos($tmpl->filepath, 'dinas_arahan_bentuk_peraturan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
                             $formUrl = '/pengajuan/form/dinas-arahan';
+                        } elseif (stripos($tmpl->filepath, 'korespondensi_nota_dinas') !== false) {
+                            $formUrl = '/pengajuan/form/korespondensi-nota';
+                        } elseif (stripos($tmpl->filepath, 'korespondensi_surat_dinas') !== false) {
+                            $formUrl = '/pengajuan/form/korespondensi-dinas';
+                        } elseif (stripos($tmpl->filepath, 'korespondensi_surat_undangan') !== false) {
+                            $formUrl = '/pengajuan/form/korespondensi-undangan';
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_keterangan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-keterangan?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pengantar') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-pengantar?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pengumuman') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-pengumuman?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pernyataan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-pernyataan?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_rekomendasi') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-rekomendasi?id=' . $tmpl->id;
                         }
+
                     @endphp
                     <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
                 @endforeach
@@ -61,9 +109,28 @@
                         $formUrl = '#';
                         if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
                             $formUrl = '/pengajuan/form/contoh-surat-satu';
-                        } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                        } elseif (stripos($tmpl->filepath, 'dinas_instruksi') !== false || stripos($tmpl->nama_template, 'Instruksi') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-instruksi';
+                        } elseif (stripos($tmpl->filepath, 'dinas_arahan_bentuk_peraturan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
                             $formUrl = '/pengajuan/form/dinas-arahan';
+                        } elseif (stripos($tmpl->filepath, 'korespondensi_nota_dinas') !== false) {
+                            $formUrl = '/pengajuan/form/korespondensi-nota';
+                        } elseif (stripos($tmpl->filepath, 'korespondensi_surat_dinas') !== false) {
+                            $formUrl = '/pengajuan/form/korespondensi-dinas';
+                        } elseif (stripos($tmpl->filepath, 'korespondensi_surat_undangan') !== false) {
+                            $formUrl = '/pengajuan/form/korespondensi-undangan';
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_keterangan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-keterangan?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pengantar') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-pengantar?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pengumuman') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-pengumuman?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pernyataan') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-pernyataan?id=' . $tmpl->id;
+                        } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_rekomendasi') !== false) {
+                            $formUrl = '/pengajuan/form/dinas-khusus-rekomendasi?id=' . $tmpl->id;
                         }
+
                     @endphp
                     <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
                 @endforeach
@@ -87,10 +154,9 @@
                 {{-- Filter Jenis --}}
                 <select x-model="filterJenis" class="w-full sm:w-auto px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none bg-white">
                     <option value="">Semua Jenis</option>
-                    <option value="SK">Surat Keputusan (SK)</option>
-                    <option value="ST">Surat Tugas (ST)</option>
-                    <option value="SE">Surat Edaran (SE)</option>
-                    <option value="ND">Nota Dinas (ND)</option>
+                    <option value="Naskah Dinas Arahan">Naskah Dinas Arahan</option>
+                    <option value="Naskah Dinas Korespondensi">Naskah Dinas Korespondensi</option>
+                    <option value="Naskah Dinas Khusus">Naskah Dinas Khusus</option>
                 </select>
 
                 {{-- Filter Tanggal --}}
@@ -117,8 +183,8 @@
                             </td>
                             <td class="px-5 py-3.5">
                                 <span class="px-2 py-0.5 rounded text-xs font-bold"
-                                      :class="item.tipe === 'SK' ? 'bg-sky-100 text-sky-700' : 'bg-violet-100 text-violet-700'"
-                                      x-text="item.tipe">
+                                      :class="item.tipe === 'Naskah Dinas Arahan' ? 'bg-sky-100 text-sky-700' : (item.tipe === 'Naskah Dinas Korespondensi' ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-100 text-violet-700')"
+                                      x-text="item.tipe.replace('Naskah Dinas ', '')">
                                 </span>
                             </td>
                             <td class="px-5 py-3.5 text-center">
@@ -166,7 +232,7 @@
             get filteredData() {
                 return this.items.filter(item => {
                     const matchSearch = !this.searchJudul || item.judul.toLowerCase().includes(this.searchJudul.toLowerCase());
-                    const matchJenis = !this.filterJenis || item.tipe === this.filterJenis;
+                    const matchJenis = !this.filterJenis || (item.tipe && item.tipe.includes(this.filterJenis));
                     const matchTanggal = !this.filterTanggal || item.raw_tgl_masuk === this.filterTanggal;
                     
                     return matchSearch && matchJenis && matchTanggal;

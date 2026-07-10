@@ -20,7 +20,7 @@
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25), 0 4px 16px rgba(0, 0, 0, 0.15);
         }
 
-        /* Hilangkan ikon mata (reveal) bawaan dari browser Microsoft Edge */
+        /* Hilangkan ikon mata (reveal) bawaan dari browser Microsoft Edge (i hate Edge) */
         input[type="password"]::-ms-reveal,
         input[type="password"]::-ms-clear {
             display: none;
@@ -71,7 +71,7 @@
                     <span class="text-2xl font-bold text-gray-800 tracking-tight">KERNAS</span>
                 </div>
                 <p class="text-sm text-gray-500 text-center leading-snug">
-                    Kerja elektronik naskah dinas
+                    Kerja Elektronik Naskah Dinas
                 </p>
             </div>
 

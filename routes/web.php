@@ -45,6 +45,39 @@ Route::get('/pengajuan/form/contoh-surat-satu', [PengajuanController::class, 'fo
 Route::post('/pengajuan/form/contoh-surat-satu', [PengajuanController::class, 'storeContohSuratSatu']);
 Route::get('/pengajuan/form/dinas-arahan', [PengajuanController::class, 'formDinasArahan']);
 Route::post('/pengajuan/form/dinas-arahan', [PengajuanController::class, 'storeDinasArahan']);
+Route::get('/pengajuan/form/dinas-instruksi', [PengajuanController::class, 'formDinasInstruksi']);
+Route::post('/pengajuan/form/dinas-instruksi', [PengajuanController::class, 'storeDinasInstruksi']);
+Route::get('/pengajuan/form/arahan-edaran', [PengajuanController::class, 'formArahanEdaran']);
+Route::post('/pengajuan/form/arahan-edaran', [PengajuanController::class, 'storeArahanEdaran']);
+Route::get('/pengajuan/form/arahan-perintah', [PengajuanController::class, 'formArahanPerintah']);
+Route::post('/pengajuan/form/arahan-perintah', [PengajuanController::class, 'storeArahanPerintah']);
+Route::get('/pengajuan/form/arahan-keputusan', [PengajuanController::class, 'formArahanKeputusan']);
+Route::post('/pengajuan/form/arahan-keputusan', [PengajuanController::class, 'storeArahanKeputusan']);
+Route::get('/pengajuan/form/arahan-tugas-biasa', [PengajuanController::class, 'formArahanTugasBiasa']);
+Route::post('/pengajuan/form/arahan-tugas-biasa', [PengajuanController::class, 'storeArahanTugasBiasa']);
+Route::get('/pengajuan/form/arahan-tugas-tabel', [PengajuanController::class, 'formArahanTugasTabel']);
+Route::post('/pengajuan/form/arahan-tugas-tabel', [PengajuanController::class, 'storeArahanTugasTabel']);
+Route::get('/pengajuan/form/korespondensi-nota', [PengajuanController::class, 'formKorespondensiNota']);
+Route::post('/pengajuan/form/korespondensi-nota', [PengajuanController::class, 'storeKorespondensiNota']);
+Route::get('/pengajuan/form/korespondensi-dinas', [PengajuanController::class, 'formKorespondensiDinas']);
+Route::post('/pengajuan/form/korespondensi-dinas', [PengajuanController::class, 'storeKorespondensiDinas']);
+Route::get('/pengajuan/form/korespondensi-undangan', [PengajuanController::class, 'formKorespondensiUndangan']);
+Route::post('/pengajuan/form/korespondensi-undangan', [PengajuanController::class, 'storeKorespondensiUndangan']);
+
+Route::get('/pengajuan/form/dinas-khusus-keterangan', [PengajuanController::class, 'formDinasKhususKeterangan']);
+Route::post('/pengajuan/form/dinas-khusus-keterangan', [PengajuanController::class, 'storeDinasKhususKeterangan']);
+
+Route::get('/pengajuan/form/dinas-khusus-pengantar', [PengajuanController::class, 'formDinasKhususPengantar']);
+Route::post('/pengajuan/form/dinas-khusus-pengantar', [PengajuanController::class, 'storeDinasKhususPengantar']);
+
+Route::get('/pengajuan/form/dinas-khusus-pengumuman', [PengajuanController::class, 'formDinasKhususPengumuman']);
+Route::post('/pengajuan/form/dinas-khusus-pengumuman', [PengajuanController::class, 'storeDinasKhususPengumuman']);
+
+Route::get('/pengajuan/form/dinas-khusus-pernyataan', [PengajuanController::class, 'formDinasKhususPernyataan']);
+Route::post('/pengajuan/form/dinas-khusus-pernyataan', [PengajuanController::class, 'storeDinasKhususPernyataan']);
+
+Route::get('/pengajuan/form/dinas-khusus-rekomendasi', [PengajuanController::class, 'formDinasKhususRekomendasi']);
+Route::post('/pengajuan/form/dinas-khusus-rekomendasi', [PengajuanController::class, 'storeDinasKhususRekomendasi']);
 Route::get('/pengajuan/{id}/edit', [PengajuanController::class, 'editDoc']);
 Route::get('/pengajuan/{id}/lampiran', [PengajuanController::class, 'viewLampiran']);
 Route::get('/pengajuan/{pengajuanId}/lampiran/{lampiranId}/unduh', [PengajuanController::class, 'unduhLampiran'])->name('lampiran.unduh');

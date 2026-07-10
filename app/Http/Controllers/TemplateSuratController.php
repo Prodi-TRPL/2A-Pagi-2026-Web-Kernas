@@ -21,6 +21,7 @@ class TemplateSuratController extends Controller
                 $url = asset('storage/' . $t->filepath);
                 // Ganti localhost atau 127.0.0.1 menjadi host.docker.internal agar container bisa mendownload
                 $url = str_replace(['localhost', '127.0.0.1'], 'host.docker.internal', $url);
+                $url .= '?v=' . strtotime($t->updated_at ?? now());
                 
                 $callbackUrl = asset('onlyoffice/callback/' . $t->id);
                 $callbackUrl = str_replace(['localhost', '127.0.0.1'], 'host.docker.internal', $callbackUrl);

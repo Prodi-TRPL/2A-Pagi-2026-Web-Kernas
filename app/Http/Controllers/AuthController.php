@@ -38,6 +38,7 @@ class AuthController extends Controller
                     'id' => $pengguna->id,
                     'nip' => $pengguna->nip,
                     'nama' => $pengguna->nama,
+                    'jabatan' => $pengguna->jabatan,
                     'unit' => $pengguna->unit,
                     'is_admin' => $pengguna->is_admin,
                     'is_verifikator' => $pengguna->isVerifikator(),

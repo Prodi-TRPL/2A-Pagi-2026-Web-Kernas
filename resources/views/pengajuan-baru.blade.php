@@ -24,9 +24,38 @@
                 $formUrl = '#';
                 if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
                     $formUrl = '/pengajuan/form/contoh-surat-satu';
-                } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                } elseif (stripos($tmpl->filepath, 'dinas_instruksi') !== false || stripos($tmpl->nama_template, 'Instruksi') !== false) {
+                    $formUrl = '/pengajuan/form/dinas-instruksi';
+                } elseif (stripos($tmpl->filepath, 'edaran') !== false) {
+                    $formUrl = '/pengajuan/form/arahan-edaran';
+                } elseif (stripos($tmpl->filepath, 'perintah') !== false) {
+                    $formUrl = '/pengajuan/form/arahan-perintah';
+                } elseif (stripos($tmpl->filepath, 'keputusan') !== false) {
+                    $formUrl = '/pengajuan/form/arahan-keputusan';
+                } elseif (stripos($tmpl->filepath, 'tugas_biasa') !== false) {
+                    $formUrl = '/pengajuan/form/arahan-tugas-biasa';
+                } elseif (stripos($tmpl->filepath, 'tugas_tabel') !== false) {
+                    $formUrl = '/pengajuan/form/arahan-tugas-tabel';
+                } elseif (stripos($tmpl->filepath, 'dinas_arahan_bentuk_peraturan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
                     $formUrl = '/pengajuan/form/dinas-arahan';
-                }
+                } elseif (stripos($tmpl->filepath, 'korespondensi_nota_dinas') !== false) {
+                    $formUrl = '/pengajuan/form/korespondensi-nota';
+                } elseif (stripos($tmpl->filepath, 'korespondensi_surat_dinas') !== false) {
+                    $formUrl = '/pengajuan/form/korespondensi-dinas';
+                } elseif (stripos($tmpl->filepath, 'korespondensi_surat_undangan') !== false) {
+                    $formUrl = '/pengajuan/form/korespondensi-undangan';
+                } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_keterangan') !== false) {
+                    $formUrl = '/pengajuan/form/dinas-khusus-keterangan?id=' . $tmpl->id;
+                } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pengantar') !== false) {
+                    $formUrl = '/pengajuan/form/dinas-khusus-pengantar?id=' . $tmpl->id;
+                } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pengumuman') !== false) {
+                    $formUrl = '/pengajuan/form/dinas-khusus-pengumuman?id=' . $tmpl->id;
+                } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_pernyataan') !== false) {
+                    $formUrl = '/pengajuan/form/dinas-khusus-pernyataan?id=' . $tmpl->id;
+                } elseif (stripos($tmpl->filepath, 'dinas_khusus_surat_rekomendasi') !== false) {
+                    $formUrl = '/pengajuan/form/dinas-khusus-rekomendasi?id=' . $tmpl->id;
+                        }
+
             @endphp
             <a href="{{ $formUrl }}" class="relative flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm hover:border-sky-300 hover:bg-sky-50 transition-colors group">
                 <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0 group-hover:bg-blue-600 group-hover:text-white transition-colors">

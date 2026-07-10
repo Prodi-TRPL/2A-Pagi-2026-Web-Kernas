@@ -38,31 +38,15 @@ class DashboardController extends Controller
                   ->orWhereHas('grupVerifikasiDokumen', fn($a) => $a->where('pengguna.id', $id));
             });
 
-            // Filter Pengajuan ( pengaju / verifikator / member)
-            $pengajuanQuery->where(function ($q) use ($id) {
-                // Pengusul bisa melihat semua status pengajuan mereka
-                $q->where('id_pengguna', $id)
-                  ->orWhere(function ($q2) use ($id) {
-                      $q2->where('status', 'Diproses Admin')
-                         ->whereHas('anggotaPengajuan', fn($a) => $a->where('id_pengguna', $id));
-                  })
-                  // Verifikator hanya bisa melihat dokumen JIKA giliran mereka (id_verifikator_sekarang)
-                  // ATAU dokumen sudah selesai (PUBLISHED/REJECTED) dan mereka termasuk dalam grup verifikator
-                  ->orWhere('id_verifikator_sekarang', $id)
-                  ->orWhere(function ($q2) use ($id) {
-                      $q2->whereIn('status', ['Diterbitkan', 'Ditolak Admin'])
-                         ->where(function ($q3) use ($id) {
-                             $q3->whereHas('grupVerifikator.pengguna', fn($a) => $a->where('id_pengguna', $id))
-                                ->orWhereHas('grupVerifikasiPengajuan', fn($a) => $a->where('pengguna.id', $id));
-                         });
-                  });
-            });
+            // Filter Pengajuan - Dashboard HANYA menampilkan dokumen yang butuh verifikasi user saat ini
+            $pengajuanQuery->where('id_verifikator_sekarang', $id);
         }
 
         // digunakan dalam statistika 
         $stats = [
-            'total_sk' => (clone $dokumenQuery)->where('tipe', 'SK')->count(),
-            'total_st' => (clone $dokumenQuery)->where('tipe', 'ST')->count(),
+            'total_arahan' => (clone $dokumenQuery)->where('tipe', 'Naskah Dinas Arahan')->count(),
+            'total_korespondensi' => (clone $dokumenQuery)->where('tipe', 'Naskah Dinas Korespondensi')->count(),
+            'total_khusus' => (clone $dokumenQuery)->where('tipe', 'Naskah Dinas Khusus')->count(),
             'pengajuan_proses' => (clone $pengajuanQuery)->whereIn('status', ['Diproses Admin', 'Menunggu Verifikasi'])->count(),
             'pengajuan_hari' => (clone $pengajuanQuery)->whereDate('created_at', Carbon::today())->count(),
         ];
@@ -127,10 +111,10 @@ class DashboardController extends Controller
 
         // Ambil template surat aktif untuk dropdown
         $templates = TemplateSurat::where('is_aktif', 1)->get();
-        // Membagi berdasarkan tipe (menggunakan IN array untuk mencakup tipe-tipe spesifik)
-        $templatesArahan = $templates->whereIn('tipe', ['Arahan', 'SK', 'ST', 'SE', 'Instruksi', 'SOP']);
-        $templatesKorespondensi = $templates->whereIn('tipe', ['Korespondensi', 'Surat Dinas', 'Nota Dinas', 'Surat Edaran', 'Surat Undangan']);
-        $templatesKhusus = $templates->whereIn('tipe', ['Khusus', 'MoU', 'Perjanjian', 'Surat Kuasa', 'Berita Acara']);
+        // Membagi berdasarkan tipe
+        $templatesArahan = $templates->where('tipe', 'Naskah Dinas Arahan');
+        $templatesKorespondensi = $templates->where('tipe', 'Naskah Dinas Korespondensi');
+        $templatesKhusus = $templates->where('tipe', 'Naskah Dinas Khusus');
 
         return view('dashboard', compact('user', 'stats', 'pengajuanTerbaru', 'dokumenTerbaru', 'chartData', 'templatesArahan', 'templatesKorespondensi', 'templatesKhusus'));
     }
@@ -158,7 +142,7 @@ class DashboardController extends Controller
         }
 
         $dokumen = $dokumenQuery
-            ->with(['nomorDokumen'])
+            ->with(['nomorDokumen', 'pembuat'])
             ->orderBy('created_at', 'desc')
             ->get()
             ->map(function($d) {
@@ -169,11 +153,13 @@ class DashboardController extends Controller
                     'tipe' => $d->tipe,
                     'filepath' => $d->filepath,
                     'updated_at' => $d->tgl_dokumen ?? $d->created_at,
-                    'pengajuan_id' => $d->dari_pengajuan
+                    'pengajuan_id' => $d->dari_pengajuan,
+                    'nama_pengusul' => $d->pembuat->nama ?? '-',
+                    'unit_pengusul' => $d->pembuat->unit ?? '-'
                 ];
             });
 
-        $semuaPengguna = \App\Models\Pengguna::select('id', 'nama', 'nip', 'is_admin')->orderBy('nama', 'asc')->get();
+        $semuaPengguna = \App\Models\Pengguna::select('id', 'nama', 'nip', 'is_admin')->where('is_deleted', 0)->orderBy('nama', 'asc')->get();
 
         return view('dokumen-terbit', compact('dokumen', 'semuaPengguna'));
     }

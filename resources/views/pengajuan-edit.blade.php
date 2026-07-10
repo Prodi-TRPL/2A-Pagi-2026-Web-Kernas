@@ -10,7 +10,7 @@
                 <a href="/dashboard" class="p-1.5 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
                 </a>
-                <h1 class="text-xl font-bold text-gray-900">Editor Draf Surat</h1>
+                <h1 class="text-xl font-bold text-gray-900">{{ $pengajuan->judul }}</h1>
                 <span class="px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap inline-block
                     {{ $pengajuan->status === 'Diproses Admin' ? 'bg-amber-100 text-amber-700' : 
                        ($pengajuan->status === 'Menunggu Verifikasi' ? 'bg-indigo-100 text-indigo-700' : 
@@ -19,19 +19,18 @@
                     {{ $pengajuan->status }}
                 </span>
             </div>
-            <p class="text-sm text-gray-500 mt-1 ml-10">Judul: <span class="font-medium text-gray-700">{{ $pengajuan->judul }}</span></p>
         </div>
         
         <div class="flex items-center gap-3">
             @if($pengajuan->ada_lampiran)
-                <a href="/pengajuan/{{ $pengajuan->id }}/lampiran" class="px-3 py-1.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2">
+                <a href="/pengajuan/{{ $pengajuan->id }}/lampiran" class="px-3 py-1.5 text-sm font-normal whitespace-nowrap text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2">
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                     Lihat Lampiran
                 </a>
             @endif
 
             <div x-data="{ showRiwayat: false }">
-                <button @click="showRiwayat = true" type="button" class="px-3 py-1.5 text-sm font-semibold text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2">
+                <button @click="showRiwayat = true" type="button" class="px-3 py-1.5 text-sm font-normal whitespace-nowrap text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2">
                     <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     Riwayat
                 </button>
@@ -100,7 +99,7 @@
                     <div class="flex items-center gap-2">
                         @if($pengajuan->status === 'Diproses Admin')
                         <div x-data="{ showModal: false }">
-                            <button @click="showModal = true" type="button" class="px-4 py-2 text-sm font-semibold text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors shadow-sm flex items-center gap-2">
+                            <button @click="showModal = true" type="button" class="px-4 py-2 text-sm font-normal whitespace-nowrap text-red-700 bg-red-100 rounded-lg hover:bg-red-200 transition-colors shadow-sm flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/></svg>
                                 Kembalikan ke Pengusul
                             </button>
@@ -127,7 +126,7 @@
 
                         <!-- Modal Pemilihan Verifikator -->
                         <div x-data="{ showVerifikatorModal: false }">
-                            <button @click="showVerifikatorModal = true" type="button" class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
+                            <button @click="showVerifikatorModal = true" type="button" class="px-4 py-2 text-sm font-normal whitespace-nowrap text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
                                 Kirim ke Verifikator
                             </button>
@@ -211,7 +210,7 @@
                     @if($pengajuan->status === 'Ditolak Admin')
                         <form action="/pengajuan/{{ $pengajuan->id }}/hapus" method="POST" onsubmit="event.preventDefault(); appConfirm('Apakah Anda yakin ingin menghapus pengajuan yang ditolak ini? Ini tidak bisa dikembalikan.', true).then(res => { if(res.isConfirmed) this.submit(); });">
                             @csrf
-                            <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2">
+                            <button type="submit" class="px-4 py-2 text-sm font-normal whitespace-nowrap text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 Hapus Dokumen
                             </button>
@@ -222,9 +221,9 @@
                         </span>
                         <form action="/pengajuan/{{ $pengajuan->id }}/kirim" method="POST">
                             @csrf
-                            <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
-                                Simpan Draf & Keluar
+                            <button type="submit" class="px-4 py-2 text-sm font-normal whitespace-nowrap text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow-sm flex items-center gap-2">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                Simpan dan Ajukan
                             </button>
                         </form>
                     @endif
@@ -233,14 +232,14 @@
                 @if($isVerifier)
                     <form action="/pengajuan/{{ $pengajuan->id }}/terima" method="POST" onsubmit="event.preventDefault(); appConfirm('Apakah Anda yakin ingin MENYETUJUI dokumen ini?').then(res => { if(res.isConfirmed) this.submit(); });">
                         @csrf
-                        <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors shadow-sm flex items-center gap-2">
+                        <button type="submit" class="px-4 py-2 text-sm font-normal whitespace-nowrap text-white bg-sky-600 rounded-lg hover:bg-sky-700 transition-colors shadow-sm flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
                             Setujui Dokumen
                         </button>
                     </form>
                     
                     <div x-data="{ showModal: false }">
-                        <button @click="showModal = true" type="button" class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2">
+                        <button @click="showModal = true" type="button" class="px-4 py-2 text-sm font-normal whitespace-nowrap text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                             Tolak Dokumen
                         </button>
@@ -272,14 +271,14 @@
                 @if($isAdmin)
                     <form action="/pengajuan/{{ $pengajuan->id }}/admin-kirim-ulang" method="POST" onsubmit="event.preventDefault(); appConfirm('Kirim ulang dokumen ini ke Verifikator yang sama?').then(res => { if(res.isConfirmed) this.submit(); });">
                         @csrf
-                        <button type="submit" class="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
+                        <button type="submit" class="px-4 py-2 text-sm font-normal whitespace-nowrap text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
                             Kirim Ulang ke Verifikator
                         </button>
                     </form>
                     
                     <div x-data="{ showModal: false }">
-                        <button @click="showModal = true" type="button" class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2">
+                        <button @click="showModal = true" type="button" class="px-4 py-2 text-sm font-normal whitespace-nowrap text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors shadow-sm flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/></svg>
                             Kembalikan ke Pengusul
                         </button>

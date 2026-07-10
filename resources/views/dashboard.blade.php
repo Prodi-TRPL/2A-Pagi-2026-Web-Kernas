@@ -26,9 +26,21 @@
                             $formUrl = '#';
                             if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
                                 $formUrl = '/pengajuan/form/contoh-surat-satu';
-                            } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
-                            $formUrl = '/pengajuan/form/dinas-arahan';
-                        }
+                            } elseif (stripos($tmpl->filepath, 'dinas_instruksi') !== false || stripos($tmpl->nama_template, 'Instruksi') !== false) {
+                                $formUrl = '/pengajuan/form/dinas-instruksi';
+                            } elseif (stripos($tmpl->filepath, 'edaran') !== false) {
+                                $formUrl = '/pengajuan/form/arahan-edaran';
+                            } elseif (stripos($tmpl->filepath, 'perintah') !== false) {
+                                $formUrl = '/pengajuan/form/arahan-perintah';
+                            } elseif (stripos($tmpl->filepath, 'keputusan') !== false) {
+                                $formUrl = '/pengajuan/form/arahan-keputusan';
+                            } elseif (stripos($tmpl->filepath, 'tugas_biasa') !== false) {
+                                $formUrl = '/pengajuan/form/arahan-tugas-biasa';
+                            } elseif (stripos($tmpl->filepath, 'tugas_tabel') !== false) {
+                                $formUrl = '/pengajuan/form/arahan-tugas-tabel';
+                            } elseif (stripos($tmpl->filepath, 'dinas_arahan_bentuk_peraturan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                                $formUrl = '/pengajuan/form/dinas-arahan';
+                            }
                         @endphp
                         <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
                     @endforeach
@@ -45,9 +57,11 @@
                             $formUrl = '#';
                             if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
                                 $formUrl = '/pengajuan/form/contoh-surat-satu';
-                            } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
-                            $formUrl = '/pengajuan/form/dinas-arahan';
-                        }
+                            } elseif (stripos($tmpl->filepath, 'dinas_instruksi') !== false || stripos($tmpl->nama_template, 'Instruksi') !== false) {
+                                $formUrl = '/pengajuan/form/dinas-instruksi';
+                            } elseif (stripos($tmpl->filepath, 'dinas_arahan_bentuk_peraturan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                                $formUrl = '/pengajuan/form/dinas-arahan';
+                            }
                         @endphp
                         <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
                     @endforeach
@@ -64,9 +78,11 @@
                             $formUrl = '#';
                             if (stripos($tmpl->filepath, 'contoh_surat_satu') !== false || stripos($tmpl->nama_template, 'SK') !== false) {
                                 $formUrl = '/pengajuan/form/contoh-surat-satu';
-                            } elseif (stripos($tmpl->tipe, 'Arahan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
-                            $formUrl = '/pengajuan/form/dinas-arahan';
-                        }
+                            } elseif (stripos($tmpl->filepath, 'dinas_instruksi') !== false || stripos($tmpl->nama_template, 'Instruksi') !== false) {
+                                $formUrl = '/pengajuan/form/dinas-instruksi';
+                            } elseif (stripos($tmpl->filepath, 'dinas_arahan_bentuk_peraturan') !== false || stripos($tmpl->nama_template, 'Arahan') !== false) {
+                                $formUrl = '/pengajuan/form/dinas-arahan';
+                            }
                         @endphp
                         <option value="{{ $formUrl }}">{{ $tmpl->nama_template }}</option>
                     @endforeach
@@ -154,17 +170,6 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                     </div>
-                    <div class="pt-1 border-t border-gray-100">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-500">Tingkat Penyelesaian</span>
-                            <span class="font-bold text-gray-800" x-text="currentStats.totalMasuk > 0 ? Math.round((currentStats.totalKeluar / currentStats.totalMasuk) * 100) + '%' : '0%'"></span>
-                        </div>
-                        <div class="mt-2 h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-emerald-500 rounded-full transition-all duration-500"
-                                 :style="'width: ' + (currentStats.totalMasuk > 0 ? Math.round((currentStats.totalKeluar / currentStats.totalMasuk) * 100) : 0) + '%'">
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -195,11 +200,10 @@
                     
                     {{-- Filter Jenis --}}
                     <select x-model="filterJenis" class="w-full sm:w-auto px-3 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none bg-white">
-                        <option value="">Semua Jenis</option>
-                        <option value="SK">Surat Keputusan (SK)</option>
-                        <option value="ST">Surat Tugas (ST)</option>
-                        <option value="SE">Surat Edaran (SE)</option>
-                        <option value="ND">Nota Dinas (ND)</option>
+                        <option value="">Semua Kategori</option>
+                        <option value="Naskah Dinas Arahan">Naskah Dinas Arahan</option>
+                        <option value="Naskah Dinas Korespondensi">Naskah Dinas Korespondensi</option>
+                        <option value="Naskah Dinas Khusus">Naskah Dinas Khusus</option>
                     </select>
 
                     {{-- Filter Tanggal --}}
@@ -242,7 +246,7 @@
                                     <p class="text-xs text-gray-400 mt-0.5" x-text="item.grup_verifikasi"></p>
                                 </td>
                                 <td class="px-5 py-3.5">
-                                    <span :class="item.jenis === 'SK' ? 'bg-sky-100 text-sky-700' : 'bg-violet-100 text-violet-700'"
+                                    <span :class="item.jenis === 'Naskah Dinas Arahan' ? 'bg-sky-100 text-sky-700' : (item.jenis === 'Naskah Dinas Korespondensi' ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-100 text-violet-700')"
                                           class="px-2 py-0.5 rounded text-xs font-bold" x-text="item.jenis"></span>
                                 </td>
                                 <td class="px-5 py-3.5 text-gray-600 text-xs" x-text="item.pengaju"></td>
@@ -287,47 +291,7 @@
             </div>
         </div>
 
-        {{-- bagian daftar yang digunakan untuk menampilkan 5 dokumen terbaru yang telah diterbitkan --}}
-        {{--
-            integrasi backend:
-            $dokumenterbaru = dokumen::latest('created_at')->take(5)->get();
-        --}}
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
-            <div class="px-5 pt-5 pb-4 border-b border-gray-100 flex items-center justify-between">
-                <div>
-                    <h2 class="text-base font-bold text-gray-900">Dokumen Terbaru Diterbitkan</h2>
-                    <p class="text-xs text-gray-500 mt-0.5">5 dokumen yang paling baru dipublikasikan</p>
-                </div>
-                <a href="/surat-keputusan" class="text-xs font-medium text-sky-600 hover:text-sky-700 flex items-center gap-1">
-                    Lihat semua
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
-                    </svg>
-                </a>
-            </div>
-            <div class="divide-y divide-gray-100">
-                <template x-for="dok in dokumenTerbaru" :key="dok.id">
-                    <div @click="window.location.href = '/dokumen/' + dok.id" class="px-5 py-3.5 flex items-center gap-4 hover:bg-gray-50 transition-colors cursor-pointer">
-                        <div :class="dok.jenis === 'SK' ? 'bg-sky-100 text-sky-700' : 'bg-violet-100 text-violet-700'"
-                             class="w-10 h-10 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
-                             x-text="dok.jenis"></div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-gray-800 truncate" x-text="dok.judul"></p>
-                            <p class="text-xs text-gray-400 mt-0.5" x-text="dok.nomor + ' · ' + dok.tgl_terbit"></p>
-                        </div>
-                        <div class="flex items-center gap-2 flex-shrink-0" @click.stop>
-                            <span class="text-xs text-gray-500" x-text="dok.dibuat_oleh"></span>
-                            <a :href="'/dokumen/' + dok.id" class="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 hover:text-sky-600 transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </div>
+
 
     </div>
 
@@ -367,7 +331,7 @@
                     const matchSearch = !this.searchPengajuan || 
                         item.judul.toLowerCase().includes(this.searchPengajuan.toLowerCase()) || 
                         item.pengaju.toLowerCase().includes(this.searchPengajuan.toLowerCase());
-                    const matchJenis = !this.filterJenis || item.jenis === this.filterJenis;
+                    const matchJenis = !this.filterJenis || (item.jenis && item.jenis.includes(this.filterJenis));
                     const matchTanggal = !this.filterTanggal || item.raw_tgl_masuk === this.filterTanggal;
                     return matchSearch && matchJenis && matchTanggal;
                 });
