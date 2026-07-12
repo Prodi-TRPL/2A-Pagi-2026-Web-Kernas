@@ -59,7 +59,7 @@
             </div>
         </div>
 
-        {{-- Area Kanan: Detail Grup & Anggota --}}
+        {{-- Area Kanan atau side bar: Detail Grup & Anggota --}}
         <div class="flex-1 flex flex-col overflow-hidden bg-gray-50">
             <template x-if="selectedGrup">
                 <div class="flex-1 flex flex-col h-full">

@@ -21,6 +21,8 @@ class DashboardController extends Controller
         $isAdmin = $user['is_admin'] ?? 0;
         $id = $user['id'];
 
+        $isVerifikator = $user['is_verifikator'] ?? 0;
+
         // Query Dokumen
         $dokumenQuery = Dokumen::where('is_deleted', 0);
         
@@ -30,16 +32,24 @@ class DashboardController extends Controller
         if ($isAdmin) {
             // Admin hanya melihat dokumen yang memerlukan tindakannya (Diproses Admin atau Revisi)
             $pengajuanQuery->whereIn('status', ['Diproses Admin', 'Revisi']);
-        } else {
-            // Filter Dokumen user / group (idk how this works but it works)
+        } elseif ($isVerifikator) {
+            // Verifikator: HANYA menampilkan dokumen yang butuh verifikasi dari user ini
+            $pengajuanQuery->where('id_verifikator_sekarang', $id);
+            // Filter Dokumen untuk Verifikator
             $dokumenQuery->where(function ($q) use ($id) {
                 $q->where('id_pengguna', $id)
                   ->orWhereHas('anggotaDokumen', fn($a) => $a->where('id_pengguna', $id))
                   ->orWhereHas('grupVerifikasiDokumen', fn($a) => $a->where('pengguna.id', $id));
             });
-
-            // Filter Pengajuan - Dashboard HANYA menampilkan dokumen yang butuh verifikasi user saat ini
-            $pengajuanQuery->where('id_verifikator_sekarang', $id);
+        } else {
+            // Pegawai biasa: Menampilkan dokumen pengajuan yang dibuat oleh mereka sendiri
+            $pengajuanQuery->where('id_pengguna', $id);
+            // Filter Dokumen untuk Pegawai Biasa
+            $dokumenQuery->where(function ($q) use ($id) {
+                $q->where('id_pengguna', $id)
+                  ->orWhereHas('anggotaDokumen', fn($a) => $a->where('id_pengguna', $id))
+                  ->orWhereHas('grupVerifikasiDokumen', fn($a) => $a->where('pengguna.id', $id));
+            });
         }
 
         // digunakan dalam statistika 
@@ -54,7 +64,7 @@ class DashboardController extends Controller
         //  Pengajuan baru
         $pengajuanTerbaru = (clone $pengajuanQuery)
             ->with(['pengaju', 'grupVerifikator'])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('created_at', 'asc')
             ->limit(5)
             ->get()
             ->map(function($p) use ($id) {

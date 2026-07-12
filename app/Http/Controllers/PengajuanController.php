@@ -18,10 +18,6 @@ class PengajuanController extends Controller
 
         $pengguna = session('pengguna');
         
-        // Hanya verifikator dan admin yang boleh akses halaman ini
-        if (!$pengguna['is_admin'] && !$pengguna['is_verifikator']) {
-            return redirect('/dashboard');
-        }
 
         // Tampilkan hanya pengajuan milik user yang sedang login
         $pengajuans = Pengajuan::where('id_pengguna', $pengguna['id'])

@@ -63,19 +63,14 @@ Route::get('/pengajuan/form/korespondensi-dinas', [PengajuanController::class, '
 Route::post('/pengajuan/form/korespondensi-dinas', [PengajuanController::class, 'storeKorespondensiDinas']);
 Route::get('/pengajuan/form/korespondensi-undangan', [PengajuanController::class, 'formKorespondensiUndangan']);
 Route::post('/pengajuan/form/korespondensi-undangan', [PengajuanController::class, 'storeKorespondensiUndangan']);
-
 Route::get('/pengajuan/form/dinas-khusus-keterangan', [PengajuanController::class, 'formDinasKhususKeterangan']);
 Route::post('/pengajuan/form/dinas-khusus-keterangan', [PengajuanController::class, 'storeDinasKhususKeterangan']);
-
 Route::get('/pengajuan/form/dinas-khusus-pengantar', [PengajuanController::class, 'formDinasKhususPengantar']);
 Route::post('/pengajuan/form/dinas-khusus-pengantar', [PengajuanController::class, 'storeDinasKhususPengantar']);
-
 Route::get('/pengajuan/form/dinas-khusus-pengumuman', [PengajuanController::class, 'formDinasKhususPengumuman']);
 Route::post('/pengajuan/form/dinas-khusus-pengumuman', [PengajuanController::class, 'storeDinasKhususPengumuman']);
-
 Route::get('/pengajuan/form/dinas-khusus-pernyataan', [PengajuanController::class, 'formDinasKhususPernyataan']);
 Route::post('/pengajuan/form/dinas-khusus-pernyataan', [PengajuanController::class, 'storeDinasKhususPernyataan']);
-
 Route::get('/pengajuan/form/dinas-khusus-rekomendasi', [PengajuanController::class, 'formDinasKhususRekomendasi']);
 Route::post('/pengajuan/form/dinas-khusus-rekomendasi', [PengajuanController::class, 'storeDinasKhususRekomendasi']);
 Route::get('/pengajuan/{id}/edit', [PengajuanController::class, 'editDoc']);

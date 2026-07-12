@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'KERNAS')</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo_polibatam.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -88,7 +89,6 @@
                     </svg>
                     Home
                 </a>
-
                 @if ($user['is_admin'] || $user['is_verifikator'])
                 <a href="/pengajuan-surat" class="flex items-center gap-1.5 px-3 py-2 text-sm transition-colors {{ request()->is('pengajuan-surat') ? 'font-medium text-sky-600 border-b-2 border-sky-500' : 'text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900' }}">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
