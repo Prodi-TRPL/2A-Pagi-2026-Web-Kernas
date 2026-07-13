@@ -183,9 +183,15 @@
                             <td class="px-5 py-3.5 text-gray-500 text-xs text-center" x-text="item.tgl_masuk">
                             </td>
                             <td class="px-5 py-3.5 text-center" @click.stop>
-                                <a :href="'/pengajuan/' + item.id + '/edit'" class="text-sky-600 hover:text-sky-800 text-xs font-medium hover:underline">
-                                    Buka Draf
-                                </a>
+                                <div class="flex items-center justify-center gap-2">
+                                    <a :href="'/pengajuan/' + item.id + '/edit'"
+                                       class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-sky-600 border border-sky-200 rounded-lg hover:bg-sky-50 transition-colors">
+                                        Detail
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+                                        </svg>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     </template>

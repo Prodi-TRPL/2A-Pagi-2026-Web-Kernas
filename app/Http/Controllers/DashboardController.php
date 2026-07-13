@@ -30,11 +30,19 @@ class DashboardController extends Controller
         $pengajuanQuery = Pengajuan::where('is_deleted', 0)->where('status', '!=', 'Diterbitkan');
 
         if ($isAdmin) {
-            // Admin hanya melihat dokumen yang memerlukan tindakannya (Diproses Admin atau Revisi)
-            $pengajuanQuery->whereIn('status', ['Diproses Admin', 'Revisi']);
+            // Admin melihat dokumen yang memerlukan tindakannya (Diproses Admin atau Revisi)
+            // ATAU dokumen pengajuan yang mereka buat sendiri
+            $pengajuanQuery->where(function ($q) use ($id) {
+                $q->whereIn('status', ['Diproses Admin', 'Revisi'])
+                  ->orWhere('id_pengguna', $id);
+            });
         } elseif ($isVerifikator) {
-            // Verifikator: HANYA menampilkan dokumen yang butuh verifikasi dari user ini
-            $pengajuanQuery->where('id_verifikator_sekarang', $id);
+            // Verifikator: menampilkan dokumen yang butuh verifikasi dari user ini
+            // ATAU dokumen pengajuan yang mereka buat sendiri
+            $pengajuanQuery->where(function ($q) use ($id) {
+                $q->where('id_verifikator_sekarang', $id)
+                  ->orWhere('id_pengguna', $id);
+            });
             // Filter Dokumen untuk Verifikator
             $dokumenQuery->where(function ($q) use ($id) {
                 $q->where('id_pengguna', $id)

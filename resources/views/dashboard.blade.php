@@ -275,7 +275,7 @@
                             <tr @click="window.location.href = '/pengajuan/' + item.id + '/edit'" class="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer">
                                 <td class="px-5 py-3.5">
                                     <p class="font-medium text-gray-800" x-text="item.judul"></p>
-                                    <p class="text-xs text-gray-400 mt-0.5" x-text="item.grup_verifikasi"></p>
+                                    <p class="text-xs text-gray-400 mt-0.5" x-show="item.grup_verifikasi && item.grup_verifikasi !== '-'" x-text="item.grup_verifikasi"></p>
                                 </td>
                                 <td class="px-5 py-3.5">
                                     <span :class="item.jenis === 'Naskah Dinas Arahan' ? 'bg-sky-100 text-sky-700' : (item.jenis === 'Naskah Dinas Korespondensi' ? 'bg-emerald-100 text-emerald-700' : 'bg-violet-100 text-violet-700')"
