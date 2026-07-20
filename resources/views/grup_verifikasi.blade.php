@@ -154,9 +154,9 @@
                         <label class="block text-sm font-semibold text-gray-700 mb-1">Tingkat/Tahapan Grup <span class="text-red-500">*</span></label>
                         <select x-model="formGrup.tingkat" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 outline-none text-sm">
                             <option value="">-- Pilih Tingkat --</option>
-                            <option value="1">Tahap 1 (Staff/Admin)</option>
-                            <option value="2">Tahap 2 (Kajur/Manajer)</option>
-                            <option value="3">Tahap 3 (Direktur/Wadir)</option>
+                            <option value="1">Tahap 1</option>
+                            <option value="2">Tahap 2</option>
+                            <option value="3">Tahap 3</option>
                         </select>
                         <p class="text-[10px] text-gray-500 mt-1">Grup ini akan tampil sebagai pilihan di form pengajuan berdasarkan tingkat yang dipilih.</p>
                     </div>

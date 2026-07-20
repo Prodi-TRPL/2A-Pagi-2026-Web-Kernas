@@ -36,11 +36,23 @@
                     class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
                 >
                     <option value="">Semua Unit</option>
-                    <option value="Jurusan Teknik Elektro">Jurusan Teknik Elektro</option>
-                    <option value="Jurusan Teknik Mesin">Jurusan Teknik Mesin</option>
-                    <option value="Jurusan Manajemen dan Bisnis">Jurusan Manajemen dan Bisnis</option>
-                    <option value="Jurusan Teknik Informatika">Jurusan Teknik Informatika</option>
-                    <option value="Pusat">Pusat</option>
+                    <option value="Pusat Penjaminan Mutu dan Pengembangan Pembelajaran (P4M)">Pusat Penjaminan Mutu dan Pengembangan Pembelajaran (P4M)</option>
+                    <option value="Pusat Penelitian dan Pengabdian kepada Masyarakat (P3M)">Pusat Penelitian dan Pengabdian kepada Masyarakat (P3M)</option>
+                    <option value="Satuan Pengawas Internal (SPI)">Satuan Pengawas Internal (SPI)</option>
+                    <option value="Satuan Hilirisasi Inovasi dan Layanan Usaha (SHILAU)">Satuan Hilirisasi Inovasi dan Layanan Usaha (SHILAU)</option>
+                    <option value="UPA Perpustakaan">UPA Perpustakaan</option>
+                    <option value="UPA Perbaikan &amp; Perawatan">UPA Perbaikan &amp; Perawatan</option>
+                    <option value="UPA Teknologi Informasi dan Komunikasi (TIK)">UPA Teknologi Informasi dan Komunikasi (TIK)</option>
+                    <option value="Unit Pengembangan Karir &amp; Kewirausahaan (UPKK)">Unit Pengembangan Karir &amp; Kewirausahaan (UPKK)</option>
+                    <option value="Sub Bagian Akademik &amp; Kemahasiswaan">Sub Bagian Akademik &amp; Kemahasiswaan</option>
+                    <option value="Sub Bagian Umum, Humas &amp; Kerjasama">Sub Bagian Umum, Humas &amp; Kerjasama</option>
+                    <option value="Unit Barang Milik Negara (BMN) &amp; Pengadaan">Unit Barang Milik Negara (BMN) &amp; Pengadaan</option>
+                    <option value="Unit Organisasi &amp; SDM">Unit Organisasi &amp; SDM</option>
+                    <option value="Unit Keuangan &amp; Perencanaan">Unit Keuangan &amp; Perencanaan</option>
+                    <option value="Tata Usaha Jurusan Teknik Informatika">Tata Usaha Jurusan Teknik Informatika</option>
+                    <option value="Tata Usaha Jurusan Teknik Mesin">Tata Usaha Jurusan Teknik Mesin</option>
+                    <option value="Tata Usaha Jurusan Teknik Elektro">Tata Usaha Jurusan Teknik Elektro</option>
+                    <option value="Tata Usaha Jurusan Manajemen Bisnis">Tata Usaha Jurusan Manajemen Bisnis</option>
                 </select>
 
                 {{-- bagian dropdown yang digunakan untuk menyaring data berdasarkan peran (role) --}}
@@ -68,7 +80,8 @@
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-gray-50 border-b border-gray-200">
-                        <th class="text-left px-4 py-3 font-semibold text-gray-600 w-48">NIP</th>
+                        <th class="text-left px-4 py-3 font-semibold text-gray-600 w-28">NIP</th>
+                        <th class="text-left px-4 py-3 font-semibold text-gray-600 w-32">USERNAME</th>
                         <th class="text-left px-4 py-3 font-semibold text-gray-600">NAMA</th>
                         <th class="text-left px-4 py-3 font-semibold text-gray-600 w-36">JABATAN</th>
                         <th class="text-left px-4 py-3 font-semibold text-gray-600">UNIT</th>
@@ -80,6 +93,7 @@
                     <template x-for="(karyawan, index) in paginatedData" :key="karyawan.nip">
                         <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                             <td class="px-4 py-3 text-gray-600 font-mono text-xs" x-text="karyawan.nip"></td>
+                            <td class="px-4 py-3 text-gray-600 font-medium" x-text="karyawan.username"></td>
                             <td class="px-4 py-3 font-medium text-gray-800" x-text="karyawan.nama"></td>
                             <td class="px-4 py-3 text-gray-600" x-text="karyawan.jabatan"></td>
                             <td class="px-4 py-3 text-gray-600" x-text="karyawan.unit"></td>
@@ -325,7 +339,26 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
-                    <input type="text" x-model="editProfil.unit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none">
+                    <select x-model="editProfil.unit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent outline-none">
+                        <option value="">-- Pilih Unit --</option>
+                        <option value="Pusat Penjaminan Mutu dan Pengembangan Pembelajaran (P4M)">Pusat Penjaminan Mutu dan Pengembangan Pembelajaran (P4M)</option>
+                        <option value="Pusat Penelitian dan Pengabdian kepada Masyarakat (P3M)">Pusat Penelitian dan Pengabdian kepada Masyarakat (P3M)</option>
+                        <option value="Satuan Pengawas Internal (SPI)">Satuan Pengawas Internal (SPI)</option>
+                        <option value="Satuan Hilirisasi Inovasi dan Layanan Usaha (SHILAU)">Satuan Hilirisasi Inovasi dan Layanan Usaha (SHILAU)</option>
+                        <option value="UPA Perpustakaan">UPA Perpustakaan</option>
+                        <option value="UPA Perbaikan &amp; Perawatan">UPA Perbaikan &amp; Perawatan</option>
+                        <option value="UPA Teknologi Informasi dan Komunikasi (TIK)">UPA Teknologi Informasi dan Komunikasi (TIK)</option>
+                        <option value="Unit Pengembangan Karir &amp; Kewirausahaan (UPKK)">Unit Pengembangan Karir &amp; Kewirausahaan (UPKK)</option>
+                        <option value="Sub Bagian Akademik &amp; Kemahasiswaan">Sub Bagian Akademik &amp; Kemahasiswaan</option>
+                        <option value="Sub Bagian Umum, Humas &amp; Kerjasama">Sub Bagian Umum, Humas &amp; Kerjasama</option>
+                        <option value="Unit Barang Milik Negara (BMN) &amp; Pengadaan">Unit Barang Milik Negara (BMN) &amp; Pengadaan</option>
+                        <option value="Unit Organisasi &amp; SDM">Unit Organisasi &amp; SDM</option>
+                        <option value="Unit Keuangan &amp; Perencanaan">Unit Keuangan &amp; Perencanaan</option>
+                        <option value="Tata Usaha Jurusan Teknik Informatika">Tata Usaha Jurusan Teknik Informatika</option>
+                        <option value="Tata Usaha Jurusan Teknik Mesin">Tata Usaha Jurusan Teknik Mesin</option>
+                        <option value="Tata Usaha Jurusan Teknik Elektro">Tata Usaha Jurusan Teknik Elektro</option>
+                        <option value="Tata Usaha Jurusan Manajemen Bisnis">Tata Usaha Jurusan Manajemen Bisnis</option>
+                    </select>
                 </div>
             </div>
 
@@ -407,11 +440,23 @@
                     <label class="block text-sm font-medium text-gray-700 mb-1">Unit <span class="text-red-500">*</span></label>
                     <select x-model="formTambah.unit" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
                         <option value="">-- Pilih Unit --</option>
-                        <option value="Jurusan Teknik Elektro">Jurusan Teknik Elektro</option>
-                        <option value="Jurusan Teknik Mesin">Jurusan Teknik Mesin</option>
-                        <option value="Jurusan Manajemen dan Bisnis">Jurusan Manajemen dan Bisnis</option>
-                        <option value="Jurusan Teknik Informatika">Jurusan Teknik Informatika</option>
-                        <option value="Pusat">Pusat</option>
+                        <option value="Pusat Penjaminan Mutu dan Pengembangan Pembelajaran (P4M)">Pusat Penjaminan Mutu dan Pengembangan Pembelajaran (P4M)</option>
+                        <option value="Pusat Penelitian dan Pengabdian kepada Masyarakat (P3M)">Pusat Penelitian dan Pengabdian kepada Masyarakat (P3M)</option>
+                        <option value="Satuan Pengawas Internal (SPI)">Satuan Pengawas Internal (SPI)</option>
+                        <option value="Satuan Hilirisasi Inovasi dan Layanan Usaha (SHILAU)">Satuan Hilirisasi Inovasi dan Layanan Usaha (SHILAU)</option>
+                        <option value="UPA Perpustakaan">UPA Perpustakaan</option>
+                        <option value="UPA Perbaikan &amp; Perawatan">UPA Perbaikan &amp; Perawatan</option>
+                        <option value="UPA Teknologi Informasi dan Komunikasi (TIK)">UPA Teknologi Informasi dan Komunikasi (TIK)</option>
+                        <option value="Unit Pengembangan Karir &amp; Kewirausahaan (UPKK)">Unit Pengembangan Karir &amp; Kewirausahaan (UPKK)</option>
+                        <option value="Sub Bagian Akademik &amp; Kemahasiswaan">Sub Bagian Akademik &amp; Kemahasiswaan</option>
+                        <option value="Sub Bagian Umum, Humas &amp; Kerjasama">Sub Bagian Umum, Humas &amp; Kerjasama</option>
+                        <option value="Unit Barang Milik Negara (BMN) &amp; Pengadaan">Unit Barang Milik Negara (BMN) &amp; Pengadaan</option>
+                        <option value="Unit Organisasi &amp; SDM">Unit Organisasi &amp; SDM</option>
+                        <option value="Unit Keuangan &amp; Perencanaan">Unit Keuangan &amp; Perencanaan</option>
+                        <option value="Tata Usaha Jurusan Teknik Informatika">Tata Usaha Jurusan Teknik Informatika</option>
+                        <option value="Tata Usaha Jurusan Teknik Mesin">Tata Usaha Jurusan Teknik Mesin</option>
+                        <option value="Tata Usaha Jurusan Teknik Elektro">Tata Usaha Jurusan Teknik Elektro</option>
+                        <option value="Tata Usaha Jurusan Manajemen Bisnis">Tata Usaha Jurusan Manajemen Bisnis</option>
                     </select>
                 </div>
             </div>
@@ -489,7 +534,8 @@
                     return Object.values(this.karyawan).filter(k => {
                         const matchSearch = !this.search ||
                             k.nama.toLowerCase().includes(this.search.toLowerCase()) ||
-                            k.nip.includes(this.search);
+                            k.nip.includes(this.search) ||
+                            (k.username && k.username.toLowerCase().includes(this.search.toLowerCase()));
                         const matchUnit = !this.filterUnit || k.unit === this.filterUnit;
                         const matchRole = !this.filterRole || k.role === this.filterRole;
                         return matchSearch && matchUnit && matchRole;
@@ -530,6 +576,7 @@
                     this.editProfil = {
                         id: karyawan.id,
                         nama: karyawan.nama,
+                        username: karyawan.username,
                         jabatan: karyawan.jabatan,
                         unit: karyawan.unit
                     };

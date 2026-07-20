@@ -35,6 +35,7 @@ class PegawaiController extends Controller
             return [
                 'id'      => $p->id,
                 'nip'     => $p->nip,
+                'username'=> $p->username,
                 'nama'    => $p->nama,
                 'jabatan' => $p->jabatan,
                 'unit'    => $p->unit,

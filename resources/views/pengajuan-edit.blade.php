@@ -124,6 +124,7 @@
                         </div>
                         @endif
 
+                        @if($pengajuan->status === 'Diproses Admin')
                         <!-- Modal Pemilihan Verifikator -->
                         <div x-data="{ showVerifikatorModal: false }">
                             <button @click="showVerifikatorModal = true" type="button" class="px-4 py-2 text-sm font-normal whitespace-nowrap text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm flex items-center gap-2">
@@ -144,7 +145,7 @@
                                     <div x-show="showVerifikatorModal" @click.away="showVerifikatorModal = false"
                                          x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" 
                                          x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" 
-                                         class="inline-block px-4 pt-5 pb-4 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-xl shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                                         class="inline-block px-4 pt-5 pb-4 overflow-visible text-left align-bottom transition-all transform bg-white rounded-xl shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
                                         <div class="sm:flex sm:items-start">
                                             <div class="flex items-center justify-center flex-shrink-0 w-12 h-12 mx-auto bg-indigo-100 rounded-full sm:mx-0 sm:h-10 sm:w-10">
                                                 <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
@@ -166,30 +167,123 @@
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-semibold text-gray-800 mb-1">Verifikator 1 <span class="text-red-500">*</span></label>
-                                                <select name="verifikator[]" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
-                                                    <option value="">-- Pilih Verifikator 1 --</option>
-                                                    @foreach($verifikator1 as $v)
-                                                    <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
-                                                    @endforeach
-                                                </select>
+                                                <div x-data="{ 
+                                                    open: false, 
+                                                    search: '', 
+                                                    selectedId: '', 
+                                                    selectedName: '-- Pilih Verifikator 1 --',
+                                                    options: [
+                                                        @foreach($verifikator1 as $v)
+                                                        { id: '{{ $v->id }}', name: '{{ addslashes($v->nama) }} ({{ addslashes($v->grupVerifikasi->first()->nama_grup ?? '') }})' },
+                                                        @endforeach
+                                                    ]
+                                                }" class="relative" @click.away="open = false">
+                                                    
+                                                    <div @click="open = !open" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white flex justify-between items-center cursor-pointer focus-within:ring-2 focus-within:ring-sky-500">
+                                                        <span x-text="selectedName" :class="selectedId ? 'text-gray-900' : 'text-gray-500'" class="text-sm truncate"></span>
+                                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                    </div>
+                                                    
+                                                    <div x-show="open" x-cloak class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+                                                        <div class="p-2 border-b border-gray-100">
+                                                            <input type="text" x-model="search" placeholder="Cari verifikator..." class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-sky-500">
+                                                        </div>
+                                                        <ul class="max-h-48 overflow-y-auto">
+                                                            <li @click="selectedId = ''; selectedName = '-- Pilih Verifikator 1 --'; open = false; search = ''" 
+                                                                class="px-3 py-2 text-sm hover:bg-sky-50 cursor-pointer text-gray-500">
+                                                                -- Pilih Verifikator 1 --
+                                                            </li>
+                                                            <template x-for="opt in options.filter(x => x.name.toLowerCase().includes(search.toLowerCase()))" :key="opt.id">
+                                                                <li @click="selectedId = opt.id; selectedName = opt.name; open = false; search = ''" 
+                                                                    class="px-3 py-2 text-sm hover:bg-sky-50 cursor-pointer text-gray-700" 
+                                                                    x-text="opt.name"></li>
+                                                            </template>
+                                                            <li x-show="options.filter(x => x.name.toLowerCase().includes(search.toLowerCase())).length === 0" class="px-3 py-2 text-sm text-gray-500 text-center">Tidak ditemukan</li>
+                                                        </ul>
+                                                    </div>
+                                                    
+                                                    <input type="hidden" name="verifikator[]" :value="selectedId" required>
+                                                </div>
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-semibold text-gray-800 mb-1">Verifikator 2 (Opsional)</label>
-                                                <select name="verifikator[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
-                                                    <option value="">-- Pilih Verifikator 2 --</option>
-                                                    @foreach($verifikator2 as $v)
-                                                    <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
-                                                    @endforeach
-                                                </select>
+                                                <div x-data="{ 
+                                                    open: false, 
+                                                    search: '', 
+                                                    selectedId: '', 
+                                                    selectedName: '-- Pilih Verifikator 2 --',
+                                                    options: [
+                                                        @foreach($verifikator2 as $v)
+                                                        { id: '{{ $v->id }}', name: '{{ addslashes($v->nama) }} ({{ addslashes($v->grupVerifikasi->first()->nama_grup ?? '') }})' },
+                                                        @endforeach
+                                                    ]
+                                                }" class="relative" @click.away="open = false">
+                                                    
+                                                    <div @click="open = !open" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white flex justify-between items-center cursor-pointer focus-within:ring-2 focus-within:ring-sky-500">
+                                                        <span x-text="selectedName" :class="selectedId ? 'text-gray-900' : 'text-gray-500'" class="text-sm truncate"></span>
+                                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                    </div>
+                                                    
+                                                    <div x-show="open" x-cloak class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+                                                        <div class="p-2 border-b border-gray-100">
+                                                            <input type="text" x-model="search" placeholder="Cari verifikator..." class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-sky-500">
+                                                        </div>
+                                                        <ul class="max-h-48 overflow-y-auto">
+                                                            <li @click="selectedId = ''; selectedName = '-- Pilih Verifikator 2 --'; open = false; search = ''" 
+                                                                class="px-3 py-2 text-sm hover:bg-sky-50 cursor-pointer text-gray-500">
+                                                                -- Pilih Verifikator 2 --
+                                                            </li>
+                                                            <template x-for="opt in options.filter(x => x.name.toLowerCase().includes(search.toLowerCase()))" :key="opt.id">
+                                                                <li @click="selectedId = opt.id; selectedName = opt.name; open = false; search = ''" 
+                                                                    class="px-3 py-2 text-sm hover:bg-sky-50 cursor-pointer text-gray-700" 
+                                                                    x-text="opt.name"></li>
+                                                            </template>
+                                                            <li x-show="options.filter(x => x.name.toLowerCase().includes(search.toLowerCase())).length === 0" class="px-3 py-2 text-sm text-gray-500 text-center">Tidak ditemukan</li>
+                                                        </ul>
+                                                    </div>
+                                                    
+                                                    <input type="hidden" name="verifikator[]" :value="selectedId">
+                                                </div>
                                             </div>
                                             <div>
                                                 <label class="block text-sm font-semibold text-gray-800 mb-1">Verifikator 3 (Opsional)</label>
-                                                <select name="verifikator[]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent outline-none">
-                                                    <option value="">-- Pilih Verifikator 3 --</option>
-                                                    @foreach($verifikator3 as $v)
-                                                    <option value="{{ $v->id }}">{{ $v->nama }} ({{ $v->grupVerifikasi->first()->nama_grup ?? '' }})</option>
-                                                    @endforeach
-                                                </select>
+                                                <div x-data="{ 
+                                                    open: false, 
+                                                    search: '', 
+                                                    selectedId: '', 
+                                                    selectedName: '-- Pilih Verifikator 3 --',
+                                                    options: [
+                                                        @foreach($verifikator3 as $v)
+                                                        { id: '{{ $v->id }}', name: '{{ addslashes($v->nama) }} ({{ addslashes($v->grupVerifikasi->first()->nama_grup ?? '') }})' },
+                                                        @endforeach
+                                                    ]
+                                                }" class="relative" @click.away="open = false">
+                                                    
+                                                    <div @click="open = !open" class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white flex justify-between items-center cursor-pointer focus-within:ring-2 focus-within:ring-sky-500">
+                                                        <span x-text="selectedName" :class="selectedId ? 'text-gray-900' : 'text-gray-500'" class="text-sm truncate"></span>
+                                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                    </div>
+                                                    
+                                                    <div x-show="open" x-cloak class="absolute z-20 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg">
+                                                        <div class="p-2 border-b border-gray-100">
+                                                            <input type="text" x-model="search" placeholder="Cari verifikator..." class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-sky-500">
+                                                        </div>
+                                                        <ul class="max-h-48 overflow-y-auto">
+                                                            <li @click="selectedId = ''; selectedName = '-- Pilih Verifikator 3 --'; open = false; search = ''" 
+                                                                class="px-3 py-2 text-sm hover:bg-sky-50 cursor-pointer text-gray-500">
+                                                                -- Pilih Verifikator 3 --
+                                                            </li>
+                                                            <template x-for="opt in options.filter(x => x.name.toLowerCase().includes(search.toLowerCase()))" :key="opt.id">
+                                                                <li @click="selectedId = opt.id; selectedName = opt.name; open = false; search = ''" 
+                                                                    class="px-3 py-2 text-sm hover:bg-sky-50 cursor-pointer text-gray-700" 
+                                                                    x-text="opt.name"></li>
+                                                            </template>
+                                                            <li x-show="options.filter(x => x.name.toLowerCase().includes(search.toLowerCase())).length === 0" class="px-3 py-2 text-sm text-gray-500 text-center">Tidak ditemukan</li>
+                                                        </ul>
+                                                    </div>
+                                                    
+                                                    <input type="hidden" name="verifikator[]" :value="selectedId">
+                                                </div>
                                             </div>
                                             <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                                                 <button type="submit" class="inline-flex justify-center w-full px-4 py-2 text-base font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 sm:ml-3 sm:w-auto sm:text-sm">
@@ -204,6 +298,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endif
                     </div>
                 @endif
                 @if($isProposer)

@@ -49,7 +49,7 @@ class AuthController extends Controller
             return redirect('/dashboard');
         }
 
-        return back()->with('error', 'Username atau password salah. Pastikan menggunakan akun DokPol Anda.')->withInput();
+        return back()->with('error', 'Username atau password salah.')->withInput();
     }
     
     // ini untuk menghapus sesi login pengguna dan mengarahkannya kembali ke halaman awal

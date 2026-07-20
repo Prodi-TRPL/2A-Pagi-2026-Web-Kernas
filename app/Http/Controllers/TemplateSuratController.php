@@ -13,6 +13,7 @@ class TemplateSuratController extends Controller
         if (!session()->has('pengguna')) return redirect('/');
 
         $templates = TemplateSurat::with('pembuat')
+            ->where('is_aktif', 1)
             ->orderBy('tipe')
             ->orderBy('nama_template')
             ->get()

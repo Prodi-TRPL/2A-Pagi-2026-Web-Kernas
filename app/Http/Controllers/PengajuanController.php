@@ -21,6 +21,7 @@ class PengajuanController extends Controller
 
         // Tampilkan hanya pengajuan milik user yang sedang login
         $pengajuans = Pengajuan::where('id_pengguna', $pengguna['id'])
+            ->where('is_deleted', 0)
             ->where('status', '!=', 'Diterbitkan')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -705,8 +706,8 @@ class PengajuanController extends Controller
         
         $pengajuan = Pengajuan::findOrFail($id);
         
-        // Hanya pembuat yang bisa menghapus
-        if ($pengajuan->id_pengguna !== $pengguna['id']) {
+        // Hanya pembuat atau admin yang bisa menghapus
+        if ($pengajuan->id_pengguna !== $pengguna['id'] && empty($pengguna['is_admin'])) {
             return back()->with('error', 'Anda tidak memiliki hak akses untuk menghapus dokumen ini.');
         }
 
